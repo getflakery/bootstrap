@@ -1,0 +1,5 @@
+{
+    "Description": "NixOS Base",
+    "Format": "vhd",
+    "Url": "s3://nixos-base/nixos-amazon-image-23.11.20240316.8ac30a3-x86_64-linux.vhd"
+}
