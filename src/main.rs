@@ -46,9 +46,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let url = "libsql://flakery-r33drichards.turso.io".to_string();
     let token = ec2_tag_data.turso_token;
 
-    // let url = env::var("LIBSQL_URL").expect("LIBSQL_URL must be set");
-    // let token = env::var("LIBSQL_AUTH_TOKEN").unwrap_or_default();
-
     let mut buffer = [0; 32];
     hex::decode_to_slice(
         ec2_tag_data.file_encryption_key,
