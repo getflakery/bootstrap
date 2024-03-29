@@ -3,9 +3,13 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.nixos-generators = {
+    url = "github:nix-community/nixos-generators";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+  inputs.flakery.url = "github:getflakery/flakes";
 
-
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs = { self, nixpkgs, flake-utils, nixos-generators, flakery, ... }:
     (flake-utils.lib.eachDefaultSystem
       (system:
         let
@@ -14,7 +18,7 @@
           };
 
           app = pkgs.rustPlatform.buildRustPackage {
-          pname = "app";
+            pname = "app";
             version = "0.0.1";
             src = ./.;
 
@@ -22,8 +26,8 @@
               lockFile = ./Cargo.lock;
             };
 
-            nativeBuildInputs = [ 
-              pkgs.pkg-config 
+            nativeBuildInputs = [
+              pkgs.pkg-config
             ];
             PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
@@ -40,11 +44,21 @@
             doCheck = false;
 
           };
+          appModule = (import ./bootstrap.nix) app;
+
         in
         {
           app = app;
           packages.default = app;
-          # devShells.default = app;
+          packages.ami = nixos-generators.nixosGenerate {
+            system = "x86_64-linux";
+            format = "amazon";
+            modules = [
+              flakery.nixosModules.flakery
+              appModule
+            ];
+          };
+
           devShells.default = import ./shell.nix { inherit pkgs; };
 
         })
