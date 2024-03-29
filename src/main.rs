@@ -1,7 +1,6 @@
 use libaes::Cipher;
 use libsql::{params, Builder};
 
-// file struct
 struct EC2TagData {
     turso_token: String,
     file_encryption_key: String,
