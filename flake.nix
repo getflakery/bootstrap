@@ -44,7 +44,7 @@
             doCheck = false;
 
           };
-          appModule = (import ./bootstrap.nix) app;
+          appModule = (import ./service.app.nix) app;
 
         in
         {
@@ -55,9 +55,34 @@
             format = "amazon";
             modules = [
               flakery.nixosModules.flakery
-              appModule
+              {
+                imports = [ appModule ];
+                services.app.enable = true;
+              }
+
             ];
           };
+
+          packages.test = pkgs.testers.runNixOSTest
+            {
+              skipLint = true;
+              name = "An awesome test.";
+
+              nodes = {
+                machine1 = { pkgs, ... }: {
+                  # Empty config sets some defaults
+                  imports = [ appModule ];
+                  services.app.enable = true;
+                  services.app.urlPrefix = "http://localhost:8080";
+                };
+              };
+
+              interactive.nodes.machine1 = import ./debug-host-module.nix;
+
+              testScript = ''
+                machine1.wait_for_unit("bootstrap.service")
+              '';
+            };
 
           devShells.default = import ./shell.nix { inherit pkgs; };
 

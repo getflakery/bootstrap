@@ -2,8 +2,8 @@
 
 ```
 nix build .#ami
-aws s3 cp result/nixos-amazon-image-23.11.20240316.8ac30a3-x86_64-linux.vhd s3://nixos-base/nixos-amazon-image-23.11.20240316.8ac30a3-x86_64-linux.vhd
-aws ec2 import-snapshot --description "flakery nixos" --disk-container "file://flakery-base/containers.json"   
+aws s3 cp  result/nixos-amazon-image-23.11.20240326.4473351-x86_64-linux.vhd s3://nixos-base/bootstrap/nixos-amazon-image-23.11.20240326.4473351-x86_64-linux.vhd
+aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers.json"   
 ```
 
 ```
@@ -24,7 +24,7 @@ aws ec2 import-snapshot --description "flakery nixos" --disk-container "file://f
 
 
 ```
-watch "aws ec2 describe-import-snapshot-tasks --import-task-ids import-snap-01c750a9b69d61f1e"  
+watch "aws ec2 describe-import-snapshot-tasks --import-task-ids import-snap-025b351f808c91516"  
 ```
 
 ```
@@ -51,12 +51,4 @@ watch "aws ec2 describe-import-snapshot-tasks --import-task-ids import-snap-01c7
         }
     ]
 }
-```
-
-```
-[root@ip-10-0-0-184:~]# curl http://169.254.169.254/latest/meta-data/tags/instance
-Name
-foo
-[root@ip-10-0-0-184:~]# curl http://169.254.169.254/latest/meta-data/tags/instance/foo
-bar
 ```

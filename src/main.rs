@@ -10,17 +10,17 @@ struct EC2TagData {
 
 impl EC2TagData {
     async fn new() -> Result<Self, Box<dyn std::error::Error>> {
-        let res = reqwest::get("http://169.254.169.254/latest/meta-data/tags/instance/turso_token")
-            .await?;
+        let url_prefix = std::env::var("URL_PREFIX").unwrap_or("http://169.254.169.254/latest/meta-data/tags/instance/".to_string()).to_string();
+        let res = reqwest::get(&format!("{}turso_token", url_prefix)).await?;
         let turso_token = res.text().await?;
 
-        let res = reqwest::get("http://169.254.169.254/latest/meta-data/tags/instance/file_encryption_key").await?;
+        let res = reqwest::get(&format!("{}file_encryption_key", url_prefix)).await?;
         let file_encryption_key = res.text().await?;
 
-        let res = reqwest::get("http://169.254.169.254/latest/meta-data/tags/instance/template_id").await?;
+        let res = reqwest::get(&format!("{}template_id", url_prefix)).await?;
         let template_id = res.text().await?;
 
-        let res = reqwest::get("http://169.254.169.254/latest/meta-data/tags/instance/flake_url").await?;
+        let res = reqwest::get(&format!("{}flake_url", url_prefix)).await?;
         let flake_url = res.text().await?;
 
         Ok(Self {
@@ -40,7 +40,11 @@ struct File {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
+    println!("fetching ec2 tag data");
     let ec2_tag_data = EC2TagData::new().await?;
+    println!("finished fetching ec2 tag data");
+
+    println!("fetching files");
 
     let url = "libsql://flakery-r33drichards.turso.io".to_string();
     let token = ec2_tag_data.turso_token;
@@ -61,14 +65,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut files: Vec<File> = Vec::new();
     while let Ok(Some(row)) = rows.next().await {
         // id,path,content,user_id,initialization_vector
-        let id = row.get::<String>(0).unwrap();
         let path = row.get::<String>(1).unwrap();
         let content = row.get::<String>(2).unwrap();
         let initialization_vector = row.get::<String>(4).unwrap();
-        println!(
-            "id: {}, path: {}, content: {},  initialization_vector: {}",
-            id, path, content, initialization_vector
-        );
         let mut iv_buffer = [0; 16];
         let content_length = content.len();
         let mut content_buffer = vec![0; content_length / 2];
@@ -83,15 +82,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             content: String::from_utf8(decrypted).unwrap(),
         });
     }
+    println!("finished fetching files");
+    println!("writing files");
+
 
     for file in files {
         let dirpath = std::path::Path::new(&file.path).parent().unwrap();
         std::fs::create_dir_all(dirpath)?;
         std::fs::write(&file.path, file.content)?;
     }
+    println!("finish writing files");
+
 
     // apply flake with exec
     // 	err = session.Run(fmt.Sprintf("nixos-rebuild switch --impure --flake '%s'", flake_url))
+   println!("applying flake");
     let output = tokio::process::Command::new("nixos-rebuild")
         .arg("switch")
         .arg("--impure")
@@ -99,6 +104,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .arg(ec2_tag_data.flake_url)
         .output()
         .await?;
+    println!("flake applied");
+
     println!("status: {}", output.status);
     println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
     println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
