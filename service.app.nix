@@ -33,6 +33,9 @@ in
       };
     };
     systemd.services.bootstrap = {
+      environment = {
+        "URL_PREFIX" = cfg.urlPrefix;
+      };
       description = "bootstraper";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
@@ -40,6 +43,7 @@ in
         ExecStart = "${app}/bin/app";
         Restart = "always";
         KillMode = "process";
+
       };
     };
   };

@@ -52,3 +52,9 @@ watch "aws ec2 describe-import-snapshot-tasks --import-task-ids import-snap-025b
     ]
 }
 ```
+
+
+# integration testing 
+```
+nix build -L .#test.driverInteractive && ./result/bin/nixos-test-driver
+```

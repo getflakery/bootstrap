@@ -73,7 +73,25 @@
                   # Empty config sets some defaults
                   imports = [ appModule ];
                   services.app.enable = true;
-                  services.app.urlPrefix = "http://localhost:8080";
+                  services.app.urlPrefix = "http://localhost/";
+                  services.caddy = {
+                    enable = true;
+                    virtualHosts."localhost".extraConfig = ''
+                      handle /turso_token {
+                          respond "This is response for turso_token"
+                      }
+                      handle /file_encryption_key {
+                          respond "This is response for file_encryption_key"
+                      }
+
+                      handle /template_id {
+                          respond "This is response for path3"
+                      }
+                      handle /flake_url {
+                          respond "This is response for path3"
+                      }
+                    '';
+                  };
                 };
               };
 
