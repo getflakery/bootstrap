@@ -2,17 +2,15 @@ use libaes::Cipher;
 use libsql::{params, Builder};
 
 struct EC2TagData {
-    turso_token: String,
+    turso_token: Option<String>,
     file_encryption_key: String,
     template_id: String,
     flake_url: String,
 }
 
 impl EC2TagData {
-    async fn new() -> Result<Self, Box<dyn std::error::Error>> {
-        let url_prefix = std::env::var("URL_PREFIX").unwrap_or("http://169.254.169.254/latest/meta-data/tags/instance/".to_string()).to_string();
-        let res = reqwest::get(&format!("{}turso_token", url_prefix)).await?;
-        let turso_token = res.text().await?;
+    async fn new(config: &Config) -> Result<Self, Box<dyn std::error::Error>> {
+        let url_prefix = &config.url_prefix;
 
         let res = reqwest::get(&format!("{}file_encryption_key", url_prefix)).await?;
         let file_encryption_key = res.text().await?;
@@ -22,12 +20,22 @@ impl EC2TagData {
 
         let res = reqwest::get(&format!("{}flake_url", url_prefix)).await?;
         let flake_url = res.text().await?;
+        if config.use_local {
+            return Ok(Self {
+                turso_token: None,
+                file_encryption_key,
+                template_id,
+                flake_url,
+            });
+        }
+        let res = reqwest::get(&format!("{}turso_token", url_prefix)).await?;
+        let turso_token = res.text().await?;
 
         Ok(Self {
-            turso_token,
+            turso_token: Some(turso_token),
             file_encryption_key,
             template_id,
-            flake_url
+            flake_url,
         })
     }
 }
@@ -37,27 +45,62 @@ struct File {
     content: String,
 }
 
+#[derive(Debug, Clone)]
+struct Config {
+    url_prefix: String,
+    sql_url: String,
+    use_local: bool,
+    apply_flake: bool,
+}
+
+impl Config {
+    fn new() -> Self {
+        let url_prefix = std::env::var("URL_PREFIX")
+            .unwrap_or("http://169.254.169.254/latest/meta-data/tags/instance/".to_string())
+            .to_string();
+        let sql_url = std::env::var("SQL_URL")
+            .unwrap_or("libsql://flakery-r33drichards.turso.io".to_string())
+            .to_string();
+        let use_local = std::env::var("USE_LOCAL")
+            .unwrap_or("false".to_string())
+            .to_string()
+            == "true";
+        let apply_flake = std::env::var("APPLY_FLAKE")
+            .unwrap_or("true".to_string())
+            .to_string()
+            == "true";
+        Self {
+            url_prefix,
+            sql_url,
+            use_local,
+            apply_flake,
+        }
+    }
+}
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = Config::new();
 
     println!("fetching ec2 tag data");
-    let ec2_tag_data = EC2TagData::new().await?;
+    let ec2_tag_data = EC2TagData::new(&config).await?;
     println!("finished fetching ec2 tag data");
 
     println!("fetching files");
 
-    let url = "libsql://flakery-r33drichards.turso.io".to_string();
+    let sql_url = config.sql_url;
+
+    let url = sql_url;
     let token = ec2_tag_data.turso_token;
 
     let mut buffer = [0; 32];
-    hex::decode_to_slice(
-        ec2_tag_data.file_encryption_key,
-        &mut buffer,
-    )
-    .unwrap();
+    hex::decode_to_slice(ec2_tag_data.file_encryption_key, &mut buffer).unwrap();
     let cipher = Cipher::new_256(&buffer);
 
-    let db = Builder::new_remote(url, token).build().await?;
+    let db = match token {
+        Some(token) => Builder::new_remote(url.to_string(), token).build().await?,
+        None => Builder::new_local(url).build().await?,
+    };
+
     let conn = db.connect().unwrap();
     let template_id = ec2_tag_data.template_id;
     let query = "SELECT f.* FROM files f JOIN template_files tf ON f.id = tf.file_id WHERE tf.template_id = ?1";
@@ -85,7 +128,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("finished fetching files");
     println!("writing files");
 
-
     for file in files {
         let dirpath = std::path::Path::new(&file.path).parent().unwrap();
         std::fs::create_dir_all(dirpath)?;
@@ -93,22 +135,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!("finish writing files");
 
-
-    // apply flake with exec
-    // 	err = session.Run(fmt.Sprintf("nixos-rebuild switch --impure --flake '%s'", flake_url))
-   println!("applying flake");
-    let output = tokio::process::Command::new("nixos-rebuild")
+ if config.apply_flake {
+        println!("applying flake");
+        let output = tokio::process::Command::new(
+            "/nix/store/i8bjwbxsya06xz2a049pz0nvhz98fc8i-nixos-rebuild/bin/nixos-rebuild",
+        )
         .arg("switch")
+        .arg("-L")
         .arg("--impure")
         .arg("--flake")
         .arg(ec2_tag_data.flake_url)
+        .arg("--refresh")
         .output()
         .await?;
-    println!("flake applied");
+        println!("flake applied");
 
-    println!("status: {}", output.status);
-    println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
-    println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+        println!("status: {}", output.status);
+        println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+        println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+    }
 
     Ok(())
 }

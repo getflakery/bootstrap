@@ -7,11 +7,35 @@ in
 {
   options.services.app = {
     enable = lib.mkEnableOption "app Service";
-
+    path = [ pkgs.nix pkgs.git ];
     urlPrefix = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;
       example = "http://0.0.0.0:8000";
+      description = "";
+    };
+    sqlUrl = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "libsql://localhost:8000";
+      description = "";
+    };
+    useLocal = lib.mkOption {
+      type = lib.types.str;
+      default = "false";
+      example = "true";
+      description = "";
+    };
+    applyFlake = lib.mkOption {
+      type =  lib.types.str;
+      default = "true";
+      example = "true";
+      description = "";
+    };
+    after = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [  "network.target" ];
+      example = [ "network.target" "serve.service" "seeddb.service"];
       description = "";
     };
   };
@@ -35,16 +59,19 @@ in
     systemd.services.bootstrap = {
       environment = {
         "URL_PREFIX" = cfg.urlPrefix;
+        "SQL_URL" = cfg.sqlUrl;
+        "USE_LOCAL" = cfg.useLocal;
+        "APPLY_FLAKE" = cfg.applyFlake;
       };
       description = "bootstraper";
-      after = [ "network.target" ];
+      after = cfg.after;
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         ExecStart = "${app}/bin/app";
-        Restart = "always";
-        KillMode = "process";
-
+        Type = "oneshot";
       };
     };
+
+
   };
 }
