@@ -19,4 +19,10 @@ jobs:
       - uses: DeterminateSystems/flake-checker-action@main
       - name: Run `nix build`
         run: nix build .#ami
+      - name: Upload to s3
+        run: aws s3 cp result/nixos-amazon-image-23.11.20240326.4473351-x86_64-linux.vhd s3://nixos-base/bootstrap/nixos-amazon-image-23.11.20240326.4473351-x86_64-linux.vhd
+      - name: import snapshot 
+        run: aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers.json"   
+
+
       
