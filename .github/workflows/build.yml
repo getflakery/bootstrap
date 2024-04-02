@@ -29,7 +29,7 @@ jobs:
         run: |
           aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers.json" --region us-west-1 | \
           jq -r '.ImportTaskId' | \
-          xargs -I _ aws ec2 wait snapshot-imported --snapshot-ids _ --region us-west-1
+          xargs -I _ aws ec2 wait snapshot-imported --import-task-ids _ --region us-west-1
          
   create-ami:
     needs: build-and-upload-image
