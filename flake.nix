@@ -105,7 +105,7 @@
                 services.app.sqlUrl = "file:///tmp/db.sqlite3";
                 services.app.useLocal = "true";
                 services.app.applyFlake = "false";
-                service.app.testEnv = "true";
+                services.app.testEnv = "true";
                 services.app.after = [ "network.target" "serve.service" "seeddb.service"];
 
                 systemd.services.seeddb = {
