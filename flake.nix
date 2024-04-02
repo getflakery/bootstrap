@@ -98,6 +98,8 @@
       {
         app = app;
         packages.default = app;
+        packages.app = app;
+
         # devShells.default = app;
         devShells.default = import ./shell.nix { inherit pkgs; };
         packages.bootstrap = bootstrap;
