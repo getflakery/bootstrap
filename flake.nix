@@ -30,7 +30,7 @@
         # Common arguments can be set here to avoid repeating them later
 
 
-        rustApp = pkgs.rustPlatform.buildRustPackage {
+        app = pkgs.rustPlatform.buildRustPackage {
           pname = "app";
           version = "0.0.1";
           # src = ./.;
@@ -70,14 +70,12 @@
 
         };
 
-
-
+        appMod = ((import ./service.app.nix) app);
 
       in
-      rec {
-        app = rustApp;
-        packages.default = app;
-        nixosModules.default = ((import ./service.app.nix) app);
+      {
+        app = app;
+        nixosModules.default = appMod;
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
@@ -85,12 +83,57 @@
             flakery.nixosModules.flakery
             {
               imports = [
-                nixosModules.default
+                appMod
               ];
               services.app.enable = true;
               services.app.logUrl = "https://p.jjk.is/log";
             }
 
+          ];
+        };
+
+        packages.amiDebug = nixos-generators.nixosGenerate {
+          system = "x86_64-linux";
+          format = "amazon";
+          modules = [
+            flakery.nixosModules.flakery
+            {
+              imports = [
+                appMod
+              ];
+              services.app.enable = true;
+              services.app.logUrl = "https://p.jjk.is/log";
+
+              # create a oneshot job to authenticate to Tailscale
+
+              services.tailscale.enable = true;
+              systemd.services.tailscale-autoconnect = {
+                description = "Automatic connection to Tailscale";
+
+                # make su`re tailscale is running before trying to connect to tailscale
+                after = [ "network-pre.target" "tailscale.service" ];
+                wants = [ "network-pre.target" "tailscale.service" ];
+                wantedBy = [ "multi-user.target" ];
+
+                # set this service as a oneshot job
+                serviceConfig.Type = "oneshot";
+
+                # have the job run this shell script
+                script = with pkgs; ''
+                  # wait for tailscaled to settle
+                  sleep 2
+
+                  # check if we are already authenticated to tailscale
+                  status="$(${tailscale}/bin/tailscale status -json | ${jq}/bin/jq -r .BackendState)"
+                  if [ $status = "Running" ]; then # if so, then do nothing
+                    exit 0
+                  fi
+
+                  # otherwise authenticate with tailscale
+                  ${tailscale}/bin/tailscale up --ssh -authkey ur-real-key --hostname testtt
+                '';
+              };
+            }
           ];
         };
 
@@ -103,9 +146,9 @@
               machine1 = { pkgs, ... }: {
 
                 # Empty config sets some defaults
-                imports = [ 
-                  nixosModules.default
-                 ];
+                imports = [
+                  appMod
+                ];
                 environment.systemPackages = [ pkgs.sqlite ];
                 services.app.enable = true;
                 services.app.urlPrefix = "http://localhost:8080/";
