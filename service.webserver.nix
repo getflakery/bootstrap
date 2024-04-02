@@ -2,11 +2,11 @@ app:
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.services.app;
+  cfg = config.services.webserver;
 in
 {
-  options.services.app = {
-    enable = lib.mkEnableOption "app Service";
+  options.services.webserver = {
+    enable = lib.mkEnableOption "webserver Service";
     path = [ pkgs.nix pkgs.git ];
 
     after = lib.mkOption {

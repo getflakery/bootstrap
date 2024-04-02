@@ -170,7 +170,7 @@
         packages.test = pkgs.testers.runNixOSTest
           {
             skipLint = true;
-            name = "An awesome test.";
+            name = "Test bootstrap";
 
             nodes = {
               machine1 = { pkgs, ... }: {
@@ -180,14 +180,16 @@
                   bootstrapMod
                   webserverMod
                 ];
-                environment.systemPackages = [ pkgs.sqlite ];
+
                 services.app.enable = true;
                 services.app.urlPrefix = "http://localhost:8080/";
                 services.app.sqlUrl = "file:///tmp/db.sqlite3";
                 services.app.useLocal = "true";
                 services.app.applyFlake = "false";
                 services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
-
+ 
+                services.webserver.enable = true;
+           
                 systemd.services.seeddb = {
                   wantedBy = [ "multi-user.target" ];
                   path = [ pkgs.sqlite ];
