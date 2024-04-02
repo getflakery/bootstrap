@@ -27,12 +27,12 @@ jobs:
 
       - name: Import Snapshot to EC2
         run: |
-          aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers.json"
+          aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers.json" --region us-west-1
         id: import_snapshot
 
       - name: Wait for Snapshot Import
         run: |
-          aws ec2 wait snapshot-completed --snapshot-ids ${{ steps.import_snapshot.outputs.snapshot-id }}
+          aws ec2 wait snapshot-completed --snapshot-ids ${{ steps.import_snapshot.outputs.snapshot-id }} --region us-west-1
 
   create-ami:
     needs: build-and-upload-image
@@ -40,5 +40,5 @@ jobs:
     steps:
     - name: Create AMI from Snapshot
       run: |
-        SNAPSHOT_ID=$(aws ec2 describe-snapshots --filters Name=description,Values="flakery nixos bootstrap" --query 'Snapshots[0].SnapshotId' --output text)
-        aws ec2 register-image --name "NixOS-$(date +%Y%m%d)" --architecture x86_64 --root-device-name /dev/sda1 --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=${SNAPSHOT_ID}}" --virtualization-type hvm
+        SNAPSHOT_ID=$(aws ec2 describe-snapshots --filters Name=description,Values="flakery nixos bootstrap" --query 'Snapshots[0].SnapshotId' --output text --region us-west-1)
+        aws ec2 register-image --name "NixOS-$(date +%Y%m%d)" --architecture x86_64 --root-device-name /dev/sda1 --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=${SNAPSHOT_ID}}" --virtualization-type hvm --region us-west-1
