@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+echo 'import id: ' $1
 echo 'waiting for image to be imported'
 aws ec2 wait snapshot-imported --import-task-ids $1 --region us-west-1 
 echo 'registering image' 
