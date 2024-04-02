@@ -69,6 +69,7 @@ dependencies = [
  "libaes",
  "libsql",
  "reqwest",
+ "serde",
  "tokio",
 ]
 

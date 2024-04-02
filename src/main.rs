@@ -1,5 +1,6 @@
 use libaes::Cipher;
 use libsql::{params, Builder};
+use serde::Serialize;
 
 struct EC2TagData {
     turso_token: Option<String>,
@@ -77,15 +78,55 @@ impl Config {
         }
     }
 }
+
+#[derive(Serialize)]
+struct LogInput {
+    log: String,
+}
+
+
+async fn httplog(
+    input: &str,
+) {
+    println!("{}", input);
+    // just return if in test environment
+    if std::env::var("TEST").unwrap_or("".to_string()) == "true" {
+        return;
+    }
+    let log_url = std::env::var("LOG_URL").unwrap_or("http://localhost:8000/log".to_string());
+    let client = reqwest::Client::new();
+    let _ = client.post(&log_url).json(&LogInput { log: input.to_string() }).send().await.map_err(
+        |e| {
+            println!("error: {:?}", e);
+        },
+    );
+}
+
+
+
+
+
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() {
+    match bootstrap().await {
+        Ok(_) => {
+            httplog("bootstrap successful").await;
+        }
+        Err(e) => {
+            httplog(format!("error bootstrapping: {:?}", e).as_str()).await;
+        }
+    }
+}
+
+async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::new();
 
-    println!("fetching ec2 tag data");
-    let ec2_tag_data = EC2TagData::new(&config).await?;
-    println!("finished fetching ec2 tag data");
+   httplog("fetching ec2 tag data").await;
 
-    println!("fetching files");
+    let ec2_tag_data = EC2TagData::new(&config).await?;
+
+    httplog("finished fetching ec2 tag data").await;
+    httplog("fetching files").await;
 
     let sql_url = config.sql_url;
 
@@ -93,31 +134,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let token = ec2_tag_data.turso_token;
 
     let mut buffer = [0; 32];
-    hex::decode_to_slice(ec2_tag_data.file_encryption_key, &mut buffer).unwrap();
+    hex::decode_to_slice(ec2_tag_data.file_encryption_key, &mut buffer)?;
     let cipher = Cipher::new_256(&buffer);
-
     let db = match token {
         Some(token) => Builder::new_remote(url.to_string(), token).build().await?,
         None => Builder::new_local(url).build().await?,
     };
 
-    let conn = db.connect().unwrap();
+    let conn = db.connect()?;
     let template_id = ec2_tag_data.template_id;
     let query = "SELECT f.* FROM files f JOIN template_files tf ON f.id = tf.file_id WHERE tf.template_id = ?1";
     let mut rows = conn.query(query, params!(template_id)).await?;
     let mut files: Vec<File> = Vec::new();
     while let Ok(Some(row)) = rows.next().await {
         // id,path,content,user_id,initialization_vector
-        let path = row.get::<String>(1).unwrap();
-        let content = row.get::<String>(2).unwrap();
-        let initialization_vector = row.get::<String>(4).unwrap();
+        let path = row.get::<String>(1)?;
+        let content = row.get::<String>(2)?;
+        let initialization_vector = row.get::<String>(4)?;
         let mut iv_buffer = [0; 16];
         let content_length = content.len();
         let mut content_buffer = vec![0; content_length / 2];
         let mut cbuff = content_buffer.as_mut_slice();
 
-        hex::decode_to_slice(initialization_vector, &mut iv_buffer).unwrap();
-        hex::decode_to_slice(content, &mut cbuff).unwrap();
+        hex::decode_to_slice(initialization_vector, &mut iv_buffer)?;
+        hex::decode_to_slice(content, &mut cbuff)?;
         let decrypted = cipher.cbc_decrypt(&iv_buffer, &content_buffer);
         // let dbytes = decrypted
         files.push(File {
@@ -125,18 +165,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             content: String::from_utf8(decrypted).unwrap(),
         });
     }
-    println!("finished fetching files");
-    println!("writing files");
+    httplog("finished fetching files").await;
+    httplog("writing files").await;
 
     for file in files {
-        let dirpath = std::path::Path::new(&file.path).parent().unwrap();
+        let path_starts_with_slash = file.path.starts_with("/");
+        if path_starts_with_slash {
+            let msg = format!("path starts with slash: {}", file.path);
+            httplog(&msg).await;
+            return Err(msg.into());
+        }
+        let dirpath = std::path::Path::new(&file.path).parent().unwrap_or(std::path::Path::new("/"));
         std::fs::create_dir_all(dirpath)?;
         std::fs::write(&file.path, file.content)?;
     }
-    println!("finish writing files");
+    httplog("finish writing files").await;
 
  if config.apply_flake {
-        println!("applying flake");
+        httplog("applying flake").await;
         let output = tokio::process::Command::new(
             "/nix/store/i8bjwbxsya06xz2a049pz0nvhz98fc8i-nixos-rebuild/bin/nixos-rebuild",
         )
@@ -148,11 +194,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .arg("--refresh")
         .output()
         .await?;
-        println!("flake applied");
+        httplog("flake applied").await;
 
-        println!("status: {}", output.status);
-        println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
-        println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+        httplog(format!("flake output: {:?}", output).as_str()).await;
+        // httplog("stdout: {}", String::from_utf8_lossy(&output.stdout));
+        // httplog("stderr: {}", String::from_utf8_lossy(&output.stderr));
+        httplog(format!("stdout: {:?}", String::from_utf8_lossy(&output.stdout)).as_str()).await;
+        httplog(format!("stderr: {:?}", String::from_utf8_lossy(&output.stderr)).as_str()).await;
     }
 
     Ok(())

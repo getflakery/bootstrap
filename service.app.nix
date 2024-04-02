@@ -32,6 +32,12 @@ in
       example = "true";
       description = "";
     };
+    testEnv = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      example = "true";
+      description = "in test environment";
+    };
     after = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [  "network.target" ];
@@ -62,6 +68,7 @@ in
         "SQL_URL" = cfg.sqlUrl;
         "USE_LOCAL" = cfg.useLocal;
         "APPLY_FLAKE" = cfg.applyFlake;
+        "TEST_ENV" = cfg.testEnv;
       };
       description = "bootstraper";
       after = cfg.after;
