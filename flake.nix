@@ -30,7 +30,7 @@
         # Common arguments can be set here to avoid repeating them later
 
 
-        app = pkgs.rustPlatform.buildRustPackage {
+        rustApp = pkgs.rustPlatform.buildRustPackage {
           pname = "app";
           version = "0.0.1";
           # src = ./.;
@@ -38,12 +38,13 @@
           src = pkgs.lib.sources.cleanSourceWith {
             src = ./.;
             filter = name: type:
-            let 
-              baseName = baseNameOf (toString name);
-            in (
-              (pkgs.lib.sources.cleanSourceFilter name type) || 
-              baseName == ".nix"
-            );
+              let
+                baseName = baseNameOf (toString name);
+              in
+              (
+                (pkgs.lib.sources.cleanSourceFilter name type) ||
+                baseName == ".nix"
+              );
           };
 
           cargoLock = {
@@ -70,19 +71,22 @@
         };
 
 
-        appModule = (import ./service.app.nix) app;
+
 
       in
-      {
-        app = app;
+      rec {
+        app = rustApp;
         packages.default = app;
+        nixosModules.default = ((import ./service.app.nix) app);
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
           modules = [
             flakery.nixosModules.flakery
             {
-              imports = [ appModule ];
+              imports = [
+                nixosModules.default
+              ];
               services.app.enable = true;
               services.app.logUrl = "https://p.jjk.is/log";
             }
@@ -99,7 +103,9 @@
               machine1 = { pkgs, ... }: {
 
                 # Empty config sets some defaults
-                imports = [ appModule ];
+                imports = [ 
+                  nixosModules.default
+                 ];
                 environment.systemPackages = [ pkgs.sqlite ];
                 services.app.enable = true;
                 services.app.urlPrefix = "http://localhost:8080/";
@@ -107,7 +113,7 @@
                 services.app.useLocal = "true";
                 services.app.applyFlake = "false";
                 services.app.testEnv = "true";
-                services.app.after = [ "network.target" "serve.service" "seeddb.service"];
+                services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
 
                 systemd.services.seeddb = {
                   wantedBy = [ "multi-user.target" ];

@@ -29,6 +29,4 @@ jobs:
         run: |
           aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers.json" --region us-west-1 | \
           jq -r '.ImportTaskId' | \
-          xargs -I _ \
-            'aws ec2 wait snapshot-imported --import-task-ids _ --region us-west-1 && \
-              aws ec2 register-image --name "NixOS-$(date +%Y%m%d)" --architecture x86_64 --root-device-name /dev/sda1 --block-device-mappings "DeviceName=/dev/sda1,Ebs=_" --virtualization-type hvm --region us-west-1'
+          xargs -I _ ./import-and-register-image.sh _
