@@ -1,7 +1,7 @@
 {
   description = "A basic rust cli";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/23.11";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   inputs.nixos-generators = {
