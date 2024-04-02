@@ -38,6 +38,12 @@ in
       example = "true";
       description = "in test environment";
     };
+    logUrl = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "http://localhost:8000/log";
+      description = "";
+    };
     after = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [  "network.target" ];
