@@ -94,10 +94,6 @@
           doCheck = false;
 
         };
-
-        bootstrapMod = ((import ./service.app.nix) bootstrap);
-        webserverMod = ((import ./service.webserver.nix) app);
-
       in
       {
         app = app;
@@ -105,7 +101,8 @@
         # devShells.default = app;
         devShells.default = import ./shell.nix { inherit pkgs; };
         packages.bootstrap = bootstrap;
-        nixosModules.bootstrap = bootstrapMod;
+        nixosModules.bootstrap = ((import ./service.app.nix) self.packages."${system}".bootstrap);
+        nixosModules.webserver = ((import ./service.webserver.nix) self.packages."${system}".app);
 
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
@@ -114,7 +111,7 @@
             flakery.nixosModules.flakery
             {
               imports = [
-                bootstrapMod
+                self.nixosModules."${system}".bootstrap
               ];
               services.app.enable = true;
               services.app.logUrl = "https://p.jjk.is/log";
@@ -130,7 +127,8 @@
             flakery.nixosModules.flakery
             {
               imports = [
-                bootstrapMod
+                self.nixosModules."${system}".bootstrap
+
               ];
               services.app.enable = true;
               services.app.logUrl = "https://p.jjk.is/log";
@@ -177,8 +175,8 @@
 
                 # Empty config sets some defaults
                 imports = [
-                  bootstrapMod
-                  webserverMod
+                  self.nixosModules."${system}".bootstrap
+                  self.nixosModules."${system}".webserver
                 ];
 
                 services.app.enable = true;
@@ -187,9 +185,9 @@
                 services.app.useLocal = "true";
                 services.app.applyFlake = "false";
                 services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
- 
+
                 services.webserver.enable = true;
-           
+
                 systemd.services.seeddb = {
                   wantedBy = [ "multi-user.target" ];
                   path = [ pkgs.sqlite ];
