@@ -74,7 +74,7 @@ in
         "SQL_URL" = cfg.sqlUrl;
         "USE_LOCAL" = cfg.useLocal;
         "APPLY_FLAKE" = cfg.applyFlake;
-        "TEST_ENV" = cfg.testEnv;
+        "TEST" = cfg.testEnv;
       };
       description = "bootstraper";
       after = cfg.after;

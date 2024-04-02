@@ -170,8 +170,8 @@ async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
 
     for file in files {
         let path_starts_with_slash = file.path.starts_with("/");
-        if path_starts_with_slash {
-            let msg = format!("path starts with slash: {}", file.path);
+        if !path_starts_with_slash {
+            let msg = format!("path not starts with slash: {}", file.path);
             httplog(&msg).await;
             return Err(msg.into());
         }
