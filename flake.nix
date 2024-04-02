@@ -23,88 +23,89 @@
     }:
     (flake-utils.lib.eachDefaultSystem
       (system:
-        let
-          pkgs = import nixpkgs {
-            inherit system;
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+        };
+
+        app = pkgs.rustPlatform.buildRustPackage {
+          pname = "app";
+          version = "0.0.1";
+          src = ./.;
+
+          cargoLock = {
+            lockFile = ./Cargo.lock;
           };
 
-          app = pkgs.rustPlatform.buildRustPackage {
-            pname = "app";
-            version = "0.0.1";
+          nativeBuildInputs = [
+            pkgs.pkg-config
+          ];
+          PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+
+          buildPhase = ''
+            cargo build --release
+          '';
+
+          installPhase = ''
+            mkdir -p $out/bin
+            cp target/release/app $out/bin/app
+          '';
+
+          # disable checkPhase
+          doCheck = false;
+
+        };
+        bootstrap = pkgs.rustPlatform.buildRustPackage {
+          pname = "bootstrap";
+          version = "0.0.1";
+          # src = ./.;
+          # filter nix files 
+          src = pkgs.lib.sources.cleanSourceWith {
             src = ./.;
-
-            cargoLock = {
-              lockFile = ./Cargo.lock;
-            };
-
-            nativeBuildInputs = [
-              pkgs.pkg-config
-            ];
-            PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
-
-            buildPhase = ''
-              cargo build --release
-            '';
-
-            installPhase = ''
-              mkdir -p $out/bin
-              cp target/release/app $out/bin/app
-            '';
-
-            # disable checkPhase
-            doCheck = false;
-
+            filter = name: type:
+              let
+                baseName = baseNameOf (toString name);
+              in
+              (
+                (pkgs.lib.sources.cleanSourceFilter name type) ||
+                baseName == ".nix"
+              );
           };
-          bootstrap = pkgs.rustPlatform.buildRustPackage {
-            pname = "bootstrap";
-            version = "0.0.1";
-            # src = ./.;
-            # filter nix files 
-            src = pkgs.lib.sources.cleanSourceWith {
-              src = ./.;
-              filter = name: type:
-                let
-                  baseName = baseNameOf (toString name);
-                in
-                (
-                  (pkgs.lib.sources.cleanSourceFilter name type) ||
-                  baseName == ".nix"
-                );
-            };
 
-            cargoLock = {
-              lockFile = ./Cargo.lock;
-            };
-
-            nativeBuildInputs = [
-              pkgs.pkg-config
-            ];
-            PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
-
-            buildPhase = ''
-              cargo build --release --bin bootstrap
-            '';
-
-            installPhase = ''
-              mkdir -p $out/bin
-              cp target/release/bootstrap $out/bin/app
-            '';
-
-            # disable checkPhase
-            doCheck = false;
-
+          cargoLock = {
+            lockFile = ./Cargo.lock;
           };
+
+          nativeBuildInputs = [
+            pkgs.pkg-config
+          ];
+          PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+
+          buildPhase = ''
+            cargo build --release --bin bootstrap
+          '';
+
+          installPhase = ''
+            mkdir -p $out/bin
+            cp target/release/bootstrap $out/bin/app
+          '';
+
+          # disable checkPhase
+          doCheck = false;
+
+        };
 
         bootstrapMod = ((import ./service.app.nix) app);
+        webserverMod = ((import ./service.webserver.nix) app);
 
-        in
-        {
-          app = app;
-          packages.default = app;
-          # devShells.default = app;
-          devShells.default = import ./shell.nix { inherit pkgs; };
-          packages.bootstrap = bootstrap;
-          nixosModules.bootstrap = bootstrapMod;
+      in
+      {
+        app = app;
+        packages.default = app;
+        # devShells.default = app;
+        devShells.default = import ./shell.nix { inherit pkgs; };
+        packages.bootstrap = bootstrap;
+        nixosModules.bootstrap = bootstrapMod;
 
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
@@ -177,6 +178,7 @@
                 # Empty config sets some defaults
                 imports = [
                   bootstrapMod
+                  webserverMod
                 ];
                 environment.systemPackages = [ pkgs.sqlite ];
                 services.app.enable = true;
@@ -184,7 +186,6 @@
                 services.app.sqlUrl = "file:///tmp/db.sqlite3";
                 services.app.useLocal = "true";
                 services.app.applyFlake = "false";
-                services.app.testEnv = "true";
                 services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
 
                 systemd.services.seeddb = {
@@ -221,6 +222,6 @@
 
 
 
-        })
+      })
     );
 }
