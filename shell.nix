@@ -5,6 +5,8 @@
       # Replace llvmPackages with llvmPackages_X, where X is the latest LLVM version (at the time of writing, 16)
       llvmPackages.bintools
       rustup
+      trunk
+      wasm-bindgen-cli
       cargo-llvm-cov
       pkg-config 
       pkgs.openssl.dev

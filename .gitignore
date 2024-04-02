@@ -1,4 +1,4 @@
 .direnv
 result
 target
-.nixos*
+.env

@@ -1,15 +1,16 @@
 {
   description = "A basic rust cli";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
+
   inputs.nixos-generators = {
     url = "github:nix-community/nixos-generators";
     inputs.nixpkgs.follows = "nixpkgs";
   };
+
+
   inputs.flakery.url = "github:getflakery/flakes";
-
-
 
 
   outputs =
@@ -22,60 +23,89 @@
     }:
     (flake-utils.lib.eachDefaultSystem
       (system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-        };
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+          };
 
-        # Common arguments can be set here to avoid repeating them later
-
-
-        app = pkgs.rustPlatform.buildRustPackage {
-          pname = "app";
-          version = "0.0.1";
-          # src = ./.;
-          # filter nix files 
-          src = pkgs.lib.sources.cleanSourceWith {
+          app = pkgs.rustPlatform.buildRustPackage {
+            pname = "app";
+            version = "0.0.1";
             src = ./.;
-            filter = name: type:
-              let
-                baseName = baseNameOf (toString name);
-              in
-              (
-                (pkgs.lib.sources.cleanSourceFilter name type) ||
-                baseName == ".nix"
-              );
+
+            cargoLock = {
+              lockFile = ./Cargo.lock;
+            };
+
+            nativeBuildInputs = [
+              pkgs.pkg-config
+            ];
+            PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+
+            buildPhase = ''
+              cargo build --release
+            '';
+
+            installPhase = ''
+              mkdir -p $out/bin
+              cp target/release/app $out/bin/app
+            '';
+
+            # disable checkPhase
+            doCheck = false;
+
+          };
+          bootstrap = pkgs.rustPlatform.buildRustPackage {
+            pname = "bootstrap";
+            version = "0.0.1";
+            # src = ./.;
+            # filter nix files 
+            src = pkgs.lib.sources.cleanSourceWith {
+              src = ./.;
+              filter = name: type:
+                let
+                  baseName = baseNameOf (toString name);
+                in
+                (
+                  (pkgs.lib.sources.cleanSourceFilter name type) ||
+                  baseName == ".nix"
+                );
+            };
+
+            cargoLock = {
+              lockFile = ./Cargo.lock;
+            };
+
+            nativeBuildInputs = [
+              pkgs.pkg-config
+            ];
+            PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+
+            buildPhase = ''
+              cargo build --release --bin bootstrap
+            '';
+
+            installPhase = ''
+              mkdir -p $out/bin
+              cp target/release/bootstrap $out/bin/app
+            '';
+
+            # disable checkPhase
+            doCheck = false;
+
           };
 
-          cargoLock = {
-            lockFile = ./Cargo.lock;
-          };
+        bootstrapMod = ((import ./service.app.nix) app);
 
-          nativeBuildInputs = [
-            pkgs.pkg-config
-          ];
-          PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+        in
+        {
+          app = app;
+          packages.default = app;
+          # devShells.default = app;
+          devShells.default = import ./shell.nix { inherit pkgs; };
+          packages.bootstrap = bootstrap;
+          nixosModules.bootstrap = bootstrapMod;
 
-          buildPhase = ''
-            cargo build --release
-          '';
-
-          installPhase = ''
-            mkdir -p $out/bin
-            cp target/release/app $out/bin/app
-          '';
-
-          # disable checkPhase
-          doCheck = false;
-
-        };
-
-        appMod = ((import ./service.app.nix) app);
-
-      in
-      {
-        app = app;
-        nixosModules.default = appMod;
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
@@ -83,7 +113,7 @@
             flakery.nixosModules.flakery
             {
               imports = [
-                appMod
+                bootstrapMod
               ];
               services.app.enable = true;
               services.app.logUrl = "https://p.jjk.is/log";
@@ -99,7 +129,7 @@
             flakery.nixosModules.flakery
             {
               imports = [
-                appMod
+                bootstrapMod
               ];
               services.app.enable = true;
               services.app.logUrl = "https://p.jjk.is/log";
@@ -136,7 +166,6 @@
             }
           ];
         };
-
         packages.test = pkgs.testers.runNixOSTest
           {
             skipLint = true;
@@ -147,7 +176,7 @@
 
                 # Empty config sets some defaults
                 imports = [
-                  appMod
+                  bootstrapMod
                 ];
                 environment.systemPackages = [ pkgs.sqlite ];
                 services.app.enable = true;
@@ -190,8 +219,8 @@
             '';
           };
 
-        devShells.default = import ./shell.nix { inherit pkgs; };
 
-      })
+
+        })
     );
 }

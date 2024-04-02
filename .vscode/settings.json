@@ -1,0 +1,8 @@
+{
+    "lldb.showDisassembly": "auto",
+    "lldb.dereferencePointers": true,
+    "lldb.consoleMode": "evaluate",
+    "rust-analyzer.linkedProjects": [
+        "./Cargo.toml"
+    ]
+}
