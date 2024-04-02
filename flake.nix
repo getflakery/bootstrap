@@ -95,7 +95,7 @@
 
         };
 
-        bootstrapMod = ((import ./service.app.nix) app);
+        bootstrapMod = ((import ./service.app.nix) bootstrap);
         webserverMod = ((import ./service.webserver.nix) app);
 
       in
