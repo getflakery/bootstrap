@@ -10,7 +10,7 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   
 jobs:
-  ami:
+  build-and-upload-image:
     runs-on: ubuntu-22.04
     permissions:
       id-token: "write"
@@ -24,7 +24,21 @@ jobs:
         run: nix build .#ami
       - name: Upload to s3
         run: aws s3 cp result/nixos-amazon-image-23.11.20240326.4473351-x86_64-linux.vhd s3://nixos-base/bootstrap/nixos-amazon-image-23.11.20240326.4473351-x86_64-linux.vhd --region us-west-1
-      - name: import snapshot 
-        run: aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers.json" --region us-west-1
 
-      
+      - name: Import Snapshot to EC2
+        run: |
+          aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers.json"
+        id: import_snapshot
+
+      - name: Wait for Snapshot Import
+        run: |
+          aws ec2 wait snapshot-completed --snapshot-ids ${{ steps.import_snapshot.outputs.snapshot-id }}
+
+  create-ami:
+    needs: build-and-upload-image
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create AMI from Snapshot
+      run: |
+        SNAPSHOT_ID=$(aws ec2 describe-snapshots --filters Name=description,Values="flakery nixos bootstrap" --query 'Snapshots[0].SnapshotId' --output text)
+        aws ec2 register-image --name "NixOS-$(date +%Y%m%d)" --architecture x86_64 --root-device-name /dev/sda1 --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=${SNAPSHOT_ID}}" --virtualization-type hvm
