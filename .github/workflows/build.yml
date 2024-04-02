@@ -27,13 +27,10 @@ jobs:
 
       - name: Import Snapshot to EC2
         run: |
-          aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers.json" --region us-west-1
-        id: import_snapshot
-
-      - name: Wait for Snapshot Import
-        run: |
-          aws ec2 wait snapshot-completed --snapshot-ids ${{ steps.import_snapshot.outputs.snapshot-id }} --region us-west-1
-
+          aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers.json" --region us-west-1 | \
+          jq -r '.ImportTaskId' | \
+          xargs -I _ aws ec2 wait snapshot-imported --snapshot-ids _ --region us-west-1
+         
   create-ami:
     needs: build-and-upload-image
     runs-on: ubuntu-latest
