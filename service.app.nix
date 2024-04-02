@@ -90,10 +90,9 @@ in
 
     users.users.alice = {
       isNormalUser = true;
-      extraGroups = [ "wheel" "docker" ]; # Enable ‘sudo’ for the user.
+      extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
       packages = with pkgs; [ ];
       group = "alice";
-      shell = pkgs.zsh;
       # set shell to zsh 
       # passwordFile = "/persist/passwords/alice";
     };
