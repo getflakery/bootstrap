@@ -161,7 +161,7 @@
                   fi
 
                   # otherwise authenticate with tailscale
-                  ${tailscale}/bin/tailscale up --ssh -authkey ur-real-key --hostname testtt
+                  ${tailscale}/bin/tailscale up --ssh -authkey tskey-auth-kZkGtL3v8d11CNTRL-JkFKqwK53KMvAzvVPLQGKMXp26LTEZfVd --hostname testtt
                 '';
               };
             }
@@ -223,9 +223,6 @@
               assert "Log:" in response
             '';
           };
-
-
-
       })
     );
 }

@@ -9,14 +9,14 @@ in
     enable = lib.mkEnableOption "app Service";
     path = [ pkgs.nix pkgs.git ];
     urlPrefix = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
+      type = lib.types.str;
+      default = "http://169.254.169.254/latest/meta-data/tags/instance/";
       example = "http://0.0.0.0:8000";
       description = "";
     };
     sqlUrl = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
-      default = null;
+      default = "libsql://flakery-r33drichards.turso.io";
       example = "libsql://localhost:8000";
       description = "";
     };

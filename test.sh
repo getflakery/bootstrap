@@ -25,7 +25,7 @@ curl -X 'POST' \
   \"files\" : [
     {
       \"path\": \"/tsauthkey\",
-      \"content\": \"`sudo cat /tsauthkey`\"
+      \"content\": \"tskey-auth-kZkGtL3v8d11CNTRL-JkFKqwK53KMvAzvVPLQGKMXp26LTEZfVd\"
     }
   ],
   \"template_id\": \"c9c185b0-8b77-4f15-8ffa-7bada35fe48d\"

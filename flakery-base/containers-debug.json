@@ -1,0 +1,5 @@
+{
+    "Description": "NixOS Base",
+    "Format": "vhd",
+    "Url": "s3://nixos-base/bootstrap/nixos-bootstrap-debug.vhd"
+}
