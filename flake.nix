@@ -106,19 +106,25 @@
         nixosModules.bootstrap = ((import ./service.app.nix) self.packages."${system}".bootstrap);
         nixosModules.webserver = ((import ./service.webserver.nix) self.packages."${system}".app);
 
-        packages.ami = nixos-generators.nixosGenerate {
-          system = "x86_64-linux";
-          format = "amazon";
+        nixosConfigurations.bootstrap = {
+          system = system;
           modules = [
             flakery.nixosModules.flakery
             {
               imports = [
                 self.nixosModules."${system}".bootstrap
+
               ];
               services.app.enable = true;
               services.app.logUrl = "https://p.jjk.is/log";
             }
-
+          ];
+        };
+        packages.ami = nixos-generators.nixosGenerate {
+          system = "x86_64-linux";
+          format = "amazon";
+          modules = [
+            self.nixosConfigurations."${system}".bootstrap
           ];
         };
 
@@ -126,17 +132,8 @@
           system = "x86_64-linux";
           format = "amazon";
           modules = [
-            flakery.nixosModules.flakery
+            self.nixosConfigurations."${system}".bootstrap
             {
-              imports = [
-                self.nixosModules."${system}".bootstrap
-
-              ];
-              services.app.enable = true;
-              services.app.logUrl = "https://p.jjk.is/log";
-
-              # create a oneshot job to authenticate to Tailscale
-
               services.tailscale.enable = true;
               systemd.services.tailscale-autoconnect = {
                 description = "Automatic connection to Tailscale";
