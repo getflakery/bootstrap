@@ -107,6 +107,8 @@
         nixosModules.webserver = ((import ./service.webserver.nix) self.packages."${system}".app);
 
         nixosConfigurations.bootstrap = pkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+
           modules = [
             flakery.nixosModules.flakery
             {
