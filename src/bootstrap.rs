@@ -184,7 +184,7 @@ async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
  if config.apply_flake {
         httplog("applying flake").await;
         let output = tokio::process::Command::new(
-            "/nix/store/i8bjwbxsya06xz2a049pz0nvhz98fc8i-nixos-rebuild/bin/nixos-rebuild",
+            "/nix/store/88v6mqf8pla0g7qra622sixvq5wgmi8v-nixos-rebuild/bin/nixos-rebuild",
         )
         .arg("switch")
         .arg("-L")

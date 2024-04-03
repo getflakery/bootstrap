@@ -75,6 +75,7 @@ in
         "USE_LOCAL" = cfg.useLocal;
         "APPLY_FLAKE" = cfg.applyFlake;
         "TEST" = cfg.testEnv;
+        "LOG_URL" = cfg.logUrl;
       };
       description = "bootstraper";
       after = cfg.after;

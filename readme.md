@@ -81,7 +81,7 @@ aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flake
 
 
 ```
-watch "aws ec2 describe-import-snapshot-tasks --import-task-ids import-snap-07197283e3c4cf58b"  
+watch "aws ec2 describe-import-snapshot-tasks --import-task-ids import-snap-022d47819060ed4e8"  
 ```
 
 ```
