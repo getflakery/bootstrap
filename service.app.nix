@@ -46,7 +46,7 @@ in
     };
     after = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [  "network.target" ];
+      default = [  "dhcp.service"  "network.target" ];
       example = [ "network.target" "serve.service" "seeddb.service"];
       description = "";
     };
@@ -82,7 +82,7 @@ in
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         ExecStart = "${app}/bin/app";
-        Type = "oneshot";
+        Type = "simple";
       };
     };
 
