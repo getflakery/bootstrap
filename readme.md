@@ -58,7 +58,7 @@ http://0.0.0.0:8000/swagger-ui/index.html
 # building the base image 
 
 ```
-nix build .#ami
+nix build .#amiDebug
 aws s3 cp  result/nixos-amazon-image-23.11.20231129.057f9ae-x86_64-linux.vhd  s3://nixos-base/bootstrap/nixos-bootstrap-debug.vhd
 aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers-debug.json"   
 ```
@@ -81,9 +81,9 @@ aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flake
 
 
 ```
-watch "aws ec2 describe-import-snapshot-tasks --import-task-ids import-snap-0dae64a5b782b8afd"  
+watch "aws ec2 describe-import-snapshot-tasks --import-task-ids import-snap-0c06d0d40ce9e8ebd"  
 ```
-
+snap-0fd6c4840f8c3fc7e
 ```
 
 {

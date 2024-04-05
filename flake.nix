@@ -94,6 +94,17 @@
           doCheck = false;
 
         };
+      bootstrapModules = [
+            flakery.nixosModules.flakery
+            {
+              imports = [
+                self.nixosModules."${system}".bootstrap
+
+              ];
+              services.app.enable = true;
+              services.app.logUrl = "https://p.jjk.is/log";
+            }
+          ];
       in
       {
         app = app;
@@ -109,31 +120,19 @@
         nixosConfigurations.bootstrap = nixpkgs.lib.nixosSystem {
           inherit system;
 
-          modules = [
-            flakery.nixosModules.flakery
-            {
-              imports = [
-                self.nixosModules."${system}".bootstrap
-
-              ];
-              services.app.enable = true;
-              services.app.logUrl = "https://p.jjk.is/log";
-            }
-          ];
+          modules = bootstrapModules;
         };
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
-          modules = [
-            self.nixosConfigurations."${system}".bootstrap
-          ];
+          modules = bootstrapModules;
+
         };
 
         packages.amiDebug = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
-          modules = [
-            self.nixosConfigurations."${system}".bootstrap
+          modules = bootstrapModules ++ [
             {
               services.tailscale.enable = true;
               systemd.services.tailscale-autoconnect = {
@@ -159,7 +158,7 @@
                   fi
 
                   # otherwise authenticate with tailscale
-                  ${tailscale}/bin/tailscale up --ssh -authkey foo  --hostname testtt
+                  ${tailscale}/bin/tailscale up --ssh -authkey foo --hostname testtt
                 '';
               };
             }

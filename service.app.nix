@@ -80,40 +80,19 @@ in
       description = "bootstraper";
       after = cfg.after;
       wantedBy = [ "multi-user.target" ];
+      startLimitIntervalSec=30;
+      startLimitBurst=5;
+      path = [ 
+        pkgs.nix
+        pkgs.git
+        pkgs.nixos-rebuild 
+      ];
+
       serviceConfig = {
         ExecStart = "${app}/bin/app";
         Type = "simple";
+        Restart="on-failure";
       };
     };
-
-
-    security.sudo.wheelNeedsPassword = false;
-
-    users.users.alice = {
-      isNormalUser = true;
-      extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-      packages = with pkgs; [ ];
-      group = "alice";
-      # set shell to zsh 
-      # passwordFile = "/persist/passwords/alice";
-    };
-
-    users.groups.alice = { };
-    services.openssh = {
-      enable = true;
-      # require public key authentication for better security
-      settings.PasswordAuthentication = false;
-      settings.KbdInteractiveAuthentication = false;
-      # settings.PermitRootLogin = "yes";
-    };
-    users.users."alice".openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFt1Kc7AuNgW0n+Zu4bMfRAWFfScLbzivxNtqC69dTS+ alice@ip-10-0-0-229.us-west-1.compute.internal" # content of authorized_keys file
-      "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDK9oSqErvoipqDl8hx0WEiWeLEfdEOPqbwVzVLNGgRF2s7Nn45DBduZCmpRMSEYDbPOtN+jxa/mj4/omiRv1Y6jTMl1YYzfEOJdwdjhf/T8x1oXbOIsfgoYZnJpUfmIBGaqtSzIU/zWUKYENc6EtfzEjV98tdtxPd23QpzNWsXTD2BcIYEizGD75lbnDBb2EZQZhnNnTk62zzxL42pQ7g6SdVGBmVDV4IduUGPX2O1AF9DeIeorrrTkqeTSVmK8Q86GN33Tx7ClQIqWLzwanMbCYeFvpl8/Y3AMDVFGPwcAm/6MpiKR6XkxuSL5zYQ6Ys3c9L+drd1bnpmWRSsfm0OdeUj9DaCVWY7oQ5O/KviwBVu+J5AoNQDxfcX+a+KKDqHO0q6N0Gd5xMaB0rRILkJRRteg65tSaLLWVQKwjcdU9ydbmC6GC2hCxgVtipTIgispp+GqOk+5c/NZEZ+zkUuNhsmbRNsgANxbgrbNrfATTk1T7fMiQZFFtfuzhjg86M= robertwendt@roberts-air.lan"
-
-      # note: ssh-copy-id will add user@your-machine after the public key
-      # but we can remove the "@your-machine" part
-    ];
-
-
   };
 }
