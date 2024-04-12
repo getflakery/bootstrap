@@ -117,7 +117,10 @@
           app =  flake-utils.lib.mkApp { drv= app ; };
           default = flake-utils.lib.mkApp { drv= app ; };
           webserver = flake-utils.lib.mkApp { drv= app ; };
-          bootstrap = flake-utils.lib.mkApp { drv= bootstrap ; };
+          bootstrap = flake-utils.lib.mkApp { 
+            drv= bootstrap ;
+            exePath="/bin/app"
+          };
         };
         packages.default = app;
         packages.app = app;
