@@ -113,7 +113,7 @@
       in
       {
           # Executed by `nix run .#<name>`
-        apps = rec {
+        apps = {
           app = app;
           default = app;
           webserver = app;
