@@ -123,19 +123,22 @@ async fn main() {
 async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::new();
 
-   httplog("fetching ec2 tag data").await;
-
-    let ec2_tag_data = EC2TagData::new(&config).await?;
     let args: Vec<String> = env::args().collect();
 
-	
     if args.contains(&"--print-flake".to_string()) {
+        let ec2_tag_data = EC2TagData::new(&config).await?;
         let flake_url = ec2_tag_data.flake_url;
         let res = reqwest::get(&flake_url).await?;
         let flake = res.text().await?;
         println!("{}", flake);
         return Ok(());
     }
+
+
+   httplog("fetching ec2 tag data").await;
+
+    let ec2_tag_data = EC2TagData::new(&config).await?;
+
 
     httplog("finished fetching ec2 tag data").await;
     httplog("fetching files").await;
