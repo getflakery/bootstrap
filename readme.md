@@ -60,7 +60,7 @@ http://0.0.0.0:8000/swagger-ui/index.html
 ```
 nix build .#amiDebug
 aws s3 cp  result/nixos-amazon-image-23.11.20231129.057f9ae-x86_64-linux.vhd  s3://nixos-base/bootstrap/nixos-bootstrap-debug.vhd
-aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers-debug.json"   
+aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers-debug.json" | jq .ImportTaskId
 ```
 
 ```
@@ -145,4 +145,17 @@ nix build -L .#test
 
 ```
 ssh root@localhost -p2222 -o StrictHostKeyChecking=no
+```
+
+# switch to bootstrap configuration
+```
+nixos-rebuild switch --flake .#bootstrap
+nixos-rebuild switch --flake github:getflakery/bootstrap#bootstrap --refresh
+
+```
+
+# start webserver 
+
+```
+
 ```

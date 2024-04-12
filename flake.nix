@@ -87,7 +87,7 @@
           PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
           buildPhase = ''
-            ${pkgs.mold}/bin/mold -run cargo build --release -p bootstrap
+            cargo build --release -p bootstrap
           '';
 
           installPhase = ''
