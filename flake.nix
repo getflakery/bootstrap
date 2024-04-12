@@ -114,10 +114,10 @@
       {
           # Executed by `nix run .#<name>`
         apps = {
-          app = app;
-          default = app;
-          webserver = app;
-          bootstrap = bootstrap;
+          app =  flake-utils.lib.mkApp { drv= app ; };
+          default = flake-utils.lib.mkApp { drv= app ; };
+          webserver = flake-utils.lib.mkApp { drv= app ; };
+          bootstrap = flake-utils.lib.mkApp { drv= bootstrap ; };
         };
         packages.default = app;
         packages.app = app;
