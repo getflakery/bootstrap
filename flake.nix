@@ -191,7 +191,7 @@
                   fi
 
                   # otherwise authenticate with tailscale
-                  ${tailscale}/bin/tailscale up --ssh -authkey tskey-auth-- --hostname test-ami
+                  ${tailscale}/bin/tailscale up --ssh -authkey tskey-auth-kpiygNS2qP11CNTRL-i5jF6h8RP97gAWBzRkvY87jkk33QvDtN --hostname test-ami
                 '';
               };
             }

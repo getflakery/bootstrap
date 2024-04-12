@@ -17,7 +17,7 @@ curl -X 'POST' \
   \"max_size\": 1,
   \"targets\": [
     {
-      \"port\": 8888,
+      \"port\": 8000,
       \"health_check_enabled\": true,
       \"health_check_path\": \"/\"
     }
@@ -25,7 +25,7 @@ curl -X 'POST' \
   \"files\" : [
     {
       \"path\": \"/tsauthkey\",
-      \"content\": \"tskey-auth-kZkGtL3v8d11CNTRL-JkFKqwK53KMvAzvVPLQGKMXp26LTEZfVd\"
+      \"content\": \"tskey-auth-kpiygNS2qP11CNTRL-i5jF6h8RP97gAWBzRkvY87jkk33QvDtN\"
     }
   ],
   \"template_id\": \"c9c185b0-8b77-4f15-8ffa-7bada35fe48d\"

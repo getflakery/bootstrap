@@ -2,8 +2,6 @@
 #! nix-shell -i sh -p awscli2 jq coreutils ripgrep util-linux
 
 
-
-
 default_flags="--no-cli-auto-prompt --no-cli-pager"
 
 

@@ -81,14 +81,16 @@ in
       after = cfg.after;
       wantedBy = [ "multi-user.target" ];
       startLimitIntervalSec=30;
-      startLimitBurst=5;
+      startLimitBurst=50;
       path = [ 
         pkgs.nix
         pkgs.git
         pkgs.nixos-rebuild 
+        pkgs.systemd
       ];
       script = ''
-        ${app}/bin/app && ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake `${app}/bin/app --print-flake`
+        ${app}/bin/app && \
+        systemd-run ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake `${app}/bin/app --print-flake`
       '';
       serviceConfig = {
         Type = "simple";
