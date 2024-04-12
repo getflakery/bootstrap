@@ -68,7 +68,12 @@
               in
               (
                 (pkgs.lib.sources.cleanSourceFilter name type) ||
-                baseName == ".nix"
+                # base name ends with .nix
+                pkgs.lib.hasSuffix ".nix" baseName  ||
+                baseName == ".direnv" ||
+                baseName == "target" ||
+              # has prefix flake 
+              pkgs.lib.hasPrefix "flake" baseName
               );
           };
 
@@ -82,7 +87,7 @@
           PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
           buildPhase = ''
-            cargo build --release --bin bootstrap
+            ${pkgs.mold}/bin/mold -run cargo build --release -p bootstrap
           '';
 
           installPhase = ''
@@ -158,7 +163,7 @@
                   fi
 
                   # otherwise authenticate with tailscale
-                  ${tailscale}/bin/tailscale up --ssh -authkey foo --hostname testtt
+                  ${tailscale}/bin/tailscale up --ssh -authkey tskey-auth-- --hostname test-ami
                 '';
               };
             }

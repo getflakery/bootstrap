@@ -1,48 +1,4 @@
-[package]
-name = "app"
-version = "0.1.0"
-edition = "2021"
+workspace = { members = ["bootstrap", "webserver"] }
 
-# Specify each binary
-[[bin]]
-name = "bootstrap"
-path = "src/bootstrap.rs"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-libaes = "0.7.0"
-libsql = "0.3.2"
-hex = "0.4"
-reqwest = {version ="0.12.2", features = [ "json" ] }
-
-
-rocket = "0.5.0-rc.1"
-
-rusoto_core = "0.47.0"
-rusoto_ec2 = "0.47.0"
-rusoto_autoscaling = "0.47.0"
-rusoto_elbv2 = "0.47.0"
-rusoto_route53 = "0.47.0"
-
-aws-config = { version = "1.1.7", features = ["behavior-version-latest"] }
-aws-sdk-ec2 = "1.30.0"
-
-tokio = { version = "1", features = ["full", "macros"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-dotenv = "0.15.0"
-tokio-sync = "0.1.8"
-rocket_okapi = { version = "0.8.0", features = [ "swagger", "rapidoc" ] }
-schemars = { version = "0.8"  }
-base64 = "0.22.0"
-
-[dependencies.uuid]
-version = "1.8.0"
-features = [
-    "v4",                # Lets you generate random UUIDs
-    "fast-rng",          # Use a faster (but still sufficiently random) RNG
-    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
-]
 
 

@@ -87,9 +87,10 @@ in
         pkgs.git
         pkgs.nixos-rebuild 
       ];
-
+      script = ''
+        ${app}/bin/app && ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake `${app}/bin/app --print-flake`
+      '';
       serviceConfig = {
-        ExecStart = "${app}/bin/app";
         Type = "simple";
         Restart="on-failure";
       };

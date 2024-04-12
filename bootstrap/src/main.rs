@@ -1,3 +1,5 @@
+use std::env;
+
 use libaes::Cipher;
 use libsql::{params, Builder};
 use serde::Serialize;
@@ -124,6 +126,16 @@ async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
    httplog("fetching ec2 tag data").await;
 
     let ec2_tag_data = EC2TagData::new(&config).await?;
+    let args: Vec<String> = env::args().collect();
+
+	
+    if args.contains(&"--print-flake".to_string()) {
+        let flake_url = ec2_tag_data.flake_url;
+        let res = reqwest::get(&flake_url).await?;
+        let flake = res.text().await?;
+        println!("{}", flake);
+        return Ok(());
+    }
 
     httplog("finished fetching ec2 tag data").await;
     httplog("fetching files").await;
@@ -180,28 +192,6 @@ async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
         std::fs::write(&file.path, file.content)?;
     }
     httplog("finish writing files").await;
-
- if config.apply_flake {
-        httplog("applying flake").await;
-        let output = tokio::process::Command::new(
-            "nixos-rebuild",
-        )
-        .arg("switch")
-        .arg("-L")
-        .arg("--impure")
-        .arg("--flake")
-        .arg(ec2_tag_data.flake_url)
-        .arg("--refresh")
-        .output()
-        .await?;
-        httplog("flake applied").await;
-
-        httplog(format!("flake output: {:?}", output).as_str()).await;
-        // httplog("stdout: {}", String::from_utf8_lossy(&output.stdout));
-        // httplog("stderr: {}", String::from_utf8_lossy(&output.stderr));
-        httplog(format!("stdout: {:?}", String::from_utf8_lossy(&output.stdout)).as_str()).await;
-        httplog(format!("stderr: {:?}", String::from_utf8_lossy(&output.stderr)).as_str()).await;
-    }
 
     Ok(())
 }

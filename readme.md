@@ -81,7 +81,7 @@ aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flake
 
 
 ```
-watch "aws ec2 describe-import-snapshot-tasks --import-task-ids import-snap-0c06d0d40ce9e8ebd"  
+watch "aws ec2 describe-import-snapshot-tasks --import-task-ids import-snap-0a9724697e580e1fe"  
 ```
 snap-0fd6c4840f8c3fc7e
 ```
@@ -109,6 +109,32 @@ snap-0fd6c4840f8c3fc7e
     ]
 }
 ```
+
+# snapshot to ami
+snap-0ec9a792b5dd86ba8
+
+```bash
+aws ec2 register-image --name "flakery-nixos-testtT" --root-device-name "/dev/xvda" --block-device-mappings "[{\"DeviceName\":\"/dev/xvda\",\"Ebs\":{\"SnapshotId\":\"snap-04ccb9d509fd1358e\"}}]"  \
+    --architecture x86_64 --virtualization-type hvm --ena-support
+```
+
+```
+{
+    "ImageId": "ami-081cdd79bd60a67b7"
+}
+```
+
+# delete all autoscaling groups in region us-west-1
+```bash
+aws autoscaling describe-auto-scaling-groups --region us-west-1 | jq -r '.AutoScalingGroups[].AutoScalingGroupName' | xargs -I {} aws autoscaling delete-auto-scaling-group --auto-scaling-group-name {} --region us-west-1
+```
+
+# delete all alb's in region us-west-1
+```bash
+aws elbv2 describe-load-balancers --region us-west-1 | jq -r '.LoadBalancers[].LoadBalancerArn' | xargs -I {} aws elbv2 delete-load-balancer --load-balancer-arn {} --region us-west-1
+```
+
+
 
 
 # integration testing 

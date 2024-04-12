@@ -131,7 +131,7 @@ async fn deploy_aws_create(
         .set_launch_template_data(Some(
             RequestLaunchTemplateData::builder()
                 .instance_type(aws_sdk_ec2::types::InstanceType::T3Small)
-                .image_id("ami-0e379f711406a97ba")
+                .image_id("ami-08fcbd8134c334071")
                 .set_metadata_options(Some(
                     aws_sdk_ec2::types::LaunchTemplateInstanceMetadataOptionsRequest::builder()
                         .set_instance_metadata_tags(Some(
@@ -156,7 +156,7 @@ async fn deploy_aws_create(
                 ]))
                 .set_block_device_mappings(Some(vec![
                     aws_sdk_ec2::types::LaunchTemplateBlockDeviceMappingRequest::builder()
-                        .device_name("/dev/sda1")
+                        .device_name("/dev/xvda")
                         .ebs(
                             aws_sdk_ec2::types::LaunchTemplateEbsBlockDeviceRequest::builder()
                                 .volume_size(80)
