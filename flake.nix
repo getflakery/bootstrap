@@ -11,6 +11,9 @@
 
 
   inputs.flakery.url = "github:getflakery/flakes";
+  inputs.naersk.url = "github:nix-community/naersk";
+
+  
 
 
   outputs =
@@ -19,6 +22,7 @@
     , flake-utils
     , nixos-generators
     , flakery
+    , naersk
     , ...
     }:
     (flake-utils.lib.eachDefaultSystem
@@ -27,6 +31,11 @@
         pkgs = import nixpkgs {
           inherit system;
         };
+        
+        naersk' = pkgs.callPackage naersk {};
+
+  
+
 
         app = pkgs.rustPlatform.buildRustPackage {
           pname = "app";
@@ -53,6 +62,14 @@
 
           # disable checkPhase
           doCheck = false;
+
+        };
+
+        bootstrapng = naersk'.buildPackage {
+          src = ./.;
+          pname = "bootstrap";
+          nativeBuildInputs = with pkgs; [   pkg-config   ];
+          buildInputs = with pkgs; [  cmake openssl ];
 
         };
         bootstrap = pkgs.rustPlatform.buildRustPackage {
@@ -128,10 +145,12 @@
         # devShells.default = app;
         devShells.default = import ./shell.nix { inherit pkgs; };
         packages.bootstrap = bootstrap;
+        packages.bootstrapng = bootstrapng;
+
         nixosModules.bootstrap = ((import ./service.app.nix) self.packages."${system}".bootstrap);
         nixosModules.webserver = ((import ./service.webserver.nix) self.packages."${system}".app);
 
-        nixosConfigurations.bootstrap = nixpkgs.lib.nixosSystem {
+        packages.nixosConfigurations.bootstrap = nixpkgs.lib.nixosSystem {
           inherit system;
 
           modules = bootstrapModules;

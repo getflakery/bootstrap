@@ -86,10 +86,7 @@ struct LogInput {
     log: String,
 }
 
-
-async fn httplog(
-    input: &str,
-) {
+async fn httplog(input: &str) {
     println!("{}", input);
     // just return if in test environment
     if std::env::var("TEST").unwrap_or("".to_string()) == "true" {
@@ -97,23 +94,22 @@ async fn httplog(
     }
     let log_url = std::env::var("LOG_URL").unwrap_or("http://localhost:8000/log".to_string());
     let client = reqwest::Client::new();
-    let _ = client.post(&log_url).json(&LogInput { log: input.to_string() }).send().await.map_err(
-        |e| {
+    let _ = client
+        .post(&log_url)
+        .json(&LogInput {
+            log: input.to_string(),
+        })
+        .send()
+        .await
+        .map_err(|e| {
             println!("error: {:?}", e);
-        },
-    );
+        });
 }
-
-
-
-
 
 #[tokio::main]
 async fn main() {
     match bootstrap().await {
-        Ok(_) => {
-            httplog("bootstrap successful").await;
-        }
+        Ok(_) => {}
         Err(e) => {
             httplog(format!("error bootstrapping: {:?}", e).as_str()).await;
         }
@@ -132,11 +128,9 @@ async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-
-   httplog("fetching ec2 tag data").await;
+    httplog("fetching ec2 tag data").await;
 
     let ec2_tag_data = EC2TagData::new(&config).await?;
-
 
     httplog("finished fetching ec2 tag data").await;
     httplog("fetching files").await;
@@ -188,11 +182,14 @@ async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
             httplog(&msg).await;
             return Err(msg.into());
         }
-        let dirpath = std::path::Path::new(&file.path).parent().unwrap_or(std::path::Path::new("/"));
+        let dirpath = std::path::Path::new(&file.path)
+            .parent()
+            .unwrap_or(std::path::Path::new("/"));
         std::fs::create_dir_all(dirpath)?;
         std::fs::write(&file.path, file.content)?;
     }
     httplog("finish writing files").await;
+    httplog("bootstrap successful").await;
 
     Ok(())
 }
