@@ -112,7 +112,13 @@
           ];
       in
       {
-        app = app;
+          # Executed by `nix run .#<name>`
+        apps = rec {
+          app = app;
+          default = app;
+          webserver = app;
+          bootstrap = bootstrap;
+        };
         packages.default = app;
         packages.app = app;
 
