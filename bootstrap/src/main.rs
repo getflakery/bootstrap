@@ -3,6 +3,8 @@ use std::env;
 use libaes::Cipher;
 use libsql::{params, Builder};
 use serde::Serialize;
+use std::process::ExitCode;
+
 
 struct EC2TagData {
     turso_token: Option<String>,
@@ -107,11 +109,16 @@ async fn httplog(input: &str) {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main()  -> ExitCode {
     match bootstrap().await {
-        Ok(_) => {}
+        Ok(_) => { 
+            return ExitCode::SUCCESS
+
+
+        }
         Err(e) => {
             httplog(format!("error bootstrapping: {:?}", e).as_str()).await;
+            return ExitCode::from(42);
         }
     }
 }

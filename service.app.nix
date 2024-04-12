@@ -90,7 +90,8 @@ in
       ];
       script = ''
         ${app}/bin/app && \
-        systemd-run ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake `${app}/bin/app --print-flake`
+        systemd-run ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch \
+          --flake `${app}/bin/app --print-flake`
       '';
       serviceConfig = {
         Type = "simple";

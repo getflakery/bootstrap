@@ -25,7 +25,7 @@ curl -X 'POST' \
   \"files\" : [
     {
       \"path\": \"/tsauthkey\",
-      \"content\": \"tskey-auth-kpiygNS2qP11CNTRL-i5jF6h8RP97gAWBzRkvY87jkk33QvDtN\"
+      \"content\": \"tskey-auth--\"
     }
   ],
   \"template_id\": \"c9c185b0-8b77-4f15-8ffa-7bada35fe48d\"

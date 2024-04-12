@@ -131,7 +131,7 @@ async fn deploy_aws_create(
         .set_launch_template_data(Some(
             RequestLaunchTemplateData::builder()
                 .instance_type(aws_sdk_ec2::types::InstanceType::T3Small)
-                .image_id("ami-0141da36a1f400e72")
+                .image_id("ami-0d7a61e1d3951e99b")
                 .set_metadata_options(Some(
                     aws_sdk_ec2::types::LaunchTemplateInstanceMetadataOptionsRequest::builder()
                         .set_instance_metadata_tags(Some(
