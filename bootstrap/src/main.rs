@@ -128,9 +128,7 @@ async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
     if args.contains(&"--print-flake".to_string()) {
         let ec2_tag_data = EC2TagData::new(&config).await?;
         let flake_url = ec2_tag_data.flake_url;
-        let res = reqwest::get(&flake_url).await?;
-        let flake = res.text().await?;
-        println!("{}", flake);
+        println!("{}", flake_url);
         return Ok(());
     }
 
