@@ -12,7 +12,6 @@ rusoto_core = "0.47.0"
 rusoto_ec2 = "0.47.0"
 rusoto_autoscaling = "0.47.0"
 rusoto_elbv2 = "0.47.0"
-rusoto_route53 = "0.47.0"
 
 aws-config = { version = "1.1.7", features = ["behavior-version-latest"] }
 aws-sdk-ec2 = "1.30.0"
@@ -25,6 +24,7 @@ tokio-sync = "0.1.8"
 rocket_okapi = { version = "0.8.0", features = [ "swagger", "rapidoc" ] }
 schemars = { version = "0.8"  }
 base64 = "0.22.0"
+aws-sdk-route53 = "1.20.0"
 
 [dependencies.uuid]
 version = "1.8.0"

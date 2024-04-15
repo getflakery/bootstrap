@@ -17,15 +17,9 @@ curl -X 'POST' \
   \"max_size\": 1,
   \"targets\": [
     {
-      \"port\": 8000,
+      \"port\": 8080,
       \"health_check_enabled\": true,
       \"health_check_path\": \"/\"
-    }
-  ],
-  \"files\" : [
-    {
-      \"path\": \"/tsauthkey\",
-      \"content\": \"tskey-auth--\"
     }
   ],
   \"template_id\": \"c9c185b0-8b77-4f15-8ffa-7bada35fe48d\"
