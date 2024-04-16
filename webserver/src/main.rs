@@ -68,7 +68,6 @@ async fn main() {
             openapi_get_routes![
                 handlers::deploy::deploy_aws_create, 
                 handlers::log::log,
-                handlers::create_listener::put,
                 handlers::create_listener::create_listener,
             ],
         )

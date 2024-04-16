@@ -47,7 +47,7 @@ struct Tarn {
 pub struct DeployAWSInput {
     flake_url: String,
     instance_type: String,
-    deployment_slug: String, // i am the deployment slug @_\/
+    pub deployment_slug: String, // i am the deployment slug @_\/
     files: Option<Vec<File>>,
     subdomain_prefix: String,
     min_size: Option<i64>,
