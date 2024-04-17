@@ -10,7 +10,7 @@
       cargo-llvm-cov
       pkg-config 
       pkgs.openssl.dev
-
+      swagger-codegen
     ];
     RUSTC_VERSION = pkgs.lib.readFile ./rust-toolchain;
     # https://github.com/rust-lang/rust-bindgen#environment-variables

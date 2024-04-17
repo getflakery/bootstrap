@@ -1,4 +1,4 @@
-workspace = { members = ["bootstrap", "webserver"] }
+workspace = { members = ["bootstrap", "webserver", "web-client"] }
 
 
 

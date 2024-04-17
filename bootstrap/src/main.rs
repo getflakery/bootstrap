@@ -11,6 +11,7 @@ struct EC2TagData {
     file_encryption_key: String,
     template_id: String,
     flake_url: String,
+    deployment_id: String,
 }
 
 impl EC2TagData {
@@ -25,22 +26,31 @@ impl EC2TagData {
 
         let res = reqwest::get(&format!("{}flake_url", url_prefix)).await?;
         let flake_url = res.text().await?;
+        // deployment_id
+        let res = reqwest::get(&format!("{}deployment_id", url_prefix)).await?;
+        let deployment_id = res.text().await?;
+
+
         if config.use_local {
             return Ok(Self {
                 turso_token: None,
                 file_encryption_key,
                 template_id,
                 flake_url,
+                deployment_id,
             });
         }
         let res = reqwest::get(&format!("{}turso_token", url_prefix)).await?;
         let turso_token = res.text().await?;
+
+        
 
         Ok(Self {
             turso_token: Some(turso_token),
             file_encryption_key,
             template_id,
             flake_url,
+            deployment_id,
         })
     }
 }
@@ -134,6 +144,17 @@ async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
         println!("{}", flake_url);
         return Ok(());
     }
+
+    if args.contains(&"--attach-lb".to_string()) {
+        let ec2_tag_data = EC2TagData::new(&config).await?;
+        let deployment_id = ec2_tag_data.deployment_id;
+        // println!("{}", deployment_id);
+        // todo attach lb
+        
+        return Ok(());
+    }
+
+    
 
     httplog("fetching ec2 tag data").await;
 

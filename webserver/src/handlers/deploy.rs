@@ -1,7 +1,6 @@
 use aws_sdk_ec2::types::{LaunchTemplateInstanceMetadataTagsState, RequestLaunchTemplateData};
 use rusoto_elbv2::Elb;
 
-
 use crate::error::{self, OResult};
 use rocket::serde::json::Json;
 
@@ -12,14 +11,11 @@ use rocket_okapi::openapi;
 use rusoto_autoscaling::Autoscaling;
 use rusoto_ec2::Ec2;
 
-
 use tokio::sync::Mutex;
 
 use rocket::serde::{Deserialize, Serialize};
 
-
 use uuid::Uuid;
-
 
 use std::collections::HashMap;
 
@@ -73,11 +69,10 @@ impl DeployAWSOutput {
     }
 }
 
-
-
 fn get_tag_data(
     template_id: String,
     flake_url: String,
+    deployment_id: String,
 ) -> Result<HashMap<String, String>, Box<dyn std::error::Error>> {
     let mut tags = HashMap::new();
 
@@ -90,6 +85,7 @@ fn get_tag_data(
     tags.insert("file_encryption_key".to_string(), file_encryption_key);
     tags.insert("template_id".to_string(), template_id);
     tags.insert("flake_url".to_string(), flake_url);
+    tags.insert("deployment_id".to_string(), deployment_id);
     Ok(tags)
 }
 /// Get instance ID from queue
@@ -101,18 +97,22 @@ pub async fn deploy_aws_create(
     state: &State<Mutex<AppState>>,
     input: Json<DeployAWSInput>,
 ) -> OResult<DeployAWSOutput> {
-    let  s = &mut state.lock().await;
+    let s = &mut state.lock().await;
     let ec2_client = &mut s.ec2_client;
     println!("Input: {:?}", input.0.clone().deployment_slug);
     let mut output = DeployAWSOutput::new(input.0.clone());
 
-    let tags = get_tag_data(input.template_id.clone(), input.flake_url.clone())
-        .map_err(|e| error::Error::new("TagDataCreationFailed", Some(&e.to_string()), 500))?;
+    let tags = get_tag_data(
+        input.template_id.clone(),
+        input.flake_url.clone(),
+        output.id.clone(),
+    )
+    .map_err(|e| error::Error::new("TagDataCreationFailed", Some(&e.to_string()), 500))?;
 
     // instead create launch template with ec2_client_ng b/c that has access to
     // the latest version of the api
-    let  s = &mut state.lock().await;
-    let ec2_client_ng =  &mut  s.ec2_client_ng;
+    let s = &mut state.lock().await;
+    let ec2_client_ng = &mut s.ec2_client_ng;
     ec2_client_ng
         .create_launch_template()
         .set_launch_template_name(Some(input.deployment_slug.clone()))
@@ -162,7 +162,7 @@ pub async fn deploy_aws_create(
             error::Error::new("LaunchTemplateCreationFailed", Some(&e.to_string()), 500)
         })?;
 
-        let  s = &mut state.lock().await;
+    let s = &mut state.lock().await;
 
     let as_client = &mut s.as_client;
 
@@ -202,7 +202,6 @@ pub async fn deploy_aws_create(
         "subnet-040ebc679c54ecf38".to_string(),
         "subnet-0e22657a6f50a3235".to_string(),
     ];
-
 
     // create security groups
     let create_sg_req = rusoto_ec2::CreateSecurityGroupRequest {
@@ -281,7 +280,7 @@ pub async fn deploy_aws_create(
         ..Default::default()
     };
 
-    let elb_client =  &s.elb_client;
+    let elb_client = &s.elb_client;
 
     let resp = elb_client.create_load_balancer(create_lb_req).await;
 
@@ -303,53 +302,52 @@ pub async fn deploy_aws_create(
         }
     };
 
-
     // set load balancer arn in output
     output.lb_arn = Some(load_balancer_arn.clone().unwrap());
-    let  s = &mut state.lock().await;
+    let s = &mut state.lock().await;
 
     let store = &mut s.store;
     store.insert_deploy_aws_output(output.clone());
 
-
-
-    let  s = &mut state.lock().await;
-
+    let s = &mut state.lock().await;
 
     let route53_client = &s.route53_client;
-
 
     let resp = route53_client
         .change_resource_record_sets()
         .set_change_batch(Some(
-            aws_sdk_route53::types::ChangeBatch::builder().set_changes(Some(vec![
-                aws_sdk_route53::types::Change::builder()
+            aws_sdk_route53::types::ChangeBatch::builder()
+                .set_changes(Some(vec![aws_sdk_route53::types::Change::builder()
                     .set_action(Some(aws_sdk_route53::types::ChangeAction::Create))
-                    .set_resource_record_set(Some(aws_sdk_route53::types::ResourceRecordSet::builder()
-                    .set_name(Some(input.subdomain_prefix.clone() + ".app.flakery.xyz"))
-                    .set_type(Some(aws_sdk_route53::types::RrType::Cname))
-                    .set_ttl(Some(300))
-                    .set_resource_records(Some(vec![
-                        aws_sdk_route53::types::ResourceRecord::builder()
-                            .set_value(Some(lb_dns.clone().unwrap()))
-                            .build().unwrap()
-                    ]))
-                    .build().unwrap()))
-                    .build().unwrap()
-            ]))
-            .build().unwrap(),
+                    .set_resource_record_set(Some(
+                        aws_sdk_route53::types::ResourceRecordSet::builder()
+                            .set_name(Some(input.subdomain_prefix.clone() + ".app.flakery.xyz"))
+                            .set_type(Some(aws_sdk_route53::types::RrType::Cname))
+                            .set_ttl(Some(300))
+                            .set_resource_records(Some(vec![
+                                aws_sdk_route53::types::ResourceRecord::builder()
+                                    .set_value(Some(lb_dns.clone().unwrap()))
+                                    .build()
+                                    .unwrap(),
+                            ]))
+                            .build()
+                            .unwrap(),
+                    ))
+                    .build()
+                    .unwrap()]))
+                .build()
+                .unwrap(),
         ))
         .set_hosted_zone_id(Some("Z03309493AGZOVY2IU47X".to_string()))
         .send()
         .await;
-
 
     match resp {
         Ok(output) => {
             println!("Record set created: {:?}", output);
         }
         Err(e) => {
-            eprintln!("Failed to create record set: {:?}", e);  // Log the full error
+            eprintln!("Failed to create record set: {:?}", e); // Log the full error
             return Err(error::Error::new(
                 "RecordSetCreationFailed",
                 Some(&e.to_string()),
@@ -358,10 +356,9 @@ pub async fn deploy_aws_create(
         }
     }
 
-    let  s = &mut state.lock().await;
+    let s = &mut state.lock().await;
 
     s.store.insert_deploy_aws_output(output.clone());
-
 
     Ok(Json(output))
 }

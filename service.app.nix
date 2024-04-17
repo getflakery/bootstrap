@@ -3,6 +3,13 @@ app:
 
 let
   cfg = config.services.app;
+  rebuildScript = pkgs.writeShellScript "rebuild.sh " 
+  lib.optionalString cfg.applyFlake ''
+    ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch \
+      --flake `${app}/bin/app --print-flake` && \
+  '' + ''
+    ${app}/bin/app --attach-lb
+  '';
 in
 {
   options.services.app = {
@@ -27,7 +34,7 @@ in
       description = "";
     };
     applyFlake = lib.mkOption {
-      type =  lib.types.str;
+      type = lib.types.str;
       default = "true";
       example = "true";
       description = "";
@@ -46,8 +53,8 @@ in
     };
     after = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [  "dhcp.service"  "network.target" ];
-      example = [ "network.target" "serve.service" "seeddb.service"];
+      default = [ "dhcp.service" "network.target" ];
+      example = [ "network.target" "serve.service" "seeddb.service" ];
       description = "";
     };
   };
@@ -80,22 +87,21 @@ in
       description = "bootstraper";
       after = cfg.after;
       wantedBy = [ "multi-user.target" ];
-      startLimitIntervalSec=30;
-      startLimitBurst=50;
-      path = [ 
+      startLimitIntervalSec = 30;
+      startLimitBurst = 50;
+      path = [
         pkgs.nix
         pkgs.git
-        pkgs.nixos-rebuild 
+        pkgs.nixos-rebuild
         pkgs.systemd
       ];
       script = ''
         ${app}/bin/app && \
-        systemd-run ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch \
-          --flake `${app}/bin/app --print-flake`
+        systemd-run ${rebuildScript}
       '';
       serviceConfig = {
         Type = "simple";
-        Restart="on-failure";
+        Restart = "on-failure";
       };
     };
   };

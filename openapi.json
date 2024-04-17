@@ -1,24 +1,110 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.0.3",
   "info": {
-    "title": "app",
+    "title": "webserver",
     "version": "0.1.0"
   },
   "paths": {
-    "/get_instance": {
-      "get": {
-        "tags": [
-          "GetInstanceResp"
-        ],
+    "/deploy/aws/create": {
+      "post": {
         "description": "Get instance ID from queue\n\nRetrieves the next available EC2 instance ID from the queue.",
-        "operationId": "get_instance_id",
+        "operationId": "handlers_deploy_deploy_aws_create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeployAWSInput"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetInstanceResp"
+                  "$ref": "#/components/schemas/DeployAWSOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "# [400 Bad Request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)\nThe request given is wrongly formatted or data asked could not be fulfilled. "
+          },
+          "404": {
+            "description": "# [404 Not Found](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404)\nThis response is given when you request a page that does not exists."
+          },
+          "422": {
+            "description": "# [422 Unprocessable Entity](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422)\nThis response is given when you request body is not correctly formatted. "
+          },
+          "500": {
+            "description": "# [500 Internal Server Error](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500)\nThis response is given when something wend wrong on the server. "
+          }
+        }
+      }
+    },
+    "/log": {
+      "post": {
+        "description": "Get instance ID from queue\n\nRetrieves the next available EC2 instance ID from the queue.",
+        "operationId": "handlers_log_log",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "# [400 Bad Request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)\nThe request given is wrongly formatted or data asked could not be fulfilled. "
+          },
+          "404": {
+            "description": "# [404 Not Found](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404)\nThis response is given when you request a page that does not exists."
+          },
+          "422": {
+            "description": "# [422 Unprocessable Entity](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422)\nThis response is given when you request body is not correctly formatted. "
+          },
+          "500": {
+            "description": "# [500 Internal Server Error](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500)\nThis response is given when something wend wrong on the server. "
+          }
+        }
+      }
+    },
+    "/create-listener": {
+      "post": {
+        "operationId": "handlers_create_listener_create_listener",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateListenerInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateListenerOutput"
                 }
               }
             }
@@ -41,14 +127,160 @@
   },
   "components": {
     "schemas": {
-      "GetInstanceResp": {
+      "DeployAWSOutput": {
         "type": "object",
         "required": [
-          "instance_id"
+          "id",
+          "input"
         ],
         "properties": {
-          "instance_id": {
+          "id": {
             "type": "string"
+          },
+          "input": {
+            "$ref": "#/components/schemas/DeployAWSInput"
+          },
+          "lb_arn": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DeployAWSInput": {
+        "type": "object",
+        "required": [
+          "deployment_slug",
+          "flake_url",
+          "instance_type",
+          "subdomain_prefix",
+          "template_id"
+        ],
+        "properties": {
+          "flake_url": {
+            "type": "string"
+          },
+          "instance_type": {
+            "type": "string"
+          },
+          "deployment_slug": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/File"
+            },
+            "nullable": true
+          },
+          "subdomain_prefix": {
+            "type": "string"
+          },
+          "min_size": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "max_size": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Target"
+            },
+            "nullable": true
+          },
+          "template_id": {
+            "type": "string"
+          }
+        }
+      },
+      "File": {
+        "type": "object",
+        "required": [
+          "content",
+          "path"
+        ],
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      },
+      "Target": {
+        "type": "object",
+        "required": [
+          "port"
+        ],
+        "properties": {
+          "port": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "health_check_path": {
+            "type": "string",
+            "nullable": true
+          },
+          "health_check_enabled": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "LogOutput": {
+        "type": "object"
+      },
+      "LogInput": {
+        "type": "object",
+        "required": [
+          "log"
+        ],
+        "properties": {
+          "log": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateListenerOutput": {
+        "type": "object"
+      },
+      "CreateListenerInput": {
+        "type": "object",
+        "required": [
+          "deployment_id",
+          "mappings"
+        ],
+        "properties": {
+          "deployment_id": {
+            "type": "string"
+          },
+          "mappings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Mapping"
+            }
+          }
+        }
+      },
+      "Mapping": {
+        "type": "object",
+        "required": [
+          "listener_port",
+          "target_port"
+        ],
+        "properties": {
+          "listener_port": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "target_port": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       }
