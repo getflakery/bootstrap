@@ -48,7 +48,7 @@
 
           installPhase = ''
             mkdir -p $out/bin
-            cp target/release/app $out/bin/app
+            cp target/release/webserver $out/bin/app
           '';
 
           # disable checkPhase
