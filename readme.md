@@ -1,6 +1,6 @@
 # testing 
 
-```
+```json
 {
   "flake_url": "github:r33drichards/go-webserver#flakery",
   "instance_type": "t3.small",
@@ -42,12 +42,6 @@ curl -X 'POST' \
       \"health_check_path\": \"/\"
     }
   ],
-  \"files\" : [
-    {
-      \"path\": \"/tsauthkey\",
-      \"content\": \"`sudo cat /tsauthkey`\"
-    }
-  ]
 }"
 
 ```
@@ -57,13 +51,13 @@ http://0.0.0.0:8000/swagger-ui/index.html
 
 # building the base image 
 
-```
+```sh
 nix build .#amiDebug
 aws s3 cp  result/nixos-amazon-image-23.11.20231129.057f9ae-x86_64-linux.vhd  s3://nixos-base/bootstrap/nixos-bootstrap-debug.vhd
 aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flakery nixos bootstrap" --disk-container "file://flakery-base/containers-debug.json" | jq .ImportTaskId
 ```
 
-```
+```json
 {
     "Description": "flakery nixos",
     "ImportTaskId": "import-snap-01c750a9b69d61f1e",
@@ -80,11 +74,11 @@ aws ec2 import-snapshot --no-cli-auto-prompt --no-cli-pager --description "flake
 ```
 
 
-```
+```sh
 watch "aws ec2 describe-import-snapshot-tasks --import-task-ids import-snap-0a9724697e580e1fe"  
 ```
 snap-0fd6c4840f8c3fc7e
-```
+```json
 
 {
     "ImportSnapshotTasks": [
@@ -134,9 +128,6 @@ aws autoscaling describe-auto-scaling-groups --region us-west-1 | jq -r '.AutoSc
 aws elbv2 describe-load-balancers --region us-west-1 | jq -r '.LoadBalancers[].LoadBalancerArn' | xargs -I {} aws elbv2 delete-load-balancer --load-balancer-arn {} --region us-west-1
 ```
 
-
-
-
 # integration testing 
 ```
 nix build -L .#test.driverInteractive && ./result/bin/nixos-test-driver
@@ -160,14 +151,22 @@ nixos-rebuild switch --flake github:getflakery/bootstrap#bootstrap --refresh
 
 ```
 
-
-
 # gen openapi 
 ```
 nix develop --command cargo run --bin webserver -- --print-openapi > openapi.json
 ```
+
 # gen client
 ```
 cargo install cargo-progenitor
 cargo progenitor -i openapi.json -o web-client -n flakery-client -v 0.1.0
+```
+
+# test an endpoint with fake 
+```
+curl -i -X POST -H "Debug: 1" -H "Content-Type: application/json" -d '{"deployment_id":"foo", "mappings": [{ "listener_port": 443,  "target_port": 8000}]}' http://localhost:8000/create-listener
+
+
+curl -i -X POST -H "Content-Type: application/json" -d '{"deployment_id":"foo", "mappings": [{ "listener_port": 443,  "target_port": 8000}]}' http://localhost:8000/create-listener
+
 ```

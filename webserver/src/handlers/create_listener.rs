@@ -10,6 +10,8 @@ use rocket_okapi::okapi::schemars::JsonSchema;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::State;
 
+use crate::guards::debug_header;
+
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 
 pub struct Mapping {
@@ -29,8 +31,13 @@ pub struct CreateListenerOutput {
 
 }
 
+#[post("/create-listener", data = "<_input>")]
+pub async fn create_listener_fake(_debug: debug_header::DebugHeader, _input: Json<CreateListenerInput>) -> Json<CreateListenerOutput> {
+    Json(CreateListenerOutput {})
+}
+
 #[openapi]
-#[post("/create-listener", data = "<input>")]
+#[post("/create-listener", data = "<input>", rank=2)]
 pub async fn create_listener(
     state: &State<Mutex<AppState>>,
     input: Json<CreateListenerInput>,

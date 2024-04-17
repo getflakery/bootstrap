@@ -18,6 +18,7 @@ use tokio::sync::Mutex;
 mod error;
 mod handlers;
 mod store;
+mod guards;
 
 // let id = Uuid::new_v4();
 use aws_config::BehaviorVersion;
@@ -76,6 +77,12 @@ async fn main() {
                 handlers::deploy::deploy_aws_create,
                 handlers::log::log,
                 handlers::create_listener::create_listener,
+            ],
+        )
+        .mount(
+            "/",
+            routes![
+                handlers::create_listener::create_listener_fake,
             ],
         )
         .mount(

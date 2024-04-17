@@ -645,6 +645,7 @@ name = "bootstrap"
 version = "0.1.0"
 dependencies = [
  "dotenv",
+ "flakery-client",
  "hex",
  "libaes",
  "libsql",

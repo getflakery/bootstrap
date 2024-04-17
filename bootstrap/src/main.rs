@@ -4,6 +4,7 @@ use libaes::Cipher;
 use libsql::{params, Builder};
 use serde::Serialize;
 use std::process::ExitCode;
+use flakery_client::types::{CreateListenerInput, Mapping};
 
 
 struct EC2TagData {
@@ -148,13 +149,24 @@ async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
     if args.contains(&"--attach-lb".to_string()) {
         let ec2_tag_data = EC2TagData::new(&config).await?;
         let deployment_id = ec2_tag_data.deployment_id;
-        // println!("{}", deployment_id);
-        // todo attach lb
+        flakery_client::Client::new(
+            &"http://localhost:8000".to_string(),
+        ).handlers_create_listener_create_listener(
+            &CreateListenerInput {
+                deployment_id: deployment_id.clone(),
+                mappings: vec![
+                    Mapping {
+                        listener_port: todo!("443"),
+                        target_port: todo!("8000"),
+                    },
+                ],
+            },
+        ).await?;
         
         return Ok(());
     }
 
-    
+
 
     httplog("fetching ec2 tag data").await;
 
