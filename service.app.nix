@@ -51,6 +51,11 @@ in
       example = "http://localhost:8000/log";
       description = "";
     };
+    setDebugHeaders = lib.mkOption {
+      type = lib.types.string;
+      default = "false";
+      description = "";
+    };
     after = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ "dhcp.service" "network.target" ];
@@ -83,6 +88,7 @@ in
         "APPLY_FLAKE" = cfg.applyFlake;
         "TEST" = cfg.testEnv;
         "LOG_URL" = cfg.logUrl;
+        "SET_DEBUG_HEADER" = cfg.setDebugHeaders;
       };
       description = "bootstraper";
       after = cfg.after;

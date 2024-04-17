@@ -250,6 +250,8 @@
                 services.app.sqlUrl = "file:///tmp/db.sqlite3";
                 services.app.useLocal = "true";
                 services.app.applyFlake = "false";
+                services.app.setDebugHeaders = "true";
+
                 services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
 
                 services.webserver.enable = true;

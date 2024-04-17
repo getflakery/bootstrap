@@ -6,6 +6,7 @@ use serde::Serialize;
 use std::process::ExitCode;
 use flakery_client::types::{CreateListenerInput, Mapping};
 
+use reqwest::header;
 
 struct EC2TagData {
     turso_token: Option<String>,
@@ -61,12 +62,14 @@ struct File {
     content: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 struct Config {
     url_prefix: String,
     sql_url: String,
     use_local: bool,
     apply_flake: bool,
+    set_debug_header: bool,
+    rclient: reqwest::Client,
 }
 
 impl Config {
@@ -85,11 +88,30 @@ impl Config {
             .unwrap_or("true".to_string())
             .to_string()
             == "true";
+        let set_debug_header = std::env::var("SET_DEBUG_HEADER")
+            .unwrap_or("false".to_string())
+            .to_string()
+            == "true";
+            let rclient = {
+                let dur = std::time::Duration::from_secs(15);
+                reqwest::ClientBuilder::new()
+                    .connect_timeout(dur)
+                    .timeout(dur)
+            };
+    
+            let mut headers: header::HeaderMap = header::HeaderMap::new();
+            // headers.insert("X-MY-HEADER", header::HeaderValue::from_static("value"));
+            if set_debug_header {
+                headers.insert("Debug", header::HeaderValue::from_static("true"));
+            }
+            let rclient = rclient.default_headers(headers).build().unwrap();
         Self {
             url_prefix,
             sql_url,
             use_local,
             apply_flake,
+            set_debug_header,
+            rclient,
         }
     }
 }
@@ -149,9 +171,14 @@ async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
     if args.contains(&"--attach-lb".to_string()) {
         let ec2_tag_data = EC2TagData::new(&config).await?;
         let deployment_id = ec2_tag_data.deployment_id;
-        flakery_client::Client::new(
+
+
+
+        flakery_client::Client::new_with_client(
             &"http://localhost:8000".to_string(),
-        ).handlers_create_listener_create_listener(
+            config.rclient,
+        )
+        .handlers_create_listener_create_listener(
             &CreateListenerInput {
                 deployment_id: deployment_id.clone(),
                 mappings: vec![
