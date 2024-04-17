@@ -164,10 +164,10 @@ nixos-rebuild switch --flake github:getflakery/bootstrap#bootstrap --refresh
 
 # gen openapi 
 ```
- nix develop --command cargo run --bin webserver -- --print-openapi > openapi.json
- ```
+nix develop --command cargo run --bin webserver -- --print-openapi > openapi.json
+```
 # gen client
 ```
 cargo install cargo-progenitor
-cargo progenitor -i openapi.json -o web-client -n web-client -v 0.1.0
+cargo progenitor -i openapi.json -o web-client -n flakery-client -v 0.1.0
 ```

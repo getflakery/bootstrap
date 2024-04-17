@@ -1,12 +1,8 @@
 [package]
-name = "web-client"
+name = "flakery-client"
 version = "0.1.0"
 edition = "2021"
-license = "MIT"
-description = "api client for flakery server"
-homepage = "https://flakery.dev"
-repository="https://github.com/getflakery/bootstrap"
-readme = "../readme.md"
+license = "SPECIFY A LICENSE BEFORE PUBLISHING"
 
 [dependencies]
 bytes = "1.5.0"
