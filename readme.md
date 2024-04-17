@@ -170,3 +170,9 @@ curl -i -X POST -H "Debug: 1" -H "Content-Type: application/json" -d '{"deployme
 curl -i -X POST -H "Content-Type: application/json" -d '{"deployment_id":"foo", "mappings": [{ "listener_port": 443,  "target_port": 8000}]}' http://localhost:8000/create-listener
 
 ```
+
+
+# build debug ami 
+```
+./debug-ami.sh --build --cp
+```

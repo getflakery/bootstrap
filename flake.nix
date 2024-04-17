@@ -112,8 +112,6 @@
               services.app.logUrl = "https://p.jjk.is/log";
             }
           ];
-      # read tsauthkeyfrom /tsauthkey 
-      tsauthkeyS = pkgs.readFile ./tsauthkey;
       in
       {
           # Executed by `nix run .#<name>`
@@ -176,7 +174,7 @@
                   fi
 
                   # otherwise authenticate with tailscale
-                  ${tailscale}/bin/tailscale up --ssh -authkey ''+tsauthkeyS + '' -auth- --hostname test-ami
+                  ${tailscale}/bin/tailscale up --ssh -authkey ''+ "tskey-auth-kNNroX9MjC21CNTRL-M8LbkuaHoq7To4t1c6Wdr7y3RYMuR5ZQ9" + '' -auth- --hostname test-ami
                 '';
               };
             }
