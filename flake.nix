@@ -112,6 +112,8 @@
               services.app.logUrl = "https://p.jjk.is/log";
             }
           ];
+      # read tsauthkeyfrom /tsauthkey 
+      tsauthkeyS = pkgs.readFile ./tsauthkey;
       in
       {
           # Executed by `nix run .#<name>`
@@ -130,7 +132,6 @@
         # devShells.default = app;
         devShells.default = import ./shell.nix { inherit pkgs; };
         packages.bootstrap = bootstrap;
-        packages.bootstrapng = bootstrapng;
 
         nixosModules.bootstrap = ((import ./service.app.nix) self.packages."${system}".bootstrap);
         nixosModules.webserver = ((import ./service.webserver.nix) self.packages."${system}".app);
@@ -175,7 +176,7 @@
                   fi
 
                   # otherwise authenticate with tailscale
-                  ${tailscale}/bin/tailscale up --ssh -authkey tskey-auth- --hostname test-ami
+                  ${tailscale}/bin/tailscale up --ssh -authkey ''+tsauthkeyS + '' -auth- --hostname test-ami
                 '';
               };
             }

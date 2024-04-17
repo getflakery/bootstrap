@@ -36,24 +36,6 @@
         "type": "github"
       }
     },
-    "naersk": {
-      "inputs": {
-        "nixpkgs": "nixpkgs_2"
-      },
-      "locked": {
-        "lastModified": 1698420672,
-        "narHash": "sha256-/TdeHMPRjjdJub7p7+w55vyABrsJlt5QkznPYy55vKA=",
-        "owner": "nix-community",
-        "repo": "naersk",
-        "rev": "aeb58d5e8faead8980a807c840232697982d47b9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "naersk",
-        "type": "github"
-      }
-    },
     "nixlib": {
       "locked": {
         "lastModified": 1711846064,
@@ -105,19 +87,6 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1710565619,
-        "narHash": "sha256-xu/EnZCNdIj7m/QjCNIG5vrCA4TYg5uwFReb9XDxET0=",
-        "path": "/nix/store/2lagifgqw760xch048spv2a0v46ya1vb-source",
-        "rev": "8ac30a39abc5ea67037dfbf090d6e89f187c6e50",
-        "type": "path"
-      },
-      "original": {
-        "id": "nixpkgs",
-        "type": "indirect"
-      }
-    },
-    "nixpkgs_3": {
-      "locked": {
         "lastModified": 1701282334,
         "narHash": "sha256-MxCVrXY6v4QmfTwIysjjaX0XUhqBbxTWWB4HXtDYsdk=",
         "owner": "NixOS",
@@ -136,9 +105,8 @@
       "inputs": {
         "flake-utils": "flake-utils",
         "flakery": "flakery",
-        "naersk": "naersk",
         "nixos-generators": "nixos-generators",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_2"
       }
     },
     "systems": {
