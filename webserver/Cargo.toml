@@ -25,6 +25,8 @@ rocket_okapi = { version = "0.8.0", features = [ "swagger", "rapidoc" ] }
 schemars = { version = "0.8"  }
 base64 = "0.22.0"
 aws-sdk-route53 = "1.20.0"
+aws-smithy-runtime = "=1.2.1"
+
 
 [dependencies.uuid]
 version = "1.8.0"

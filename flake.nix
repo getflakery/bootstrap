@@ -43,7 +43,7 @@
           PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
           buildPhase = ''
-            cargo build --release
+            cargo build --release -p webserver
           '';
 
           installPhase = ''
