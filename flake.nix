@@ -31,7 +31,22 @@
         app = pkgs.rustPlatform.buildRustPackage {
           pname = "app";
           version = "0.0.1";
-          src = ./.;
+         src = pkgs.lib.sources.cleanSourceWith {
+            src = ./.;
+            filter = name: type:
+              let
+                baseName = baseNameOf (toString name);
+              in
+              (
+                (pkgs.lib.sources.cleanSourceFilter name type) ||
+                # base name ends with .nix
+                pkgs.lib.hasSuffix ".nix" baseName ||
+                baseName == ".direnv" ||
+                baseName == "target" ||
+                # has prefix flake 
+                pkgs.lib.hasPrefix "flake" baseName
+              );
+          };
 
           cargoLock = {
             lockFile = ./Cargo.lock;
