@@ -44,7 +44,6 @@ pub struct DeployAWSInput {
     flake_url: String,
     instance_type: String,
     pub deployment_slug: String, // i am the deployment slug @_\/
-    files: Option<Vec<File>>,
     subdomain_prefix: String,
     min_size: Option<i64>,
     max_size: Option<i64>,
