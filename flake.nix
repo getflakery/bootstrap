@@ -139,6 +139,18 @@
 
           modules = bootstrapModules;
         };
+
+        packages.nixosConfigurations.webserver = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            {
+              imports = [
+                self.nixosModules."${system}".webserver
+              ];
+              services.webserver.enable = true;
+            }
+          ];
+        };
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
