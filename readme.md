@@ -176,3 +176,14 @@ curl -i -X POST -H "Content-Type: application/json" -d '{"deployment_id":"foo", 
 ```
 ./debug-ami.sh --build --cp
 ```
+
+# delete lt
+
+```
+# List and delete launch templates with the prefix "flakery-"
+aws ec2 describe-launch-templates --query "LaunchTemplates[?starts_with(LaunchTemplateName, 'flakery-')].[LaunchTemplateId]" --output text --region us-west-1 | while read -r template_id
+do
+    echo "Deleting launch template $template_id"
+    aws ec2 delete-launch-template --launch-template-id "$template_id" --region us-west-1 --no-cli-pager
+done
+```

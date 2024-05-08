@@ -1,7 +1,7 @@
 use aws_sdk_ec2::types::{LaunchTemplateInstanceMetadataTagsState, RequestLaunchTemplateData};
 use rusoto_elbv2::Elb;
 
-use crate::error::{self, OResult};
+use crate::{error::{self, OResult}, store::Store};
 use rocket::serde::json::Json;
 
 use rocket::State;
@@ -94,13 +94,14 @@ fn get_tag_data(
 #[openapi]
 #[post("/deploy/aws/create", data = "<input>")]
 pub async fn deploy_aws_create(
-    state: &State<Mutex<AppState>>,
+     mut state: &State<AppState>,
+     mut store: &State<Mutex<Store>>,
     input: Json<DeployAWSInput>,
 ) -> OResult<DeployAWSOutput> {
-    let s = &mut state.lock().await;
-    let ec2_client = &mut s.ec2_client;
     println!("Input: {:?}", input.0.clone().deployment_slug);
     let mut output = DeployAWSOutput::new(input.0.clone());
+
+    println!("getting tag data");
 
     let tags = get_tag_data(
         input.template_id.clone(),
@@ -109,10 +110,17 @@ pub async fn deploy_aws_create(
     )
     .map_err(|e| error::Error::new("TagDataCreationFailed", Some(&e.to_string()), 500))?;
 
+    println!("got tag data");
+
+    println!("Tags: {:?}", tags);
+
+    println!("Creating launch template");
+    
     // instead create launch template with ec2_client_ng b/c that has access to
     // the latest version of the api
-    let s = &mut state.lock().await;
-    let ec2_client_ng = &mut s.ec2_client_ng;
+    println!("hmm");
+
+    let ec2_client_ng =  state.ec2_client_ng.clone();
     ec2_client_ng
         .create_launch_template()
         .set_launch_template_name(Some(input.deployment_slug.clone()))
@@ -161,11 +169,12 @@ pub async fn deploy_aws_create(
         .map_err(|e| {
             error::Error::new("LaunchTemplateCreationFailed", Some(&e.to_string()), 500)
         })?;
+    
+    println!("Launch template created");
 
-    let s = &mut state.lock().await;
+    let as_client =  state.as_client.clone();
 
-    let as_client = &mut s.as_client;
-
+    println!("Creating auto scaling group");
     // create auto scaling group
     let create_asg_req = rusoto_autoscaling::CreateAutoScalingGroupType {
         auto_scaling_group_name: input.deployment_slug.clone(),
@@ -211,6 +220,9 @@ pub async fn deploy_aws_create(
         // Add other parameters here as needed
         ..Default::default()
     };
+
+    let ec2_client:  rusoto_ec2::Ec2Client = state.ec2_client.clone();
+
 
     let resp = ec2_client.create_security_group(create_sg_req).await;
     let sg_id = match resp {
@@ -280,7 +292,7 @@ pub async fn deploy_aws_create(
         ..Default::default()
     };
 
-    let elb_client = &s.elb_client;
+    let elb_client = state.elb_client.clone();
 
     let resp = elb_client.create_load_balancer(create_lb_req).await;
 
@@ -304,12 +316,12 @@ pub async fn deploy_aws_create(
 
     // set load balancer arn in output
     output.lb_arn = Some(load_balancer_arn.clone().unwrap());
-    let s = &mut state.lock().await;
+    let s = &mut state;
 
-    let store = &mut s.store;
-    store.insert_deploy_aws_output(output.clone());
+    // let store = &mut s.store;
+    // store.insert_deploy_aws_output(output.clone());
 
-    let s = &mut state.lock().await;
+    let s = &mut state;
 
     let route53_client = &s.route53_client;
 
@@ -356,9 +368,8 @@ pub async fn deploy_aws_create(
         }
     }
 
-    let s = &mut state.lock().await;
 
-    s.store.insert_deploy_aws_output(output.clone());
+    store.lock().await.insert_deploy_aws_output(output.clone());
 
     Ok(Json(output))
 }

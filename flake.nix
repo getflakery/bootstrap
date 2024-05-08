@@ -147,8 +147,8 @@
         };
         packages.amiDebug = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
-          format = "amazon";
-          modules = bootstrapModules ++ [
+          format = "docker";
+          modules = [
             {
               services.tailscale.enable = true;
               systemd.services.tailscale-autoconnect = {
@@ -174,7 +174,7 @@
                   fi
 
                   # otherwise authenticate with tailscale
-                  ${tailscale}/bin/tailscale up --ssh -authkey ''+ "tskey-auth-kNNroX9MjC21CNTRL-M8LbkuaHoq7To4t1c6Wdr7y3RYMuR5ZQ9" + '' -auth- --hostname test-ami
+                  ${tailscale}/bin/tailscale up --ssh -authkey ''+ "tskey-auth-kZX6CpmaY111CNTRL-Ay4cxbqjyJ7ihHv4C9X9J7prHj2AXcSUe" + '' -auth- --hostname test-ami
                 '';
               };
             }

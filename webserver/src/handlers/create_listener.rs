@@ -39,7 +39,8 @@ pub async fn create_listener_fake(_debug: debug_header::DebugHeader, _input: Jso
 #[openapi]
 #[post("/create-listener", data = "<input>", rank=2)]
 pub async fn create_listener(
-    state: &State<Mutex<AppState>>,
+    mut state: &State<AppState>,
+    store: &State<Mutex<crate::store::Store>>,
     input: Json<CreateListenerInput>,
 ) -> OResult<CreateListenerOutput> {
     // todo make this a config
@@ -48,8 +49,9 @@ pub async fn create_listener(
         "subnet-040ebc679c54ecf38".to_string(),
         "subnet-0e22657a6f50a3235".to_string(),
     ];
-    let s = state.lock().await;
-    let dplymnt = s.store.get_deploy_aws_output(input.deployment_id.clone());
+    let s =  store.lock().await;
+    let dplymnt = s.get_deploy_aws_output(input.deployment_id.clone());
+    // let dplymnt = None;
     print!("{:?}", dplymnt);
     let d = match dplymnt {
         Some(d) => {
@@ -64,7 +66,7 @@ pub async fn create_listener(
         }
     };
 
-    let  s = &mut state.lock().await;
+    let  s = &mut state;
 
     // create target group
     let elb_client = &s.elb_client;

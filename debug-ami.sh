@@ -19,6 +19,7 @@ do
     shift
 done
 
+virtualisation.podman.enable
 
 
 itid=$(aws ec2 import-snapshot $default_flags \

@@ -9,7 +9,7 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d "{
-  \"flake_url\": \"github:r33drichards/go-webserver#flakery\",
+  \"flake_url\": \"github:r33drichards/ts#hello-flakery\",
   \"instance_type\": \"t3.small\",
   \"deployment_slug\": \"${slug}\",
   \"subdomain_prefix\": \"${slug}\",

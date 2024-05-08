@@ -29,7 +29,6 @@ pub struct AppState {
     elb_client: rusoto_elbv2::ElbClient,
     ec2_client_ng: aws_sdk_ec2::Client,
     route53_client: aws_sdk_route53::Client,
-    store: store::Store,
 }
 
 #[rocket::main]
@@ -63,14 +62,14 @@ async fn main() {
             port: 8000,
             ..rocket::Config::default()
         })
-        .manage(Mutex::new(AppState {
+        .manage(AppState {
             ec2_client,
             as_client,
             elb_client,
             ec2_client_ng,
             route53_client,
-            store,
-        }))
+        })
+        .manage(Mutex::new(store))
         .mount(
             "/",
             openapi_get_routes![
