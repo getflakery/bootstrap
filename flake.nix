@@ -148,7 +148,7 @@
               imports = [
                 self.nixosModules."${system}".webserver
               ];
-              services.webserver.enable = true;
+              services.webserver.enable = false;
               services.tailscale = {
                 enable = true;
                 authKeyFile = "/tsauthkey";
