@@ -143,6 +143,7 @@
         packages.nixosConfigurations.webserver = nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
+            flakery.nixosModules.flakery
             {
               imports = [
                 self.nixosModules."${system}".webserver
