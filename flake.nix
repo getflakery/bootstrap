@@ -141,7 +141,8 @@
         };
 
         nixosConfigurations.webserver = nixpkgs.lib.nixosSystem {
-          inherit system;
+          # inherit system;
+          system = "x86_64-linux";
           modules = [
             {
               imports = [
