@@ -146,9 +146,9 @@
             flakery.nixosModules.flakery
             {
               imports = [
-                self.nixosModules."${system}".webserver
+                # self.nixosModules."${system}".webserver
               ];
-              services.webserver.enable = false;
+              # services.webserver.enable = true;
               services.tailscale = {
                 enable = true;
                 authKeyFile = "/tsauthkey";
