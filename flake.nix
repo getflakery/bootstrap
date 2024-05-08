@@ -140,8 +140,8 @@
           modules = bootstrapModules;
         };
 
-        nixosConfigurations.webserver = nixpkgs.lib.nixosSystem {
-          
+        packages.nixosConfigurations.webserver = nixpkgs.lib.nixosSystem {
+          inherit system;
           modules = [
             {
               imports = [
