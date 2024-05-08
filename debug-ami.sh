@@ -9,7 +9,7 @@ default_flags="--no-cli-auto-prompt --no-cli-pager"
 while test $# -gt 0
 do
     case "$1" in
-        --build) nix build .#amiDebug
+        --build) nix build .#ami
             ;;
         --cp) aws s3 cp "result/nixos-amazon-image-23.11.20231129.057f9ae-x86_64-linux.vhd"  "s3://nixos-base/bootstrap/nixos-bootstrap-debug.vhd"
             ;;
@@ -18,8 +18,6 @@ do
     esac
     shift
 done
-
-virtualisation.podman.enable
 
 
 itid=$(aws ec2 import-snapshot $default_flags \

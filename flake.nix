@@ -27,7 +27,7 @@
         pkgs = import nixpkgs {
           inherit system;
         };
-        
+
         app = pkgs.rustPlatform.buildRustPackage {
           pname = "app";
           version = "0.0.1";
@@ -71,11 +71,11 @@
               (
                 (pkgs.lib.sources.cleanSourceFilter name type) ||
                 # base name ends with .nix
-                pkgs.lib.hasSuffix ".nix" baseName  ||
+                pkgs.lib.hasSuffix ".nix" baseName ||
                 baseName == ".direnv" ||
                 baseName == "target" ||
-              # has prefix flake 
-              pkgs.lib.hasPrefix "flake" baseName
+                # has prefix flake 
+                pkgs.lib.hasPrefix "flake" baseName
               );
           };
 
@@ -101,27 +101,27 @@
           doCheck = false;
 
         };
-      bootstrapModules = [
-            flakery.nixosModules.flakery
-            {
-              imports = [
-                self.nixosModules."${system}".bootstrap
+        bootstrapModules = [
+          flakery.nixosModules.flakery
+          {
+            imports = [
+              self.nixosModules."${system}".bootstrap
 
-              ];
-              services.app.enable = true;
-              services.app.logUrl = "https://p.jjk.is/log";
-            }
-          ];
+            ];
+            services.app.enable = true;
+            services.app.logUrl = "https://p.jjk.is/log";
+          }
+        ];
       in
       {
-          # Executed by `nix run .#<name>`
+        # Executed by `nix run .#<name>`
         apps = {
-          app =  flake-utils.lib.mkApp { drv= app ; };
-          default = flake-utils.lib.mkApp { drv= app ; };
-          webserver = flake-utils.lib.mkApp { drv= app ; };
-          bootstrap = flake-utils.lib.mkApp { 
-            drv= bootstrap ;
-            exePath="/bin/app";
+          app = flake-utils.lib.mkApp { drv = app; };
+          default = flake-utils.lib.mkApp { drv = app; };
+          webserver = flake-utils.lib.mkApp { drv = app; };
+          bootstrap = flake-utils.lib.mkApp {
+            drv = bootstrap;
+            exePath = "/bin/app";
           };
         };
         packages.default = app;
@@ -142,7 +142,30 @@
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
-          modules = bootstrapModules;
+          modules = bootstrapModules ++ [
+            {
+              users.users.flakery = {
+                isNormalUser = true;
+                extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+                password = "flakery"; # Set the password for the user.
+              };
+              # allow sudo without password for wheel
+              security.sudo.wheelNeedsPassword = false;
+
+              services.openssh = {
+                enable = true;
+                # require public key authentication for better security
+                settings.PasswordAuthentication = false;
+                settings.KbdInteractiveAuthentication = false;
+              };
+
+              users.users."flakery".openssh.authorizedKeys.keys = [
+                # replace with your ssh key 
+                "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCs/e5M8zDNH5DUmqCGKM0OhHKU5iHFum3IUekq8Fqvegur7G2fhsmQnp09Mjc5pEw2AbfTYz11WMHsvC5WQdRWSS2YyZHYsPb9zIsVBNcss+H5x63ItsDjmbrS6m/9r7mRBOiN265+Mszc5lchFtRFetpi9f+EBis9r8atyPlsz86IoS2UxSSWonBARU4uwy2+TT7+mYg3cQf7kp1Y1sTqshXmcHUC5UVSRk3Ny9IbIMhk19fOxr3y8gaXoT5lB0NSLO8XFNbNT6rjZXH1kpiPJh3xLlWBPQtbcLrpm8oSS51zH7+zAGb7mauDHu2RcfBgq6m1clZ6vff65oVuHOI7"
+              ];
+
+            }
+          ];
 
         };
         packages.amiDebug = nixos-generators.nixosGenerate {
@@ -174,7 +197,7 @@
                   fi
 
                   # otherwise authenticate with tailscale
-                  ${tailscale}/bin/tailscale up --ssh -authkey ''+ "tskey-auth-kZX6CpmaY111CNTRL-Ay4cxbqjyJ7ihHv4C9X9J7prHj2AXcSUe" + '' -auth- --hostname test-ami
+                  ${tailscale}/bin/tailscale up --ssh -authkey '' + "tskey-auth-kZX6CpmaY111CNTRL-Ay4cxbqjyJ7ihHv4C9X9J7prHj2AXcSUe" + '' -auth- --hostname test-ami
                 '';
               };
             }
