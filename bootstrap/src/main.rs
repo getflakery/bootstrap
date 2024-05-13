@@ -168,6 +168,13 @@ async fn bootstrap() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
+    if args.contains(&"--print-deployment-id".to_string()) {
+        let ec2_tag_data = EC2TagData::new(&config).await?;
+        let deployment_id = ec2_tag_data.deployment_id;
+        println!("{}", deployment_id);
+        return Ok(());
+    }
+
     if args.contains(&"--attach-lb".to_string()) {
         let ec2_tag_data = EC2TagData::new(&config).await?;
         let deployment_id = ec2_tag_data.deployment_id;

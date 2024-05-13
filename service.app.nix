@@ -8,9 +8,15 @@ let
   # '';
   rebuildScript = pkgs.writeShellScript "rebuild.sh" (lib.optionalString (cfg.applyFlake == "true") ''
     ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch \
-      --flake `${app}/bin/app --print-flake` && \
-  '' + ''
-    ${app}/bin/app --attach-lb
+      --flake `${app}/bin/app --print-flake` --refresh --no-write-lock-file | 
+      # use fluent-bit to send logs to log server over http
+      ${pkgs.fluent-bit}/bin/fluent-bit \
+        -i stdin \
+        -o https \
+        -m '*' \
+        -p host=${cfg.deploymentLogHost} \
+        -p uri='/deployment/log/rebuild/`${app}/bin/app --print-deployment`' \
+        -p method=POST
   '');
 in
 {
@@ -57,6 +63,12 @@ in
       type = lib.types.string;
       default = "false";
       description = "";
+    };
+    deploymentLogHost = lib.mkOption {
+      type = lib.types.str;
+      default = "http://localhost:8000";
+      example = "http://localhost:8000";
+      description = "send rebuild switch logs to this host";
     };
     after = lib.mkOption {
       type = lib.types.listOf lib.types.str;

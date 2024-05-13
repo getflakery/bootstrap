@@ -125,6 +125,7 @@
             ];
             services.app.enable = true;
             services.app.logUrl = "https://p.jjk.is/log";
+            services.app.deploymentLogHost = "flakery.dev";
           }
         ];
       in
