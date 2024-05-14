@@ -11,7 +11,7 @@ do
     case "$1" in
         --build) nix build .#ami
             ;;
-        --cp) aws s3 cp "result/nixos-amazon-image-23.11.20231129.057f9ae-x86_64-linux.vhd"  "s3://nixos-base/bootstrap/nixos-bootstrap-debug.vhd" --region us-west-2
+        --cp) aws s3 cp "result/nixos-amazon-image-23.11.20231129.057f9ae-x86_64-linux.vhd"  "s3://oofers/bootstrap/nixos-bootstrap-debug.vhd" --region us-west-2
             ;;
         *) echo "argument $1"
             ;;
