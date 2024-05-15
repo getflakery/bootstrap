@@ -87,6 +87,8 @@ def main():
         result_path = get_result_path()
 
         s3_client = boto3.client('s3', config=my_config)
+        print("uploading to s3")
+        print(f"Uploading {result_path} to s3://oofers/{args.s3_key}")
         s3_client.upload_file(
             result_path,
             'oofers',
