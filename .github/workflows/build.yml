@@ -11,15 +11,22 @@ env:
   AWS_REGION: us-west-2
   
 jobs:
-  ami:
+  build-amis:
     runs-on: ubuntu-22.04
     permissions:
       id-token: "write"
       contents: "read"
+    strategy:
+      matrix:
+        ami:
+          - name: ami
+            s3-key: ami
+          - name: debugAmi
+            s3-key: debug-ami
     steps:
       - uses: actions/checkout@v3
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - uses: DeterminateSystems/flake-checker-action@main
       - name: Create AMI
-        run: ./create-ami.py --flake .#ami --s3-key ami
+        run: ./create-ami.py --flake .#${{ matrix.ami.name }} --s3-key ${{ matrix.ami.s3-key }}
