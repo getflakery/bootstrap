@@ -1,4 +1,4 @@
-name: CI
+name: Build AMI's
 
 on:
   pull_request:
@@ -11,8 +11,7 @@ env:
   AWS_REGION: us-west-2
   
 jobs:
-  
-  with-create-ami:
+  ami:
     runs-on: ubuntu-22.04
     permissions:
       id-token: "write"
