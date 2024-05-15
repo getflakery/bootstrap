@@ -21,8 +21,8 @@ jobs:
         ami:
           - name: ami
             s3-key: ami
-          - name: debugAmi
-            s3-key: debug-ami
+          - name: amiDebug
+            s3-key: amiDebug
     steps:
       - uses: actions/checkout@v3
       - uses: DeterminateSystems/nix-installer-action@main
