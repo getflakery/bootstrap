@@ -1,6 +1,14 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i sh -p awscli2 jq coreutils ripgrep util-linux
 
+# This script is used to import a snapshot of a NixOS image into AWS and create an AMI from it.
+
+set -e # Exit on error
+set -u # Exit on unset variable
+set -o pipefail # Exit on pipe error
+
+
+
 
 default_flags="--no-cli-auto-prompt --no-cli-pager"
 
@@ -9,7 +17,8 @@ default_flags="--no-cli-auto-prompt --no-cli-pager"
 while test $# -gt 0
 do
     case "$1" in
-        --build) nix build .#ami
+        # --build) nix build ;next arg here;
+        --build) nix build $2; shift
             ;;
         --cp) aws s3 cp "result/nixos-amazon-image-23.11.20231129.057f9ae-x86_64-linux.vhd"  "s3://oofers/bootstrap/nixos-bootstrap-debug.vhd" --region us-west-2
             ;;

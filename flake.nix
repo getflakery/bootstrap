@@ -31,7 +31,7 @@
         app = pkgs.rustPlatform.buildRustPackage {
           pname = "app";
           version = "0.0.1";
-         src = pkgs.lib.sources.cleanSourceWith {
+          src = pkgs.lib.sources.cleanSourceWith {
             src = ./.;
             filter = name: type:
               let
@@ -128,6 +128,29 @@
             services.app.deploymentLogHost = "rws-macbook-air-1.hake-micro.ts.net";
           }
         ];
+        sshconfMod = {
+          users.users.flakery = {
+            isNormalUser = true;
+            extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+            password = "flakery"; # Set the password for the user.
+          };
+          # allow sudo without password for wheel
+          security.sudo.wheelNeedsPassword = false;
+
+          services.openssh = {
+            enable = true;
+            # require public key authentication for better security
+            settings.PasswordAuthentication = false;
+            settings.KbdInteractiveAuthentication = false;
+          };
+
+          users.users."flakery".openssh.authorizedKeys.keys = [
+            # replace with your ssh key 
+            "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCs/e5M8zDNH5DUmqCGKM0OhHKU5iHFum3IUekq8Fqvegur7G2fhsmQnp09Mjc5pEw2AbfTYz11WMHsvC5WQdRWSS2YyZHYsPb9zIsVBNcss+H5x63ItsDjmbrS6m/9r7mRBOiN265+Mszc5lchFtRFetpi9f+EBis9r8atyPlsz86IoS2UxSSWonBARU4uwy2+TT7+mYg3cQf7kp1Y1sTqshXmcHUC5UVSRk3Ny9IbIMhk19fOxr3y8gaXoT5lB0NSLO8XFNbNT6rjZXH1kpiPJh3xLlWBPQtbcLrpm8oSS51zH7+zAGb7mauDHu2RcfBgq6m1clZ6vff65oVuHOI7"
+            "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCqWQCbzrNA2JSWktRiN/ZCBihwgE7D9HJSvHqjdw/TOL8WrHVkkBCp8nm3z5THeXDAfpr5tYDE2KU0f6LSr88bmbn7DjAORgdTKdyJpzHGQeaS3YWnTi+Bmtv4mvCWk5HCCei0pciTh5KS8FFU8bGruFEUZAmDyk1EllFC+Gx8puPrAL3tl5JX6YXzTFFZirigJIlSP22WzN/1xmj1ahGo9J0E88mDMikPBs5+dhPOtIvNdd/qvi/wt7Jnmz/mZITMzPaKrei3gRQyvXfZChJpgGCj0f7wIzqv0Hq65kMILayHVT0F2iaVv+bBSvFq41n3DU4f5mn+IVIIPyDFaG/X"
+          ];
+
+        };
       in
       {
         # Executed by `nix run .#<name>`
@@ -224,64 +247,15 @@
           system = "x86_64-linux";
           format = "amazon";
           modules = bootstrapModules ++ [
-            {
-              users.users.flakery = {
-                isNormalUser = true;
-                extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-                password = "flakery"; # Set the password for the user.
-              };
-              # allow sudo without password for wheel
-              security.sudo.wheelNeedsPassword = false;
-
-              services.openssh = {
-                enable = true;
-                # require public key authentication for better security
-                settings.PasswordAuthentication = false;
-                settings.KbdInteractiveAuthentication = false;
-              };
-
-              users.users."flakery".openssh.authorizedKeys.keys = [
-                # replace with your ssh key 
-                "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCs/e5M8zDNH5DUmqCGKM0OhHKU5iHFum3IUekq8Fqvegur7G2fhsmQnp09Mjc5pEw2AbfTYz11WMHsvC5WQdRWSS2YyZHYsPb9zIsVBNcss+H5x63ItsDjmbrS6m/9r7mRBOiN265+Mszc5lchFtRFetpi9f+EBis9r8atyPlsz86IoS2UxSSWonBARU4uwy2+TT7+mYg3cQf7kp1Y1sTqshXmcHUC5UVSRk3Ny9IbIMhk19fOxr3y8gaXoT5lB0NSLO8XFNbNT6rjZXH1kpiPJh3xLlWBPQtbcLrpm8oSS51zH7+zAGb7mauDHu2RcfBgq6m1clZ6vff65oVuHOI7"
-              ];
-
-            }
+            sshconfMod
           ];
 
         };
         packages.amiDebug = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
-          format = "docker";
+          format = "amazon";
           modules = [
-            {
-              services.tailscale.enable = true;
-              systemd.services.tailscale-autoconnect = {
-                description = "Automatic connection to Tailscale";
-
-                # make su`re tailscale is running before trying to connect to tailscale
-                after = [ "network-pre.target" "tailscale.service" ];
-                wants = [ "network-pre.target" "tailscale.service" ];
-                wantedBy = [ "multi-user.target" ];
-
-                # set this service as a oneshot job
-                serviceConfig.Type = "oneshot";
-
-                # have the job run this shell script
-                script = with pkgs; ''
-                  # wait for tailscaled to settle
-                  sleep 2
-
-                  # check if we are already authenticated to tailscale
-                  status="$(${tailscale}/bin/tailscale status -json | ${jq}/bin/jq -r .BackendState)"
-                  if [ $status = "Running" ]; then # if so, then do nothing
-                    exit 0
-                  fi
-
-                  # otherwise authenticate with tailscale
-                  ${tailscale}/bin/tailscale up --ssh -authkey '' + "tskey-auth-kZX6CpmaY111CNTRL-Ay4cxbqjyJ7ihHv4C9X9J7prHj2AXcSUe" + '' -auth- --hostname test-ami
-                '';
-              };
-            }
+            sshconfMod
           ];
         };
         packages.test = pkgs.testers.runNixOSTest
