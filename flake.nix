@@ -91,6 +91,8 @@
                 baseName == "target" ||
                 # has prefix flake 
                 pkgs.lib.hasPrefix "flake" baseName
+                # has suffix .py
+                pkgs.lib.hasSuffix ".py" baseName
               );
           };
 
