@@ -12,11 +12,9 @@ let
       # use fluent-bit to send logs to log server over http
       ${pkgs.fluent-bit}/bin/fluent-bit \
         -i stdin \
-        -o http://${cfg.deploymentLogHost}
-        -p tls=on         \
-        -m '*' \
-        -p uri='/deployment/log/rebuild/`${app}/bin/app --print-deployment`' \
-        -p method=POST
+        -o http://${cfg.deploymentLogHost}/deployment/log/rebuild/`${app}/bin/app --print-deployment` \
+        -p tls=on \
+        -m '*' 
   '');
 in
 {
