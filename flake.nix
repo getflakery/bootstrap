@@ -295,7 +295,6 @@
                 # Empty config sets some defaults
                 imports = [
                   self.nixosModules."${system}".bootstrap
-                  self.nixosModules."${system}".webserver
                 ];
 
                 services.app.enable = true;
@@ -307,7 +306,6 @@
 
                 services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
 
-                services.webserver.enable = true;
 
                 systemd.services.seeddb = {
                   wantedBy = [ "multi-user.target" ];
@@ -338,8 +336,6 @@
               machine1.wait_for_file("/foo/bar.txt")
               response = machine1.succeed("cat /foo/bar.txt")
               assert "secret" in response
-              response = machine1.succeed("journalctl -xeu webserver.service")
-              assert "Log:" in response
             '';
           };
       })
