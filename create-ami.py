@@ -24,10 +24,13 @@ def get_snapshot_status(task_id):
     response = ec2_client.describe_import_snapshot_tasks(ImportTaskIds=[task_id])
     status = response['ImportSnapshotTasks'][0]['SnapshotTaskDetail']['Status']
     try:
+        status = response['ImportSnapshotTasks'][0]['SnapshotTaskDetail']['Status']
+    except KeyError:
+        status = "No status available"
+    try:
         message = response['ImportSnapshotTasks'][0]['SnapshotTaskDetail']['StatusMessage']
     except KeyError:
         message = "No message available"
-    # message = response['ImportSnapshotTasks'][0]['SnapshotTaskDetail']['StatusMessage']
     return status, message
 
 def get_snapshot_id(task_id):
