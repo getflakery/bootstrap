@@ -1,6 +1,9 @@
 app:
 { config, lib, pkgs, ... }:
-
+# $ fluent-bit -i cpu -t cpu -o http://192.168.2.3:80/something \
+#     -p tls=on         \
+#     -p tls.verify=off \
+#     -m '*'
 let
   cfg = config.services.app;
   #   rebuildScript = pkgs.writeShellScript "rebuild.sh"  ''
@@ -12,9 +15,9 @@ let
       # use fluent-bit to send logs to log server over http
       ${pkgs.fluent-bit}/bin/fluent-bit \
         -i stdin \
-        -o https \
+        -o http://${cfg.deploymentLogHost}
+        -p tls=on         \
         -m '*' \
-        -p host=${cfg.deploymentLogHost} \
         -p uri='/deployment/log/rebuild/`${app}/bin/app --print-deployment`' \
         -p method=POST
   '');
