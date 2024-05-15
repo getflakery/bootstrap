@@ -9,10 +9,8 @@ let
   rebuildScript = pkgs.writeShellScript "rebuild.sh" (lib.optionalString (cfg.applyFlake == "true") ''
       export DEPLOYMENT=`${app}/bin/app --print-deployment`
       ${pkgs.fluent-bit}/bin/fluent-bit \
-        -i exec -p 'command=${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake `${app}/bin/app --print-flake` --refresh --no-write-lock-file' \
-        -o http://${cfg.deploymentLogHost}/deployment/log/rebuild/$DEPLOYMENT \
-        -p tls=on \
-        -m '*' 
+        -i exec -p 'command=${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake `${app}/bin/app --print-flake` --refresh --no-write-lock-file 2>&1' \
+        -o http://rws-macbook-air-1.hake-micro.ts.net/api/deployments/log/rebuild/$DEPLOYMENT -p 'tls=on' -m '*' -p 'Port=443' -p 'Format=json'
   '');
 in
 {
