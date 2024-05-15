@@ -23,7 +23,11 @@ def get_snapshot_status(task_id):
     ec2_client = boto3.client('ec2', config=my_config)
     response = ec2_client.describe_import_snapshot_tasks(ImportTaskIds=[task_id])
     status = response['ImportSnapshotTasks'][0]['SnapshotTaskDetail']['Status']
-    message = response['ImportSnapshotTasks'][0]['SnapshotTaskDetail']['StatusMessage']
+    try:
+        message = response['ImportSnapshotTasks'][0]['SnapshotTaskDetail']['StatusMessage']
+    except KeyError:
+        message = "No message available"
+    # message = response['ImportSnapshotTasks'][0]['SnapshotTaskDetail']['StatusMessage']
     return status, message
 
 def get_snapshot_id(task_id):
