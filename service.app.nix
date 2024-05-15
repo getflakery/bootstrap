@@ -6,9 +6,6 @@ app:
 #     -m '*'
 let
   cfg = config.services.app;
-  #   rebuildScript = pkgs.writeShellScript "rebuild.sh"  ''
-  #   ${app}/bin/app --attach-lb
-  # '';
   rebuildScript = pkgs.writeShellScript "rebuild.sh" (lib.optionalString (cfg.applyFlake == "true") ''
     ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch \
       --flake `${app}/bin/app --print-flake` --refresh --no-write-lock-file | 
