@@ -22,4 +22,4 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - uses: DeterminateSystems/flake-checker-action@main
       - name: Create AMI
-        run: ./create-ami.py --flake .#ami --s3-key="ami"
+        run: ./create-ami.py --flake .#ami --s3-key ami
