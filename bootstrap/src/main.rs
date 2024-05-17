@@ -81,9 +81,7 @@ async fn main() -> ExitCode {
     match bootstrap().await {
         Ok(_) => ExitCode::SUCCESS,
         Err(e) => {
-            // httplog(&format!("error bootstrapping: {:?}", e)).await;
-            // print backtrace
-            eprintln!("{:?}", e);
+            eprintln!("{:?} {}:{}", e, file!(), line!());
             return ExitCode::from(42);
         }
     }
