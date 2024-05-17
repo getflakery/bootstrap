@@ -5,11 +5,7 @@ use std::path::Path;
 use anyhow::{Context, Result};
 use libaes::Cipher;
 use libsql::{params, Builder};
-use serde::Serialize;
 use std::process::ExitCode;
-use flakery_client::types::{CreateListenerInput, Mapping};
-
-use reqwest::header;
 
 struct EC2TagData {
     turso_token: Option<String>,
@@ -60,33 +56,19 @@ struct Config {
     url_prefix: String,
     sql_url: String,
     use_local: bool,
-    rclient: reqwest::Client,
 }
 
 impl Config {
     fn new() -> Self {
         let url_prefix = std::env::var("URL_PREFIX").unwrap_or("http://169.254.169.254/latest/meta-data/tags/instance/".to_string());
         let sql_url = std::env::var("SQL_URL").unwrap_or("libsql://flakery-r33drichards.turso.io".to_string());
-        let use_local = std::env::var("USE_LOCAL").unwrap_or("false".to_string()) == "true";
-        let set_debug_header = std::env::var("SET_DEBUG_HEADER").unwrap_or("false".to_string()) == "true";
-        
-        let rclient = {
-            let dur = std::time::Duration::from_secs(15);
-            let mut builder = reqwest::ClientBuilder::new().connect_timeout(dur).timeout(dur);
-            
-            let mut headers: header::HeaderMap = header::HeaderMap::new();
-            if set_debug_header {
-                headers.insert("Debug", header::HeaderValue::from_static("true"));
-            }
-            builder = builder.default_headers(headers);
-            builder.build().unwrap()
-        };
+        let use_local = std::env::var("USE_LOCAL").unwrap_or("false".to_string()) == "true";        
+
 
         Self {
             url_prefix,
             sql_url,
             use_local,
-            rclient,
         }
     }
 }
@@ -128,25 +110,6 @@ async fn bootstrap() -> Result<()> {
     if args.contains(&"--print-deployment-id".to_string()) {
         let ec2_tag_data = EC2TagData::new(&config).await?;
         println!("{}", ec2_tag_data.deployment_id);
-        return Ok(());
-    }
-
-    if args.contains(&"--attach-lb".to_string()) {
-        let ec2_tag_data = EC2TagData::new(&config).await?;
-        let deployment_id = ec2_tag_data.deployment_id;
-
-        flakery_client::Client::new_with_client("http://localhost:8000", config.rclient)
-            .handlers_create_listener_create_listener(&CreateListenerInput {
-                deployment_id: deployment_id.clone(),
-                mappings: vec![
-                    Mapping {
-                        listener_port: todo!("443"),
-                        target_port: todo!("8000"),
-                    },
-                ],
-            })
-            .await?;
-
         return Ok(());
     }
 

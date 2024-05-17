@@ -646,13 +646,10 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "dotenv",
- "flakery-client",
  "hex",
  "libaes",
  "libsql",
  "reqwest",
- "serde",
- "serde_json",
  "tokio",
 ]
 
