@@ -9,7 +9,8 @@
       pkgs.openssl.dev
       swagger-codegen
       libiconv
-      darwin.apple_sdk.frameworks.Security # todo only if darwin
+      darwin.Security # todo only if darwin
+      darwin.apple_sdk.frameworks.SystemConfiguration # todo only if darwin
       # python3.withPackages (ps: with ps; [ boto3 ])
     ];
     RUSTC_VERSION = pkgs.lib.readFile ./rust-toolchain;
@@ -23,8 +24,11 @@
     # Add precompiled library to rustc search path
     RUSTFLAGS = (builtins.map (a: ''-L ${a}/lib'') [#
       # add libraries here (e.g. pkgs.libvmi)
+      # "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+      
     ]);
     PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+
 
     # # Add glibc, clang, glib and other headers to bindgen search path
     # BINDGEN_EXTRA_CLANG_ARGS = 
