@@ -28,50 +28,6 @@
           inherit system;
         };
 
-        app = pkgs.rustPlatform.buildRustPackage {
-          pname = "app";
-          version = "0.0.1";
-          src = pkgs.lib.sources.cleanSourceWith {
-            src = ./.;
-            filter = name: type:
-              let
-                baseName = baseNameOf (toString name);
-              in
-              (
-                (pkgs.lib.sources.cleanSourceFilter name type) ||
-                # base name ends with .nix
-                pkgs.lib.hasSuffix ".nix" baseName ||
-                baseName == ".direnv" ||
-                baseName == "target" ||
-                # has prefix flake 
-                pkgs.lib.hasPrefix "flake" baseName
-              );
-          };
-
-          cargoLock = {
-            lockFile = ./Cargo.lock;
-          };
-
-          nativeBuildInputs = [
-            pkgs.pkg-config
-          ];
-          PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
-
-          buildPhase = ''
-            cargo build --release -p webserver
-          '';
-
-          installPhase = ''
-            mkdir -p $out/bin
-            cp target/release/webserver $out/bin/app
-          '';
-
-          # disable checkPhase
-          doCheck = false;
-
-        };
-
-
         bootstrap = pkgs.rustPlatform.buildRustPackage {
           pname = "bootstrap";
           version = "0.0.1";
@@ -156,23 +112,22 @@
       {
         # Executed by `nix run .#<name>`
         apps = {
-          app = flake-utils.lib.mkApp { drv = app; };
-          default = flake-utils.lib.mkApp { drv = app; };
-          webserver = flake-utils.lib.mkApp { drv = app; };
+          default = flake-utils.lib.mkApp {
+            drv = bootstrap;
+            exePath = "/bin/app";
+          };
           bootstrap = flake-utils.lib.mkApp {
             drv = bootstrap;
             exePath = "/bin/app";
           };
         };
-        packages.default = app;
-        packages.app = app;
+        packages.default = bootstrap;
 
         # devShells.default = app;
         devShells.default = import ./shell.nix { inherit pkgs; };
         packages.bootstrap = bootstrap;
 
         nixosModules.bootstrap = ((import ./service.app.nix) self.packages."${system}".bootstrap);
-        nixosModules.webserver = ((import ./service.webserver.nix) self.packages."${system}".app);
 
         packages.nixosConfigurations.bootstrap = nixpkgs.lib.nixosSystem {
           inherit system;
