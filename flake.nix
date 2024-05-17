@@ -106,7 +106,7 @@
           PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
           buildPhase = ''
-            cargo build --release -p bootstrap
+            cargo build --release -g -p bootstrap
           '';
 
           installPhase = ''
@@ -126,7 +126,6 @@
 
             ];
             services.app.enable = true;
-            services.app.logUrl = "https://p.jjk.is/log";
             services.app.deploymentLogHost = "rws-macbook-air-1.hake-micro.ts.net";
           }
         ];

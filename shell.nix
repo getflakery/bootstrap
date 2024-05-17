@@ -10,7 +10,6 @@
       swagger-codegen
       libiconv
       darwin.apple_sdk.frameworks.Security # todo only if darwin
-      
       # python3.withPackages (ps: with ps; [ boto3 ])
     ];
     RUSTC_VERSION = pkgs.lib.readFile ./rust-toolchain;
