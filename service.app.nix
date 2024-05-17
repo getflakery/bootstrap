@@ -7,6 +7,7 @@ app:
 let
   cfg = config.services.app;
   rebuildScript = pkgs.writeShellScript "rebuild.sh" (lib.optionalString (cfg.applyFlake == "true") ''
+      export RUST_BACKTRACE=1
       export DEPLOYMENT=`${app}/bin/app --print-deployment`
       ${pkgs.fluent-bit}/bin/fluent-bit \
         -i exec -p 'command=${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake `${app}/bin/app --print-flake` --refresh --no-write-lock-file 2>&1' \

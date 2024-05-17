@@ -10,6 +10,7 @@
       swagger-codegen
       libiconv
       darwin.apple_sdk.frameworks.Security # todo only if darwin
+      
       # python3.withPackages (ps: with ps; [ boto3 ])
     ];
     RUSTC_VERSION = pkgs.lib.readFile ./rust-toolchain;
@@ -17,10 +18,11 @@
     LIBCLANG_PATH = pkgs.lib.makeLibraryPath [ pkgs.llvmPackages_latest.libclang.lib ];
     shellHook = ''
       export PATH=$PATH:''${CARGO_HOME:-~/.cargo}/bin
-      export PATH=$PATH:''${RUSTUP_HOME:-~/.rustup}/toolchains/$RUSTC_VERSION-aarch64-darwinbin/
+      export PATH=$PATH:''${RUSTUP_HOME:-~/.rustup}/toolchains/$RUSTC_VERSION-aarch64-darwin/bin/
+      export RUST_BACKTRACE=1
       '';
     # Add precompiled library to rustc search path
-    RUSTFLAGS = (builtins.map (a: ''-L ${a}/lib'') [
+    RUSTFLAGS = (builtins.map (a: ''-L ${a}/lib'') [#
       # add libraries here (e.g. pkgs.libvmi)
     ]);
     PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";

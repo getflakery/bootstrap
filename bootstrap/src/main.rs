@@ -60,8 +60,6 @@ struct Config {
     url_prefix: String,
     sql_url: String,
     use_local: bool,
-    apply_flake: bool,
-    set_debug_header: bool,
     rclient: reqwest::Client,
 }
 
@@ -70,7 +68,6 @@ impl Config {
         let url_prefix = std::env::var("URL_PREFIX").unwrap_or("http://169.254.169.254/latest/meta-data/tags/instance/".to_string());
         let sql_url = std::env::var("SQL_URL").unwrap_or("libsql://flakery-r33drichards.turso.io".to_string());
         let use_local = std::env::var("USE_LOCAL").unwrap_or("false".to_string()) == "true";
-        let apply_flake = std::env::var("APPLY_FLAKE").unwrap_or("true".to_string()) == "true";
         let set_debug_header = std::env::var("SET_DEBUG_HEADER").unwrap_or("false".to_string()) == "true";
         
         let rclient = {
@@ -89,47 +86,38 @@ impl Config {
             url_prefix,
             sql_url,
             use_local,
-            apply_flake,
-            set_debug_header,
             rclient,
         }
     }
 }
 
-#[derive(Serialize)]
-struct LogInput {
-    log: String,
-}
 
-async fn httplog(input: &str) {
-    println!("{}", input);
-    if std::env::var("TEST").unwrap_or("".to_string()) == "true" {
-        return;
-    }
-    let log_url = std::env::var("LOG_URL").unwrap_or("http://localhost:8000/log".to_string());
-    let client = reqwest::Client::new();
-    let _ = client.post(&log_url)
-        .json(&LogInput { log: input.to_string() })
-        .send()
-        .await
-        .map_err(|e| println!("error: {:?}", e));
-}
+
 
 #[tokio::main]
 async fn main() -> ExitCode {
     match bootstrap().await {
         Ok(_) => ExitCode::SUCCESS,
         Err(e) => {
-            httplog(&format!("error bootstrapping: {:?}", e)).await;
+            // httplog(&format!("error bootstrapping: {:?}", e)).await;
+            // print backtrace
+            eprintln!("{:?}", e);
             return ExitCode::from(42);
         }
     }
 }
 
 async fn bootstrap() -> Result<()> {
+    let args: Vec<String> = env::args().collect();
+
+    if args.contains(&"--debug-error".to_string()) {
+        return Err(anyhow::anyhow!("debug error"));
+    }
+
+    
     let config = Config::new();
 
-    let args: Vec<String> = env::args().collect();
+
 
     if args.contains(&"--print-flake".to_string()) {
         let ec2_tag_data = EC2TagData::new(&config).await?;
@@ -162,11 +150,11 @@ async fn bootstrap() -> Result<()> {
         return Ok(());
     }
 
-    httplog("fetching ec2 tag data").await;
+    println!("fetching ec2 tag data");
     let ec2_tag_data = EC2TagData::new(&config).await?;
-    httplog("finished fetching ec2 tag data").await;
+    println!("fetched ec2 tag data");
 
-    httplog("fetching files").await;
+    println!("fetching files");
     let sql_url = config.sql_url;
     let token = ec2_tag_data.turso_token;
     let mut buffer = [0; 32];
@@ -176,8 +164,11 @@ async fn bootstrap() -> Result<()> {
         Some(token) => Builder::new_remote(sql_url.to_string(), token).build().await?,
         None => Builder::new_local(sql_url).build().await?,
     };
-
+    println!("connecting to db");
     let conn = db.connect()?;
+    println!("connected to db");
+
+    println!("querying files");
     let query = "SELECT f.* FROM files f JOIN template_files tf ON f.id = tf.file_id WHERE tf.template_id = ?1";
     let mut rows = conn.query(query, params!(ec2_tag_data.template_id)).await?;
     let mut files = Vec::new();
@@ -199,21 +190,21 @@ async fn bootstrap() -> Result<()> {
             content: String::from_utf8(decrypted).context("Failed to convert decrypted bytes to string")?,
         });
     }
-    httplog("finished fetching files").await;
+    // httplog("finished fetching files").await;
+    println!("finished fetching files");
 
-    httplog("writing files").await;
+    println!("writing files");
     for file in files {
         if !file.path.starts_with('/') {
             let msg = format!("path does not start with slash: {}", file.path);
-            httplog(&msg).await;
             return Err(anyhow::anyhow!(msg));
         }
         let dirpath = Path::new(&file.path).parent().unwrap_or(Path::new("/"));
         fs::create_dir_all(dirpath)?;
         fs::write(&file.path, &file.content)?;
     }
-    httplog("finished writing files").await;
-    httplog("bootstrap successful").await;
+    println!("finished writing files");
+    println!("finished bootstrapping"); 
 
     Ok(())
 }
