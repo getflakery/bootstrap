@@ -56,13 +56,18 @@
             lockFile = ./Cargo.lock;
           };
 
+          buildInputs = with pkgs; [
+            darwin.Security # todo only if darwin
+            darwin.apple_sdk.frameworks.SystemConfiguration # todo only if darwin
+          ];
+
           nativeBuildInputs = [
             pkgs.pkg-config
           ];
           PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
           buildPhase = ''
-            RUSTFLAGS=-g cargo build --release -p bootstrap
+            RUST_BACKTRACE=1 cargo build --release -p bootstrap
           '';
 
           installPhase = ''
@@ -72,7 +77,6 @@
 
           # disable checkPhase
           doCheck = false;
-
         };
         bootstrapModules = [
           flakery.nixosModules.flakery
@@ -131,7 +135,6 @@
 
         packages.nixosConfigurations.bootstrap = nixpkgs.lib.nixosSystem {
           inherit system;
-
           modules = bootstrapModules;
         };
 

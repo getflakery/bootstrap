@@ -19,8 +19,9 @@
     shellHook = ''
       export PATH=$PATH:''${CARGO_HOME:-~/.cargo}/bin
       export PATH=$PATH:''${RUSTUP_HOME:-~/.rustup}/toolchains/$RUSTC_VERSION-aarch64-darwin/bin/
-      export RUST_BACKTRACE=1
       '';
+    RUST_BACKTRACE=1;
+
     # Add precompiled library to rustc search path
     RUSTFLAGS = (builtins.map (a: ''-L ${a}/lib'') [#
       # add libraries here (e.g. pkgs.libvmi)
