@@ -57,8 +57,8 @@
           };
 
           buildInputs = with pkgs; [
-            darwin.Security # todo only if darwin
-            darwin.apple_sdk.frameworks.SystemConfiguration # todo only if darwin
+            # darwin.Security # todo only if darwin
+            # darwin.apple_sdk.frameworks.SystemConfiguration # todo only if darwin
           ];
 
           nativeBuildInputs = [
@@ -86,7 +86,7 @@
 
             ];
             services.app.enable = true;
-            services.app.deploymentLogHost = "rws-macbook-air-1.hake-micro.ts.net";
+            services.app.deploymentLogHost = "flakery.dev";
           }
         ];
         sshconfMod = {
