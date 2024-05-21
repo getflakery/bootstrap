@@ -9,7 +9,7 @@ let
   rebuildScript = pkgs.writeShellScript "rebuild.sh" (lib.optionalString (cfg.applyFlake == "true") ''
       export RUST_BACKTRACE=1
       export DEPLOYMENT=`${app}/bin/app --print-deployment-id`
-      export NIX_CONFIG="access-tokens = github.com=`${app}/bin/app --print-github-token`",
+      export NIX_CONFIG="access-tokens = github.com=`${app}/bin/app --print-github-token`"
       ${pkgs.fluent-bit}/bin/fluent-bit \
         -i exec -p 'command=${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake `${app}/bin/app --print-flake` --refresh --no-write-lock-file 2>&1' \
         -o http://flakery.dev/api/deployments/log/rebuild/$DEPLOYMENT -p 'tls=on' -m '*' -p 'Port=443' -p 'Format=json'
