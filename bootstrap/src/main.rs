@@ -13,6 +13,7 @@ struct EC2TagData {
     template_id: String,
     flake_url: String,
     deployment_id: String,
+    github_token: String,
 }
 
 impl EC2TagData {
@@ -23,6 +24,7 @@ impl EC2TagData {
         let template_id = reqwest::get(&format!("{}template_id", url_prefix)).await?.text().await?;
         let flake_url = reqwest::get(&format!("{}flake_url", url_prefix)).await?.text().await?;
         let deployment_id = reqwest::get(&format!("{}deployment_id", url_prefix)).await?.text().await?;
+        let github_token = reqwest::get(&format!("{}github_token", url_prefix)).await?.text().await?;
 
         if config.use_local {
             return Ok(Self {
@@ -31,6 +33,7 @@ impl EC2TagData {
                 template_id,
                 flake_url,
                 deployment_id,
+                github_token,
             });
         }
 
@@ -42,6 +45,7 @@ impl EC2TagData {
             template_id,
             flake_url,
             deployment_id,
+            github_token,
         })
     }
 }
@@ -108,6 +112,12 @@ async fn bootstrap() -> Result<()> {
     if args.contains(&"--print-deployment-id".to_string()) {
         let ec2_tag_data = EC2TagData::new(&config).await?;
         println!("{}", ec2_tag_data.deployment_id);
+        return Ok(());
+    }
+
+    if args.contains(&"--print-github-token".to_string()) {
+        let ec2_tag_data = EC2TagData::new(&config).await?;
+        println!("{}", ec2_tag_data.github_token);
         return Ok(());
     }
 
