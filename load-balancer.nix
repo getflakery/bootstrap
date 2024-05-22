@@ -41,11 +41,6 @@ in
       extraConfig = traefikStaticConfig;
     };
 
-    # Optionally, you can configure logging
-    logLevel = "INFO";
-    accessLogs = {
-      filePath = "/var/log/traefik/access.log";
-    };
   };
 
 
