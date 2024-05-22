@@ -138,6 +138,13 @@
           modules = bootstrapModules;
         };
 
+        packages.nixosConfigurations.lb = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./load-balancer.nix
+          ];
+        };
+        
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
