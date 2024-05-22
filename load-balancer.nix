@@ -38,9 +38,7 @@ in
       };
       providers = {
         http = {
-          endpoint = {
-            url = configURL;
-          };
+          endpoint = configURL;
           pollInterval = "10s";
         };
       };
