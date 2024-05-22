@@ -36,10 +36,10 @@ in
     staticConfigOptions = {
       entryPoints = {
         web = {
-          address = ":80"
+          address = ":80";
         };
         websecure = {
-          address = ":443"
+          address = ":443";
         };
       };
       certificatesResolvers = {
