@@ -1,9 +1,5 @@
 app:
 { config, lib, pkgs, ... }:
-# $ fluent-bit -i cpu -t cpu -o http://192.168.2.3:80/something \
-#     -p tls=on         \
-#     -p tls.verify=off \
-#     -m '*'
 let
   cfg = config.services.app;
   rebuildScript = pkgs.writeShellScript "rebuild.sh" (lib.optionalString (cfg.applyFlake == "true") ''
