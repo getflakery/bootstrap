@@ -141,6 +141,7 @@
         packages.nixosConfigurations.lb = nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
+            flakery.nixosModules.flakery
             ./load-balancer.nix
             sshconfMod
           ];

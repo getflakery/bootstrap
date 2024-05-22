@@ -13,25 +13,6 @@ in
 
     # Path to the Traefik binary
     package = pkgs.traefik;
-# entryPoints:
-#   web:
-#     address: ":80"
-#   websecure:
-#     address: ":443"
-
-# certificatesResolvers:
-#   myresolver:
-#     acme:
-#       email: your-email@example.com
-#       storage: acme.json
-#       httpChallenge:
-#         entryPoint: web
-
-# providers:
-#   http:
-#     endpoint:
-#       url: "http://config-server:8000/traefik/dynamic-config"
-#     pollInterval: "10s"
 
     staticConfigOptions = {
       entryPoints = {
