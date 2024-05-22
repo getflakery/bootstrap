@@ -158,8 +158,7 @@ nix develop --command cargo run --bin webserver -- --print-openapi > openapi.jso
 
 # gen client
 ```
-cargo install cargo-progenitor
-cargo progenitor -i openapi.json -o web-client -n flakery-client -v 0.1.0
+openapi-generator-cli generate -i ./openapi.json -g rust -o /tmp/test/ 
 ```
 
 # test an endpoint with fake 

@@ -12,6 +12,7 @@
       darwin.Security # todo only if darwin
       darwin.apple_sdk.frameworks.SystemConfiguration # todo only if darwin
       # python3.withPackages (ps: with ps; [ boto3 ])
+      openapi-generator-cli
     ];
     RUSTC_VERSION = pkgs.lib.readFile ./rust-toolchain;
     # https://github.com/rust-lacng/rust-bindgen#environment-variables

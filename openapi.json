@@ -1,286 +1,589 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.1.0",
   "info": {
-    "title": "webserver",
-    "version": "0.1.0"
+    "title": "Nitro Server Routes",
+    "version": "1.0.0"
   },
-  "paths": {
-    "/deploy/aws/create": {
-      "post": {
-        "description": "Get instance ID from queue\n\nRetrieves the next available EC2 instance ID from the queue.",
-        "operationId": "handlers_deploy_deploy_aws_create",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DeployAWSInput"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DeployAWSOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "# [400 Bad Request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)\nThe request given is wrongly formatted or data asked could not be fulfilled. "
-          },
-          "404": {
-            "description": "# [404 Not Found](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404)\nThis response is given when you request a page that does not exists."
-          },
-          "422": {
-            "description": "# [422 Unprocessable Entity](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422)\nThis response is given when you request body is not correctly formatted. "
-          },
-          "500": {
-            "description": "# [500 Internal Server Error](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500)\nThis response is given when something wend wrong on the server. "
-          }
-        }
-      }
-    },
-    "/log": {
-      "post": {
-        "description": "Get instance ID from queue\n\nRetrieves the next available EC2 instance ID from the queue.",
-        "operationId": "handlers_log_log",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LogInput"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LogOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "# [400 Bad Request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)\nThe request given is wrongly formatted or data asked could not be fulfilled. "
-          },
-          "404": {
-            "description": "# [404 Not Found](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404)\nThis response is given when you request a page that does not exists."
-          },
-          "422": {
-            "description": "# [422 Unprocessable Entity](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422)\nThis response is given when you request body is not correctly formatted. "
-          },
-          "500": {
-            "description": "# [500 Internal Server Error](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500)\nThis response is given when something wend wrong on the server. "
-          }
-        }
-      }
-    },
-    "/create-listener": {
-      "post": {
-        "operationId": "handlers_create_listener_create_listener",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateListenerInput"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateListenerOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "# [400 Bad Request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)\nThe request given is wrongly formatted or data asked could not be fulfilled. "
-          },
-          "404": {
-            "description": "# [404 Not Found](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404)\nThis response is given when you request a page that does not exists."
-          },
-          "422": {
-            "description": "# [422 Unprocessable Entity](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422)\nThis response is given when you request body is not correctly formatted. "
-          },
-          "500": {
-            "description": "# [500 Internal Server Error](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500)\nThis response is given when something wend wrong on the server. "
-          }
-        }
-      }
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local Development Server",
+      "variables": {}
     }
-  },
-  "components": {
-    "schemas": {
-      "DeployAWSOutput": {
-        "type": "object",
-        "required": [
-          "id",
-          "input"
+  ],
+  "paths": {
+    "/api/auth/github-redir": {
+      "get": {
+        "tags": [
+          "API Routes"
         ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "input": {
-            "$ref": "#/components/schemas/DeployAWSInput"
-          },
-          "lb_arn": {
-            "type": "string",
-            "nullable": true
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
-      },
-      "DeployAWSInput": {
-        "type": "object",
-        "required": [
-          "deployment_slug",
-          "flake_url",
-          "instance_type",
-          "subdomain_prefix",
-          "template_id"
+      }
+    },
+    "/api/auth/github": {
+      "get": {
+        "tags": [
+          "API Routes"
         ],
-        "properties": {
-          "flake_url": {
-            "type": "string"
-          },
-          "instance_type": {
-            "type": "string"
-          },
-          "deployment_slug": {
-            "type": "string"
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/File"
-            },
-            "nullable": true
-          },
-          "subdomain_prefix": {
-            "type": "string"
-          },
-          "min_size": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "max_size": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "targets": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Target"
-            },
-            "nullable": true
-          },
-          "template_id": {
-            "type": "string"
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
-      },
-      "File": {
-        "type": "object",
-        "required": [
-          "content",
-          "path"
+      }
+    },
+    "/api/deployment/{id}": {
+      "get": {
+        "tags": [
+          "API Routes"
         ],
-        "properties": {
-          "content": {
-            "type": "string"
-          },
-          "path": {
-            "type": "string"
-          }
-        }
-      },
-      "Target": {
-        "type": "object",
-        "required": [
-          "port"
-        ],
-        "properties": {
-          "port": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "health_check_path": {
-            "type": "string",
-            "nullable": true
-          },
-          "health_check_enabled": {
-            "type": "boolean",
-            "nullable": true
-          }
-        }
-      },
-      "LogOutput": {
-        "type": "object"
-      },
-      "LogInput": {
-        "type": "object",
-        "required": [
-          "log"
-        ],
-        "properties": {
-          "log": {
-            "type": "string"
-          }
-        }
-      },
-      "CreateListenerOutput": {
-        "type": "object"
-      },
-      "CreateListenerInput": {
-        "type": "object",
-        "required": [
-          "deployment_id",
-          "mappings"
-        ],
-        "properties": {
-          "deployment_id": {
-            "type": "string"
-          },
-          "mappings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Mapping"
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/deployments": {
+      "post": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
         }
       },
-      "Mapping": {
-        "type": "object",
-        "required": [
-          "listener_port",
-          "target_port"
+      "get": {
+        "tags": [
+          "API Routes"
         ],
-        "properties": {
-          "listener_port": {
-            "type": "integer",
-            "format": "int64"
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/deployments/delete/{id}": {
+      "post": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/deployments/log/rebuild/{id}": {
+      "post": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/files": {
+      "post": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/files/{id}": {
+      "delete": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/files/template/{id}": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/mails": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/members": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/template/{id}": {
+      "patch": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/templates": {
+      "post": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/templates/delete/{id}": {
+      "post": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/__nuxt_error": {
+      "get": {
+        "tags": [
+          "Internal"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/_auth/session": {
+      "delete": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/_mdc/highlight": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/_content/query/{qid}/{params}": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "qid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
-          "target_port": {
-            "type": "integer",
-            "format": "int64"
+          {
+            "name": "params",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/_content/query/{qid}": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "qid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/_content/query": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/_content/cache.json": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/_content/navigation/{qid}/{params}": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "qid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "params",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/_content/navigation/{qid}": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [
+          {
+            "name": "qid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/_content/navigation": {
+      "get": {
+        "tags": [
+          "API Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/_nitro/openapi.json": {
+      "get": {
+        "tags": [
+          "Internal"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/_nitro/scalar": {
+      "get": {
+        "tags": [
+          "Internal"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/_nitro/swagger": {
+      "get": {
+        "tags": [
+          "Internal"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
