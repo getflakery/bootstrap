@@ -19,7 +19,7 @@ in
         web.address = ":80";
         websecure.address = ":443";
         certificatesResolvers = {
-          myresolver = {
+          letsencrypt = {
             acme = {
               email = "rwendt1337@gmail.com";
               storage = "acme.json";
