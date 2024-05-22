@@ -3,7 +3,7 @@
 let
   # Define paths for your configuration files
   # read from /etc/deployment_id
-  deploymentID = pkgs.readFile "/etc/deployment_id";
+  deploymentID = builtins.readFile "/etc/deployment_id";
   configURL = "https://flakery.dev/api/deployments/lb-config/${deploymentID}";
   traefikStaticConfig = ''
     entryPoints:
