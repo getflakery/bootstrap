@@ -7,6 +7,8 @@ let
   configURL = "https://flakery.dev/api/deployments/lb-config/${deploymentID}";
 in
 {
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
+
   # Enable the Traefik service
   services.traefik = {
     enable = true;
