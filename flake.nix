@@ -142,6 +142,7 @@
           inherit system;
           modules = [
             ./load-balancer.nix
+            sshconfMod
           ];
         };
         
