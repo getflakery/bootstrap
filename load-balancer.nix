@@ -29,7 +29,7 @@ in
         letsencrypt = {
           acme = {
             email = "rwendt1337@gmail.com";
-            storage = "/etc/acme.json";
+            storage = "/data/acme.json";
             httpChallenge = {
               entryPoint = "web";
             };
