@@ -29,8 +29,7 @@ impl EC2TagData {
         let flake_url = reqwest::get(&format!("{}flake_url", url_prefix)).await?.text().await?;
         let deployment_id = reqwest::get(&format!("{}deployment_id", url_prefix)).await?.text().await?;
         let github_token = reqwest::get(&format!("{}github_token", url_prefix)).await?.text().await?;
-        let bootstrap_args = reqwest::get(&format!("{}bootstrap_args", url_prefix)).await?.text().await?.split_whitespace().collect();
-
+        let bootstrap_args = reqwest::get(&format!("{}bootstrap_args", url_prefix)).await?.text().await?.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
         if config.use_local {
             return Ok(Self {
                 turso_token: None,

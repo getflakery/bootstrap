@@ -1,6 +1,5 @@
 
 use anyhow::Result;
-use crate::Config;
 use crate::EC2TagData;
 use crate::File;
 
@@ -18,7 +17,7 @@ pub fn bootstrap_load_balancer(
 
     file.write()?;
     println!("wrote /etc/deployment_id");
-    
+
 
     Ok(())
 }
