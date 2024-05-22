@@ -16,18 +16,6 @@ in
     # Path to the Traefik binary
     package = pkgs.traefik;
 
-    extraConfigFiles = {
-      "/var/lib/traefik/acme.json" = {
-        text = '';
-          # Empty JSON object to initialize the file
-          {}
-        '';
-        permissions = "0600";
-        owner = "traefik";
-        group = "traefik";
-      };
-    };
-
     staticConfigOptions = {
       entryPoints = {
         web = {
