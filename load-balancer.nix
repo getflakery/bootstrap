@@ -18,21 +18,24 @@ in
 
     staticConfigOptions = {
       entryPoints = {
-        web.address = ":80";
-        websecure.address = ":443";
-        certificatesResolvers = {
-          letsencrypt = {
-            acme = {
-              email = "rwendt1337@gmail.com";
-              storage = "acme.json";
-              httpChallenge = {
-                entryPoint = "web";
-              };
+        web = {
+          address = ":80";
+        };
+        websecure = {
+          address = ":443";
+        };
+      };
+      certificatesResolvers = {
+        letsencrypt = {
+          acme = {
+            email = "rwendt1337@gmail.com";
+            storage = "acme.json";
+            httpChallenge = {
+              entryPoint = "web";
             };
           };
         };
       };
-
       providers = {
         http = {
           endpoint = {
@@ -44,4 +47,3 @@ in
     };
   };
 }
-
