@@ -1,9 +1,14 @@
-
-use anyhow::Result;
 use crate::EC2TagData;
 use crate::File;
+use anyhow::Result;
+use aws_config::meta::region::RegionProviderChain;
+use aws_sdk_route53::types::builders::ChangeBatchBuilder;
+use aws_sdk_route53::types::Change;
+use aws_sdk_route53::types::ChangeBatch;
+use aws_sdk_route53::types::ResourceRecord;
+use aws_sdk_route53::types::ResourceRecordSet;
+use aws_sdk_route53::{config::Region, meta::PKG_VERSION, Client, Error};
 use reqwest::get;
-
 
 async fn get_ip_address() -> Result<String> {
     let response = get("http://169.254.169.254/latest/meta-data/public-ipv4").await?;
@@ -24,11 +29,35 @@ async fn try_get_ip_address() -> Result<String> {
     Err(anyhow::anyhow!("could not get ip address"))
 }
 
-pub async fn bootstrap_load_balancer(
-    ec2_tag_data: &EC2TagData,
-) -> Result<()> {
-    println!("bootstrap_load_balancer");
+async fn create_record(addr: String, name: String) -> Result<()> {
+    let region_provider = RegionProviderChain::default_provider();
 
+    let shared_config = aws_config::from_env().region(region_provider).load().await;
+    let client = Client::new(&shared_config);
+    let cb = ChangeBatch::builder().set_changes(Some(vec![Change::builder()
+        .set_action(Some(aws_sdk_route53::types::ChangeAction::Upsert))
+        .set_resource_record_set(
+            Some(ResourceRecordSet::builder()
+            .name(name)
+            .r#type("A".into())
+            .ttl(300)
+            .resource_records(ResourceRecord::builder().value(addr).build()?)
+            .build()?),
+        ).build()?]));
+
+    let request = client
+        .change_resource_record_sets()
+        .hosted_zone_id("todo change me")
+        .change_batch(cb.build()?);
+
+    match request.send().await {
+        Ok(_) => Ok(()),
+        Err(e) => Err(Error::from(e).into()),
+    }
+}
+
+pub async fn bootstrap_load_balancer(ec2_tag_data: &EC2TagData) -> Result<()> {
+    println!("bootstrap_load_balancer");
 
     print!("writing /etc/deployment_id");
     let file = File::new(
@@ -45,7 +74,13 @@ pub async fn bootstrap_load_balancer(
 
     // create dns record for {ec2_tag_data.name}.flakery.app
     // in route53
-    // if the record already exists, create the record 
-    // {ec2_tag_data.name}.{}
-    Ok(())
+    // if the record already exists, create the record
+    // {ec2_tag_data.name}.{ec2_tag_data.deployment_id[0:6]}.flakery.app
+
+    let name = format!("{}.flakery.app", ec2_tag_data.name);
+    let name_short = format!("{}.{}.flakery.app", ec2_tag_data.name, &ec2_tag_data.deployment_id[0..6]);
+
+    create_record(ip.clone(), name.clone()).await?;
+    create_record(ip.clone(), name_short.clone()).await?;
+    Ok(()) 
 }
