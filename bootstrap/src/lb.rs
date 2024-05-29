@@ -2,12 +2,11 @@ use crate::EC2TagData;
 use crate::File;
 use anyhow::Result;
 use aws_config::meta::region::RegionProviderChain;
-use aws_sdk_route53::types::builders::ChangeBatchBuilder;
 use aws_sdk_route53::types::Change;
 use aws_sdk_route53::types::ChangeBatch;
 use aws_sdk_route53::types::ResourceRecord;
 use aws_sdk_route53::types::ResourceRecordSet;
-use aws_sdk_route53::{config::Region, meta::PKG_VERSION, Client, Error};
+use aws_sdk_route53::{Client, Error};
 use reqwest::get;
 
 async fn get_ip_address() -> Result<String> {
@@ -77,10 +76,7 @@ pub async fn bootstrap_load_balancer(ec2_tag_data: &EC2TagData) -> Result<()> {
     // if the record already exists, create the record
     // {ec2_tag_data.name}.{ec2_tag_data.deployment_id[0:6]}.flakery.app
 
-    let name = format!("{}.flakery.xyz", ec2_tag_data.name);
     let name_short = format!("{}.{}.flakery.xyz", ec2_tag_data.name, &ec2_tag_data.deployment_id[0..6]);
-
-    create_record(ip.clone(), name.clone()).await?;
     create_record(ip.clone(), name_short.clone()).await?;
     Ok(()) 
 }
