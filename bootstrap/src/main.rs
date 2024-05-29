@@ -153,7 +153,7 @@ async fn bootstrap() -> Result<()> {
 
     if args.contains(&"--lb".to_string()) {
         let ec2_tag_data = EC2TagData::new(&config).await?;
-        return bootstrap_load_balancer( &ec2_tag_data);
+        return bootstrap_load_balancer( &ec2_tag_data).await;
     }
 
 
