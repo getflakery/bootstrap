@@ -47,7 +47,7 @@ async fn create_record(addr: String, name: String) -> Result<()> {
 
     let request = client
         .change_resource_record_sets()
-        .hosted_zone_id("todo change me")
+        .hosted_zone_id("Z03309493AGZOVY2IU47X")
         .change_batch(cb.build()?);
 
     match request.send().await {
@@ -77,8 +77,8 @@ pub async fn bootstrap_load_balancer(ec2_tag_data: &EC2TagData) -> Result<()> {
     // if the record already exists, create the record
     // {ec2_tag_data.name}.{ec2_tag_data.deployment_id[0:6]}.flakery.app
 
-    let name = format!("{}.flakery.app", ec2_tag_data.name);
-    let name_short = format!("{}.{}.flakery.app", ec2_tag_data.name, &ec2_tag_data.deployment_id[0..6]);
+    let name = format!("{}.flakery.xyz", ec2_tag_data.name);
+    let name_short = format!("{}.{}.flakery.xyz", ec2_tag_data.name, &ec2_tag_data.deployment_id[0..6]);
 
     create_record(ip.clone(), name.clone()).await?;
     create_record(ip.clone(), name_short.clone()).await?;
