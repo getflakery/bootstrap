@@ -77,6 +77,9 @@ pub async fn bootstrap_load_balancer(ec2_tag_data: &EC2TagData) -> Result<()> {
     // {ec2_tag_data.name}.{ec2_tag_data.deployment_id[0:6]}.flakery.app
 
     let name_short = format!("{}.{}.flakery.xyz", ec2_tag_data.name, &ec2_tag_data.deployment_id[0..6]);
+
+    println!("creating record for {}", name_short);
     create_record(ip.clone(), name_short.clone()).await?;
+    println!("created record for {}", name_short);
     Ok(()) 
 }
