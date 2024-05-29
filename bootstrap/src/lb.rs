@@ -42,5 +42,10 @@ pub async fn bootstrap_load_balancer(
     // try to get the public ip address of the instance
     let ip = try_get_ip_address().await?;
     println!("public ip address: {}", ip);
+
+    // create dns record for {ec2_tag_data.name}.flakery.app
+    // in route53
+    // if the record already exists, create the record 
+    // {ec2_tag_data.name}.{}
     Ok(())
 }
