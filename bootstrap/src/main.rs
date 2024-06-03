@@ -9,7 +9,10 @@ use std::process::ExitCode;
 
 mod lb;
 use lb::bootstrap_load_balancer;
+mod add_target;
+use add_target::add_target;
 
+#[derive(Clone, Debug)]
 pub struct EC2TagData {
     turso_token: Option<String>,
     file_encryption_key: String,
@@ -157,13 +160,12 @@ async fn bootstrap() -> Result<()> {
     }
 
 
-    println!("fetching files");
     let sql_url = config.sql_url;
-    let token = ec2_tag_data.turso_token;
+    let token = ec2_tag_data.clone().turso_token;
     let mut buffer = [0; 32];
     hex::decode_to_slice(&ec2_tag_data.file_encryption_key, &mut buffer)?;
     let cipher = Cipher::new_256(&buffer);
-    let db = match token {
+    let db: libsql::Database = match token {
         Some(token) => Builder::new_remote(sql_url.to_string(), token).build().await?,
         None => Builder::new_local(sql_url).build().await?,
     };
@@ -171,6 +173,12 @@ async fn bootstrap() -> Result<()> {
     let conn = db.connect()?;
     println!("connected to db");
 
+    if args.contains(&"--add-target".to_string()) {
+        return add_target(&ec2_tag_data, db).await;
+    }
+
+
+    println!("fetching files");
     println!("querying files");
     let query = "SELECT f.* FROM files f JOIN template_files tf ON f.id = tf.file_id WHERE tf.template_id = ?1";
     let mut rows = conn.query(query, params!(ec2_tag_data.template_id)).await?;
