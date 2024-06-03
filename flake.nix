@@ -4,6 +4,11 @@
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/23.11";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
+  inputs.fenix = {
+    url = "github:nix-community/fenix";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
   inputs.nixos-generators = {
     url = "github:nix-community/nixos-generators";
     inputs.nixpkgs.follows = "nixpkgs";
@@ -19,16 +24,22 @@
     , flake-utils
     , nixos-generators
     , flakery
+    , fenix
     , ...
     }:
     (flake-utils.lib.eachDefaultSystem
       (system:
       let
+        toolchain = fenix.packages.${system}.minimal.toolchain;
+
         pkgs = import nixpkgs {
           inherit system;
         };
 
-        bootstrap = pkgs.rustPlatform.buildRustPackage {
+        bootstrap =         (pkgs.makeRustPlatform {
+          cargo = toolchain;
+          rustc = toolchain;
+        }).buildRustPackage {
           pname = "bootstrap";
           version = "0.0.1";
           # src = ./.;
@@ -47,8 +58,9 @@
                 baseName == "target" ||
                 # has prefix flake 
                 pkgs.lib.hasPrefix "flake" baseName
-                # has suffix .py
-                pkgs.lib.hasSuffix ".py" baseName
+                  # has suffix .py
+                  pkgs.lib.hasSuffix ".py"
+                  baseName
               );
           };
 
@@ -56,9 +68,10 @@
             lockFile = ./Cargo.lock;
           };
 
-          buildInputs = with pkgs; [
-            # darwin.Security # todo only if darwin
-            # darwin.apple_sdk.frameworks.SystemConfiguration # todo only if darwin
+          buildInputs = with pkgs;
+          lib.optionals stdenv.isDarwin [
+            darwin.Security 
+            darwin.apple_sdk.frameworks.SystemConfiguration 
           ];
 
           nativeBuildInputs = [
@@ -146,7 +159,7 @@
             sshconfMod
           ];
         };
-        
+
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
