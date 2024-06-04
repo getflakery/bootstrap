@@ -173,15 +173,11 @@ async fn bootstrap() -> Result<()> {
     let conn = db.connect()?;
     println!("connected to db");
 
-    if args.contains(&"--add-target".to_string()) {
-        return add_target(&ec2_tag_data, db).await;
-    }
-
 
     println!("fetching files");
     println!("querying files");
     let query = "SELECT f.* FROM files f JOIN template_files tf ON f.id = tf.file_id WHERE tf.template_id = ?1";
-    let mut rows = conn.query(query, params!(ec2_tag_data.template_id)).await?;
+    let mut rows = conn.query(query, params!(ec2_tag_data.clone().template_id)).await?;
     let mut files = Vec::new();
     while let Ok(Some(row)) = rows.next().await {
         let path = row.get::<String>(1)?;
@@ -210,6 +206,10 @@ async fn bootstrap() -> Result<()> {
     }
     println!("finished writing files");
     println!("finished bootstrapping"); 
+
+    println!("adding target");
+    add_target(&ec2_tag_data, db).await?;
+    println!("added target");
 
     Ok(())
 }

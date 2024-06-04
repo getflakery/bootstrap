@@ -272,6 +272,14 @@
               machine1.wait_for_file("/foo/bar.txt")
               response = machine1.succeed("cat /foo/bar.txt")
               assert "secret" in response
+              run_svc = machine1.succeed("journalctl -xeu bootstrap.service --no-pager | grep -o -E  run-.+service")
+              # assert response is not empty
+              assert run_svc != ""
+              
+              
+
+
+
             '';
           };
       })
