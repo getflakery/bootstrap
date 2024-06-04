@@ -8,11 +8,10 @@ let
       export NIX_CONFIG="access-tokens = github.com=`${app}/bin/app --print-github-token`"
       ${pkgs.fluent-bit}/bin/fluent-bit \
         -i exec -p 'command=${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake `${app}/bin/app --print-flake` --refresh --no-write-lock-file --impure 2>&1' \
-        -o http://flakery.dev/api/deployments/log/rebuild/$DEPLOYMENT -p 'tls=on' -m '*' -p 'Port=443' -p 'Format=json' \
         -p exit_after_oneshot=true \
         -p propagate_exit_code=true \
-        -p oneshot=true
-
+        -p oneshot=true \
+        -o http://flakery.dev/api/deployments/log/rebuild/$DEPLOYMENT -p 'tls=on' -m '*' -p 'Port=443' -p 'Format=json'
   '');
 in
 {
