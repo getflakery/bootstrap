@@ -229,6 +229,8 @@
 
               machine1 = { pkgs, ... }: {
 
+                environment.systemPackages = [ pkgs.sqlite ];
+
                 # Empty config sets some defaults
                 imports = [
                   self.nixosModules."${system}".bootstrap
