@@ -273,13 +273,8 @@
               machine1.wait_for_file("/foo/bar.txt")
               response = machine1.succeed("cat /foo/bar.txt")
               assert "secret" in response
-              # # import sqlite 
-              # import sqlite3
-              # # assert the target table has 1 row
-              # conn = sqlite3.connect('/tmp/db.sqlite3')
-              # cursor = conn.cursor()
-              # cursor.execute("SELECT * FROM target")
-              # assert len(cursor.fetchall()) == 1
+              response = machine1.succeed("sqlite3 /tmp/db.sqlite3 'SELECT * FROM target'")
+              assert "00f00f" in response
 
             '';
           };
