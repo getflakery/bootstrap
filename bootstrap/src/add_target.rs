@@ -37,7 +37,7 @@ pub async fn add_target(
     let id = uuid::Uuid::new_v4();
     let deployment_id = ec2_tag_data.deployment_id.clone();
 
-    let query = "INSERT INTO targets (id, deployment_id, ip) VALUES ($1, $2, $3)";
+    let query = "INSERT INTO targets (id, deployment_id, host) VALUES ($1, $2, $3)";
     let conn =  db.connect()?;
     conn.execute(&query, params!(
         id.to_string(),
