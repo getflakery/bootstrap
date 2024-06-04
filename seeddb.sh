@@ -8,34 +8,6 @@ sqlite3 /tmp/db.sqlite3 "CREATE TABLE IF NOT EXISTS templates (id TEXT PRIMARY K
 sqlite3 /tmp/db.sqlite3 "CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, path TEXT NOT NULL, content TEXT NOT NULL, user_id TEXT NOT NULL, initialization_vector TEXT NOT NULL);"
 sqlite3 /tmp/db.sqlite3 "CREATE TABLE IF NOT EXISTS template_files (id TEXT PRIMARY KEY, file_id TEXT NOT NULL, template_id TEXT NOT NULL);"
 
-# // instanceDeployment
-# export const deployments = sqliteTable('deployments', {
-#   id: text('id').primaryKey(),
-#   name: text('name').notNull(),
-#   templateID: text('template_id').notNull().references(() => templates.id, { onDelete: 'no action' }).notNull(),
-#   userID: text('user_id').notNull(),
-#   awsInstanceID: text('aws_instance_id'),
-#   createdAt: integer('created_at').notNull(),
-#   host: text('host'),
-#   port: integer('port'),
-#   data: text('data', { mode: 'json' }).$type<{ 
-#     port_mappings: {
-#       lb_port: number,
-#       instance_port: number,
-#     }[],
-#     aws_resources: { 
-#       security_group_id: string,
-#       launch_template_id: string,
-#       autoscaling_group_id: string,
-#     },
-#    }>(),
-# });
-
-# export const target = sqliteTable('target', {
-#   id: text('id').primaryKey(),
-#   deploymentID: text('deployment_id').notNull().references(() => deployments.id, { onDelete: 'cascade' }).notNull(),
-#   host: text('host').notNull(),
-# });
 sqlite3 /tmp/db.sqlite3 "CREATE TABLE IF NOT EXISTS deployments (id TEXT PRIMARY KEY, name TEXT NOT NULL, template_id TEXT NOT NULL, user_id TEXT NOT NULL, aws_instance_id TEXT, created_at INTEGER NOT NULL, host TEXT, port INTEGER, data TEXT NOT NULL);"
 sqlite3 /tmp/db.sqlite3 "CREATE TABLE IF NOT EXISTS target (id TEXT PRIMARY KEY, deployment_id TEXT NOT NULL, host TEXT NOT NULL);"
 
