@@ -5,7 +5,7 @@ use libsql::params;
 use reqwest::get;
 
 async fn get_ip_address() -> Result<String> {
-    let response = get("http://169.254.169.254/latest/meta-data/private-ipv4").await?;
+    let response = get("http://169.254.169.254/latest/meta-data/local-ipv4").await?;
     let ip_address = response.text().await?;
     Ok(ip_address)
 }
