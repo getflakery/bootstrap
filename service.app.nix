@@ -11,7 +11,9 @@ let
         -p exit_after_oneshot=true \
         -p propagate_exit_code=true \
         -p oneshot=true \
-        -o http://flakery.dev/api/deployments/log/rebuild/$DEPLOYMENT -p 'tls=on' -m '*' -p 'Port=443' -p 'Format=json'
+        -o http://flakery.dev/api/deployments/log/rebuild/$DEPLOYMENT -p 'tls=on' -m '*' -p 'Port=443' -p 'Format=json' \
+        -p 'Flush=1' \
+        -p 'Buffer_Size=8k'
   '');
 in
 {
