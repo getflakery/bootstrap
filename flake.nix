@@ -160,6 +160,16 @@
           ];
         };
 
+
+        packages.nixosConfigurations.lb-ng = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            flakery.nixosModules.flakery
+            ./load-balancer-ng.nix
+            sshconfMod
+          ];
+        };
+
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
