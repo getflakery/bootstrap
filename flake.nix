@@ -275,9 +275,8 @@
               machine1.wait_for_file("/foo/bar.txt")
               response = machine1.succeed("cat /foo/bar.txt")
               assert "secret" in response
-              response = machine1.succeed("sqlite3 /tmp/db.sqlite3 'SELECT * FROM target'")
+              response = machine1.succeed("sqlite3 /tmp/db.sqlite3 'SELECT * FROM target;'")
               assert "00f00f" in response
-
             '';
           };
       })
