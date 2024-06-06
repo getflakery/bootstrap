@@ -61,7 +61,7 @@
       http = {
         routers = {
           lb = {
-            rule = "Host(`lb.flakery.dev`)";
+            rule = "Host(`lb.flakery.xyz`)";
             service = "lb";
             entryPoints = [ "websecure" ];
             tls = {
