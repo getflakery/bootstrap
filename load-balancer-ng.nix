@@ -3,6 +3,12 @@
 {
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
+  services.tailscale = {
+    enable = true;
+    authKeyFile = "/tsauthkey";
+    extraUpFlags = [ "--ssh" "--hostname" "flakery-tutorial" ];
+  };
+
   # Enable the Traefik service
   services.traefik = {
     enable = true;
