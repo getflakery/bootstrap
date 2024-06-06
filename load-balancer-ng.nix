@@ -39,9 +39,8 @@
   services.nginx = {
     enable = true;
     virtualHosts = {
-      "acmechallenge.flakery.xyz" = {
+      "lb.flakery.xyz" = {
         # Catchall vhost, will redirect users to HTTPS for all vhosts
-        serverAliases = [ "*.flakery.xyz" ];
         locations."/.well-known/acme-challenge" = {
           root = "/var/lib/acme/.challenges";
         };
