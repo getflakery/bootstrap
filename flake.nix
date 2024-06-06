@@ -17,6 +17,8 @@
 
   inputs.flakery.url = "github:getflakery/flakes";
 
+  inputs.comin.url = "github:r33drichards/comin/8f8352537ca4ecdcad06b1b4ede4465d37dbd00c";
+
 
   outputs =
     { self
@@ -25,8 +27,9 @@
     , nixos-generators
     , flakery
     , fenix
+    , comin
     , ...
-    }:
+    }@inputs:
     (flake-utils.lib.eachDefaultSystem
       (system:
       let
@@ -36,7 +39,7 @@
           inherit system;
         };
 
-        bootstrap =         (pkgs.makeRustPlatform {
+        bootstrap = (pkgs.makeRustPlatform {
           cargo = toolchain;
           rustc = toolchain;
         }).buildRustPackage {
@@ -69,10 +72,10 @@
           };
 
           buildInputs = with pkgs;
-          lib.optionals stdenv.isDarwin [
-            darwin.Security 
-            darwin.apple_sdk.frameworks.SystemConfiguration 
-          ];
+            lib.optionals stdenv.isDarwin [
+              darwin.Security
+              darwin.apple_sdk.frameworks.SystemConfiguration
+            ];
 
           nativeBuildInputs = [
             pkgs.pkg-config
@@ -163,6 +166,10 @@
 
         packages.nixosConfigurations.lb-ng = nixpkgs.lib.nixosSystem {
           inherit system;
+          specialArgs = {
+            inherit inputs;
+          };
+
           modules = [
             flakery.nixosModules.flakery
             ./load-balancer-ng.nix

@@ -1,5 +1,24 @@
 {
   "nodes": {
+    "comin": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1710793215,
+        "narHash": "sha256-FYnhm+aOoU2R/VD0g1bIazzLYQAV3wxYLJE4DcJk3QU=",
+        "owner": "r33drichards",
+        "repo": "comin",
+        "rev": "8f8352537ca4ecdcad06b1b4ede4465d37dbd00c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "r33drichards",
+        "repo": "comin",
+        "rev": "8f8352537ca4ecdcad06b1b4ede4465d37dbd00c",
+        "type": "github"
+      }
+    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -41,7 +60,7 @@
     },
     "flakery": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs_2"
       },
       "locked": {
         "lastModified": 1711512632,
@@ -95,6 +114,19 @@
     },
     "nixpkgs": {
       "locked": {
+        "lastModified": 1701539137,
+        "narHash": "sha256-nVO/5QYpf1GwjvtpXhyxx5M3U/WN0MwBro4Lsk+9mL0=",
+        "path": "/nix/store/chi01x4fh8hx7wwh0rqd7m1c8583iyhv-source",
+        "rev": "933d7dc155096e7575d207be6fb7792bc9f34f6d",
+        "type": "path"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
         "lastModified": 1700204040,
         "narHash": "sha256-xSVcS5HBYnD3LTer7Y2K8ZQCDCXMa3QUD1MzRjHzuhI=",
         "path": "/nix/store/rj6pqzx66pliiwdfk2wjnnlk40rm3mpd-source",
@@ -106,7 +138,7 @@
         "type": "indirect"
       }
     },
-    "nixpkgs_2": {
+    "nixpkgs_3": {
       "locked": {
         "lastModified": 1701282334,
         "narHash": "sha256-MxCVrXY6v4QmfTwIysjjaX0XUhqBbxTWWB4HXtDYsdk=",
@@ -124,11 +156,12 @@
     },
     "root": {
       "inputs": {
+        "comin": "comin",
         "fenix": "fenix",
         "flake-utils": "flake-utils",
         "flakery": "flakery",
         "nixos-generators": "nixos-generators",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_3"
       }
     },
     "rust-analyzer-src": {

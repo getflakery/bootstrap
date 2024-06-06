@@ -1,12 +1,31 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
+
+    imports = [
+    inputs.comin.nixosModules.comin
+  ];
+
+
+
   networking.firewall.allowedTCPPorts = [ 80 443 ];
+
 
   services.tailscale = {
     enable = true;
     authKeyFile = "/tsauthkey";
     extraUpFlags = [ "--ssh" "--hostname" "flakery-tutorial" ];
+  };
+  services.comin = {
+    enable = true;
+    hostname = "lb-ng";
+    remotes = [
+      {
+        name = "origin";
+        url = "https://github.com/getflakery/bootstrap";
+        poller.period = 2;
+      }
+    ];
   };
 
   # Enable the Traefik service
