@@ -22,7 +22,6 @@
         url = "https://github.com/getflakery/bootstrap";
         poller.period = 2;
         branches.main.name = "master";
-
       }
     ];
   };
