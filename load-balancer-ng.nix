@@ -2,7 +2,7 @@
 
 {
 
-    imports = [
+  imports = [
     inputs.comin.nixosModules.comin
   ];
 
@@ -26,6 +26,13 @@
         poller.period = 2;
       }
     ];
+  };
+
+  services.certbot = {
+    enable = true;
+    email = "rwendt1337@gmail.com";
+    acceptTerms = true;
+    domains = [ "lb.flakery.xyz" ];
   };
 
   # Enable the Traefik service
