@@ -43,15 +43,6 @@
         };
         websecure = {
           address = ":443";
-          http = {
-            tls = {
-              certResolver = "letsencrypt";
-              domains = [
-                { main = "lb-ng.flakery.xyz"; }
-              ];
-            };
-          };
-          
         };
       };
       certificatesResolvers = {
@@ -65,6 +56,7 @@
           };
         };
       };
+      # create a route and service for the lb.flakery.dev domain that points localhost:443
       # route lb.flakery.dev to 
       providers = {
         http = {
