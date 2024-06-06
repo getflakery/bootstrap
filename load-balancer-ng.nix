@@ -47,7 +47,7 @@
             tls = {
               certResolver = "letsencrypt";
               domains = [
-                { main = "lb.flakery.dev"; }
+                { main = "lb-ng.flakery.dev"; }
               ];
             };
           };
