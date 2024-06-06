@@ -58,6 +58,27 @@
       };
       # create a route and service for the lb.flakery.dev domain that points localhost:443
       # route lb.flakery.dev to 
+      http = {
+        routers = {
+          lb = {
+            rule = "Host(`lb.flakery.dev`)";
+            service = "lb";
+            entryPoints = [ "websecure" ];
+            tls = {
+              certResolver = "letsencrypt";
+            };
+          };
+        };
+        services = {
+          lb = {
+            loadBalancer = {
+              servers = [
+                { url = "https://localhost:443"; }
+              ];
+            };
+          };
+        };
+      };
       providers = {
         http = {
           endpoint = "https://flakery.dev/api/deployments/lb-config-ng";
