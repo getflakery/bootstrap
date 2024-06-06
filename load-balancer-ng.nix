@@ -1,21 +1,18 @@
 { config, pkgs, inputs, ... }:
 
 {
-
   imports = [
     inputs.comin.nixosModules.comin
   ];
 
-
-
   networking.firewall.allowedTCPPorts = [ 80 443 ];
-
 
   services.tailscale = {
     enable = true;
     authKeyFile = "/tsauthkey";
     extraUpFlags = [ "--ssh" "--hostname" "flakery-tutorial" ];
   };
+
   services.comin = {
     enable = true;
     hostname = "lb-ng";
@@ -27,7 +24,6 @@
       }
     ];
   };
-
 
   # Enable the Traefik service
   services.traefik = {
@@ -43,15 +39,6 @@
         };
         websecure = {
           address = ":443";
-          http = {
-            tls = {
-              certResolver = "letsencrypt";
-              domains = [
-                { main = "loadb.flakery.xyz"; }
-              ];
-            };
-          };
-          
         };
       };
       certificatesResolvers = {
@@ -65,11 +52,34 @@
           };
         };
       };
-      # route lb.flakery.dev to 
       providers = {
         http = {
           endpoint = "https://flakery.dev/api/deployments/lb-config-ng";
           pollInterval = "10s";
+        };
+      };
+    };
+
+    dynamicConfigOptions = {
+      http = {
+        routers = {
+          loadbal = {
+            rule = "Host(`loadb.flakery.xyz`)";
+            service = "loadbal-service";
+            entryPoints = [ "websecure" ];
+            tls = {
+              certResolver = "letsencrypt";
+            };
+          };
+        };
+        services = {
+          loadbal-service = {
+            loadBalancer = {
+              servers = [
+                { url = "http://0.0.0.0:443"; }
+              ];
+            };
+          };
         };
       };
     };
