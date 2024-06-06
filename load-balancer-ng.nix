@@ -10,7 +10,7 @@
   services.tailscale = {
     enable = true;
     authKeyFile = "/tsauthkey";
-    extraUpFlags = [ "--ssh" "--hostname" "flakery-tutorial" ];
+    extraUpFlags = [ "--ssh" "--hostname" "flakery-load-balancer" ];
   };
 
   services.comin = {
