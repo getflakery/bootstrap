@@ -154,11 +154,11 @@
           };
           rebuild = flake-utils.lib.mkApp {
             drv = pkgs.writeScript "rebuild.sh" (rebuildScript bootstrap);
-            exePath = "/bin/rebuild.sh";
+            exePath = "";
           };
           vector = flake-utils.lib.mkApp {
             drv = helloVector;
-            exePath = "";
+            # exePath = "";
           };
         };
         packages.default = bootstrap;
