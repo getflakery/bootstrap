@@ -128,9 +128,10 @@
           ];
 
         };
-        vectorConfig = pkgs.writeText "vector.yaml" builtins.readFile ./vector.yaml;
+        vectorConfigText = builtins.readFile ./vector.yaml;
+        vectorConfig = builtins.toFile "vector.yaml" vectorConfigText;
         helloVector = pkgs.writeScript "vector.sh" ''
-          echo "Hello, Vector!" | ${pkgs.vector}/bin/vector --config ${vectorConfig}/vector.yaml
+          echo "Hello, Vector!" | ${pkgs.vector}/bin/vector --config ${vectorConfig}
         '';
         rebuildScript = app: ''
           export RUST_BACKTRACE=1
