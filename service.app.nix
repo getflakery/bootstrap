@@ -1,5 +1,5 @@
 app: rebuildSH:
-{ config, lib, pkgs ... }:
+{ config, lib, pkgs, ... }:
 
 {
   options.services.app = {
