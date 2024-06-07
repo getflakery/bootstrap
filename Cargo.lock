@@ -580,6 +580,8 @@ dependencies = [
  "libaes",
  "libsql",
  "reqwest",
+ "serde",
+ "serde_json",
  "tokio",
  "uuid",
 ]

@@ -7,10 +7,11 @@ use libaes::Cipher;
 use libsql::{params, Builder};
 use std::process::ExitCode;
 
-mod lb;
-use lb::bootstrap_load_balancer;
 mod add_target;
 use add_target::add_target;
+
+mod wrap_with_deployment_id;
+use wrap_with_deployment_id::wrap_with_deployment_id;
 
 #[derive(Clone, Debug)]
 pub struct EC2TagData {
@@ -141,6 +142,13 @@ async fn bootstrap() -> Result<()> {
         return Ok(());
     }
 
+    if args.contains(&"--wrap_with_deployment_id".to_string()) {
+        let ec2_tag_data = EC2TagData::new(&config).await?;
+        wrap_with_deployment_id(&ec2_tag_data.deployment_id);
+        // wrap_with_deployment_id("deployment_id");
+        return Ok(());
+    }
+
     if args.contains(&"--print-github-token".to_string()) {
         let ec2_tag_data = EC2TagData::new(&config).await?;
         println!("{}", ec2_tag_data.github_token);
@@ -153,11 +161,6 @@ async fn bootstrap() -> Result<()> {
     println!("fetched ec2 tag data");
 
     args.append(&mut ec2_tag_data.bootstrap_args);
-
-    if args.contains(&"--lb".to_string()) {
-        let ec2_tag_data = EC2TagData::new(&config).await?;
-        return bootstrap_load_balancer( &ec2_tag_data).await;
-    }
 
 
     let sql_url = config.sql_url;

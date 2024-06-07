@@ -138,6 +138,7 @@
           export DEPLOYMENT=$(${app}/bin/app --print-deployment-id)
           export NIX_CONFIG="access-tokens = github.com=$(${app}/bin/app --print-github-token)"
           ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake $(${app}/bin/app --print-flake) --refresh --no-write-lock-file --impure 2>&1 | \
+          ${app}/bin/app --wrap_with_deployment_id | \
           ${helloVector}
         '';
       in
