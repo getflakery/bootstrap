@@ -169,7 +169,7 @@
         devShells.default = import ./shell.nix { inherit pkgs; };
         packages.bootstrap = bootstrap;
 
-        nixosModules.bootstrap = (((import ./service.app.nix) self.packages."${system}".bootstrap)rebuildSH);
+        nixosModules.bootstrap = (((import ./service.app.nix) self.packages."${system}".bootstrap) rebuildSH);
 
         packages.nixosConfigurations.bootstrap = nixpkgs.lib.nixosSystem {
           inherit system;
@@ -196,6 +196,38 @@
             flakery.nixosModules.flakery
             ./load-balancer-ng.nix
             sshconfMod
+          ];
+        };
+
+        
+        packages.nixosConfigurations.debugSystem = nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = {
+            inherit inputs;
+          };
+
+          modules = [
+            flakery.nixosModules.flakery
+            sshconfMod
+            {}: {
+              networking.firewall.allowedTCPPorts = [ 80 443 ];
+
+              services.tailscale = {
+                enable = true;
+                authKeyFile = "/tsauthkey";
+                extraUpFlags = [ "--ssh" "--hostname" "debug-flakery" ];
+              };
+
+              # simple caddy server on port 8080
+              services.caddy = {
+                enable = true;
+                config = ''
+                  http://localhost:8080 {
+                    respond "Hello, world!"
+                  }
+                '';
+              };
+            }
           ];
         };
 
