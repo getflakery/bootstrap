@@ -2,8 +2,8 @@
 sources:
   in:
     type: "stdin"
-  decoding:
-    codec: "json"
+    decoding:
+      codec: "json"
 
 sinks:
   my_sink_id:
