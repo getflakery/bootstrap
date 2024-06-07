@@ -1,6 +1,7 @@
 app: rebuildSH:
 { config, lib, pkgs, ... }:
-
+let
+  cfg = config.services.app;
 {
   options.services.app = {
     enable = lib.mkEnableOption "app Service";
