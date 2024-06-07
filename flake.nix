@@ -128,6 +128,13 @@
           ];
 
         };
+        rebuildScript = app: ''
+          export RUST_BACKTRACE=1
+          export DEPLOYMENT=$(${app}/bin/app --print-deployment-id)
+          export NIX_CONFIG="access-tokens = github.com=$(${app}/bin/app --print-github-token)"
+          ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake $(${app}/bin/app --print-flake) --refresh --no-write-lock-file --impure 2>&1 | \
+          ${pkgs.vector}/bin/vector --source stdin --sink http --sink.http.uri "https://flakery.dev/api/deployments/log/rebuild/$DEPLOYMENT" --sink.http.encoding.codec json --sink.http.tls.enabled true
+        '';
       in
       {
         # Executed by `nix run .#<name>`
@@ -139,6 +146,10 @@
           bootstrap = flake-utils.lib.mkApp {
             drv = bootstrap;
             exePath = "/bin/app";
+          };
+          rebuild = flake-utils.lib.mkApp {
+            drv = pkgs.writeScript "rebuild.sh" (rebuildScript bootstrap);
+            exePath = "/bin/rebuild.sh";
           };
         };
         packages.default = bootstrap;
