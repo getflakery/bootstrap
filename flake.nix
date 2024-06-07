@@ -141,7 +141,12 @@
           ${app}/bin/app --wrap_with_deployment_id | \
           ${helloVector}
         '';
-        rebuildSH = pkgs.writeScript "rebuild.sh" (rebuildScript bootstrap);
+        rebuildSH = pkgs.writeShellApplication {
+          name = "rebuild";
+          shell = ''
+            ${rebuildScript bootstrap}
+          '';
+        };
       in
       {
         # Executed by `nix run .#<name>`
