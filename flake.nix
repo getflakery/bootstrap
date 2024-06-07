@@ -131,14 +131,14 @@
         vectorConfigText = builtins.readFile ./vector.yaml;
         vectorConfig = builtins.toFile "vector.yaml" vectorConfigText;
         helloVector = pkgs.writeScript "vector.sh" ''
-          echo "Hello, Vector!" | ${pkgs.vector}/bin/vector --config ${vectorConfig}
+          ${pkgs.vector}/bin/vector --config ${vectorConfig}
         '';
         rebuildScript = app: ''
           export RUST_BACKTRACE=1
           export DEPLOYMENT=$(${app}/bin/app --print-deployment-id)
           export NIX_CONFIG="access-tokens = github.com=$(${app}/bin/app --print-github-token)"
           ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake $(${app}/bin/app --print-flake) --refresh --no-write-lock-file --impure 2>&1 | \
-          ${pkgs.vector}/bin/vector --config ${vectorConfig}/vector.yaml
+          ${helloVector}
         '';
       in
       {
