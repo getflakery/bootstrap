@@ -161,7 +161,7 @@
           };
           rebuild = flake-utils.lib.mkApp {
             drv = rebuildSH;
-            exePath = "";
+            exePath = "/bin/rebuild";
           };
           vector = flake-utils.lib.mkApp {
             drv = helloVector;

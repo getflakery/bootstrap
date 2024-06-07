@@ -101,7 +101,7 @@ in
       ];
       script = ''
         ${app}/bin/app && \
-        systemd-run ${rebuildSH}
+        systemd-run ${rebuildSH}/bin/rebuild
       '';
       serviceConfig = {
         Type = "simple";
