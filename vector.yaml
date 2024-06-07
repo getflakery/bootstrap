@@ -11,8 +11,8 @@ sinks:
     type: http
     inputs:
       - in
-    # uri: http://flakery.dev/api/deployments/log/rebuild
-    uri: http://localhost:8000
+    uri: https://flakery.dev/api/deployments/log/rebuild
+    # uri: http://localhost:8000
     method: post
     encoding: 
       codec: json
