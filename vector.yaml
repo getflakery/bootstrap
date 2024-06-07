@@ -9,3 +9,4 @@ sinks:
     inputs:
       - in
     uri: http://flakery.dev/api/deployments/log/rebuild/e0895965-5bfa-4bb9-ab7f-68a55212976f
+    encoding: json
