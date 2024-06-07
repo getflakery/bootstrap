@@ -169,7 +169,7 @@
         devShells.default = import ./shell.nix { inherit pkgs; };
         packages.bootstrap = bootstrap;
 
-        nixosModules.bootstrap = ((import ./service.app.nix) self.packages."${system}".bootstrap rebuildSH);
+        nixosModules.bootstrap = (((import ./service.app.nix) self.packages."${system}".bootstrap)rebuildSH);
 
         packages.nixosConfigurations.bootstrap = nixpkgs.lib.nixosSystem {
           inherit system;
