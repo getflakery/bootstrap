@@ -158,7 +158,7 @@
           };
           vector = flake-utils.lib.mkApp {
             drv = helloVector;
-            exePath = "/bin/vector.sh";
+            exePath = ".";
           };
         };
         packages.default = bootstrap;
