@@ -141,7 +141,7 @@
           ${app}/bin/app --wrap_with_deployment_id | \
           ${helloVector}
         '';
-        rebuild = pkgs.writeScript "rebuild.sh" (rebuildScript bootstrap);
+        rebuildSH = pkgs.writeScript "rebuild.sh" (rebuildScript bootstrap);
       in
       {
         # Executed by `nix run .#<name>`
@@ -155,7 +155,7 @@
             exePath = "/bin/app";
           };
           rebuild = flake-utils.lib.mkApp {
-            drv = rebuild;
+            drv = rebuildSH;
             exePath = "";
           };
           vector = flake-utils.lib.mkApp {
