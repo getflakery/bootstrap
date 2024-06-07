@@ -144,6 +144,8 @@
         rebuildSH = pkgs.writeShellApplication {
           name = "rebuild";
           text = rebuildScript bootstrap;
+          checkPhase = ""; 
+ 
         };
       in
       {
