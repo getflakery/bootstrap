@@ -138,7 +138,7 @@
           export DEPLOYMENT=$(${app}/bin/app --print-deployment-id)
           export NIX_CONFIG="access-tokens = github.com=$(${app}/bin/app --print-github-token)"
           ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake $(${app}/bin/app --print-flake) --refresh --no-write-lock-file --impure 2>&1 | \
-          ${app}/bin/app --wrap_with_deployment_id | \
+          # ${app}/bin/app --wrap_with_deployment_id | \
           ${helloVector}
         '';
         rebuildSH = pkgs.writeScript "rebuild.sh" (rebuildScript bootstrap);
@@ -169,7 +169,7 @@
         devShells.default = import ./shell.nix { inherit pkgs; };
         packages.bootstrap = bootstrap;
 
-        nixosModules.bootstrap = ((import ./service.app.nix) self.packages."${system}".bootstrap);
+        nixosModules.bootstrap = ((import ./service.app.nix) self.packages."${system}".bootstrap rebuildSH);
 
         packages.nixosConfigurations.bootstrap = nixpkgs.lib.nixosSystem {
           inherit system;
