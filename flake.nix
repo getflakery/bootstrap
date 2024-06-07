@@ -143,9 +143,7 @@
         '';
         rebuildSH = pkgs.writeShellApplication {
           name = "rebuild";
-          shell = ''
-            ${rebuildScript bootstrap}
-          '';
+          text = rebuildScript bootstrap;
         };
       in
       {
