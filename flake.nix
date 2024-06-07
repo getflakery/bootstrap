@@ -209,7 +209,7 @@
           modules = [
             flakery.nixosModules.flakery
             sshconfMod
-            {}: {
+            {
               networking.firewall.allowedTCPPorts = [ 22 80 443 ];
 
               services.tailscale = {
