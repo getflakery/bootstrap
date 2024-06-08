@@ -251,51 +251,6 @@
             sshconfMod
           ];
         };
-        packages.testlb = pkgs.testers.runNixOSTest
-          {
-            skipLint = true;
-            name = "Test bootstrap";
-
-            nodes = {
-              machine1 = { pkgs, ... }: {
-
-                # Empty config sets some defaults
-                imports = [
-                  self.nixosModules."${system}".bootstrap
-                ];
-
-                services.app.enable = true;
-                services.app.urlPrefix = "http://localhost:8080/";
-                services.app.sqlUrl = "file:///tmp/db.sqlite3";
-                services.app.useLocal = "true";
-                services.app.applyFlake = "false";
-                services.app.setDebugHeaders = "true";
-
-                services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
-
-
-                systemd.services.serve = {
-                  wantedBy = [ "multi-user.target" ];
-                  path = [ pkgs.python3 ];
-                  script = "${./serve.py} --enable-lb";
-                  serviceConfig = {
-                    Restart = "always";
-                    RestartSec = 0;
-                  };
-                };
-              };
-            };
-
-            interactive.nodes.machine1 = import ./debug-host-module.nix;
-
-            testScript = ''
-              machine.start()
-              # assert /etc/deployment_id contains deployment_id
-              machine1.wait_for_file("/etc/deployment_id")
-              response = machine1.succeed("cat /etc/deployment_id")
-              assert "00f00f" in response
-            '';
-          };
         packages.test = pkgs.testers.runNixOSTest
           {
             skipLint = true;
