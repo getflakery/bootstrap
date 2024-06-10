@@ -2,6 +2,8 @@
   description = "A basic rust cli";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/23.11";
+  inputs.unstable.url = "github:NixOS/nixpkgs/unstable";
+
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   inputs.fenix = {
@@ -28,6 +30,7 @@
     , flakery
     , fenix
     , comin
+    , unstable
     , ...
     }@inputs:
     (flake-utils.lib.eachDefaultSystem
@@ -36,6 +39,9 @@
         toolchain = fenix.packages.${system}.minimal.toolchain;
 
         pkgs = import nixpkgs {
+          inherit system;
+        };
+        upkgs = import unstable {
           inherit system;
         };
 
@@ -158,7 +164,7 @@
           checkPhase = "";
         };
 
-        vec1 = pkgs.writeShellApplication {
+        vec1 = upkgs.writeShellApplication {
           name = "vec1";
           text = ''
             ${exit1} | ${stdoutScript}
