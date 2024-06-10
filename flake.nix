@@ -149,12 +149,12 @@
           exit 0
         '';
 
-        vec0 = pkgs.writeScript "vec0.sh" ''
+        vec0 = pkgs.writeShellApplication "vec0.sh" ''
           ${exit0} | ${stdoutScript}
           echo $?
         '';
 
-        vec1 = pkgs.writeScript "vec1.sh" ''
+        vec1 = pkgs.writeShellApplication "vec1.sh" ''
           ${exit1} | ${stdoutScript}
           echo $?
         '';
