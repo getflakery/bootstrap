@@ -181,12 +181,14 @@
           ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake $(${app}/bin/app --print-flake) --refresh --no-write-lock-file --impure 2>&1 | \
           ${app}/bin/app --wrap_with_deployment_id | \
           ${helloVector}
-          
+          ${app}/bin/app --exit-code $?
         '';
-        rebuildSH = pkgs.writeShellApplication {
+        rebuildSH = upkgs.writeShellApplication {
           name = "rebuild";
           text = rebuildScript bootstrap;
           checkPhase = ""; 
+          bashOptions = [ "nounset" "pipefail" ];
+
  
         };
       in

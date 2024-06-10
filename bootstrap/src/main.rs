@@ -13,6 +13,9 @@ use add_target::add_target;
 mod wrap_with_deployment_id;
 use wrap_with_deployment_id::wrap_with_deployment_id;
 
+mod exit_code;
+use exit_code::exit_code;
+
 #[derive(Clone, Debug)]
 pub struct EC2TagData {
     turso_token: Option<String>,
@@ -124,6 +127,7 @@ async fn main() -> ExitCode {
 async fn bootstrap() -> Result<()> {
     let mut args: Vec<String> = env::args().collect();
 
+
     if args.contains(&"--debug-error".to_string()) {
         return Err(anyhow::anyhow!("debug error"));
     }
@@ -160,6 +164,7 @@ async fn bootstrap() -> Result<()> {
     let mut ec2_tag_data = EC2TagData::new(&config).await?;
     println!("fetched ec2 tag data");
 
+
     args.append(&mut ec2_tag_data.bootstrap_args);
 
 
@@ -172,6 +177,16 @@ async fn bootstrap() -> Result<()> {
         Some(token) => Builder::new_remote(sql_url.to_string(), token).build().await?,
         None => Builder::new_local(sql_url).build().await?,
     };
+
+    if args.contains(&"--exit-code".to_string()) {
+        // get arg after --exit-code
+        let ecode = args[args.iter().position(|arg| arg == "--exit-code").unwrap() + 1].parse::<i32>();
+        if let Ok(ecode) = ecode {
+            return exit_code(ecode, ec2_tag_data.deployment_id, db).await;
+        }
+        return Err(anyhow::anyhow!("could not parse exit code"));
+    }
+
     println!("connecting to db");
     let conn = db.connect()?;
     println!("connected to db");
