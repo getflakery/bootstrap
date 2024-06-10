@@ -206,11 +206,9 @@
           };
           vec0 = flake-utils.lib.mkApp {
             drv = vec0;
-            exePath = "";
           };
           vec1 = flake-utils.lib.mkApp {
             drv = vec1;
-            exePath = "";
           };
         };
         packages.default = bootstrap;
