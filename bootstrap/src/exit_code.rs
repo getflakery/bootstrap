@@ -43,11 +43,59 @@ pub async fn exit_code(
     let query = "update target set completed = ?2, exit_code = ?3 where deployment_id = ?1 and host = ?4";
     let conn =  db.connect()?;
     conn.execute(&query, params!(
-        deployment_id,
+        deployment_id.clone(),
         completed,
         exit_code,
         ip,
     )).await?;
     print!("inserted target into database");
+
+    // select all targets where deployment_id = ?1
+    // if all targets are completed, update deployment state to completed
+    let query = "select count(*) from target where deployment_id = ?1 and completed != true";
+    let conn =  db.connect()?;  
+    let mut count = conn.query(&query, params!(
+        deployment_id.clone(),
+    )).await?;
+    let c = count.next().await?.unwrap().get::<i64>(0)?;
+    if c == 0 {
+        let query = "update deployment set state = completed where id = ?1";
+        let conn =  db.connect()?;
+        conn.execute(&query, params!(
+            deployment_id.clone(),
+        )).await?;
+
+        // if promote_to_production is true, update deployment state to production
+        let query = "select promote_to_production from deployment where id = ?1";
+        let conn =  db.connect()?;
+        let promote_to_production = conn.query(&query, params!(
+            deployment_id.clone(),
+        )).await?.next().await?.unwrap().get::<bool>(0)?;
+        if promote_to_production {
+            // find current production deployment and set production to false
+            let template_id = conn.query("select template_id from deployment where id = ?1", params!(deployment_id.clone())).await?.next().await?.unwrap().get::<String>(0)?;
+            let query = "select id from deployment where template_id = ?1 and state = production";
+            let conn =  db.connect()?;
+            let production_id = conn
+                .query(&query, params!(template_id))
+                .await?
+                .next()
+                .await?
+                .unwrap()
+                .get::<String>(0)?;
+            let query = "update deployment set production = 0 where id = ?1";
+            let conn =  db.connect()?;
+            conn.execute(&query, params!(
+                production_id,
+            )).await?;
+
+            // set current deployment to production
+            let query = "update deployment set production = 1 where id = ?1";
+            let conn =  db.connect()?;
+            conn.execute(&query, params!(
+                deployment_id.clone(),
+            )).await?;
+        }
+    }
     Ok(())
 }
