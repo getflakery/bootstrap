@@ -165,6 +165,7 @@
             echo $?
           '';
           checkPhase = "";
+          bashOptions = [ "nounset" "pipefail" ]
         };
 
         rebuildScript = app: ''
