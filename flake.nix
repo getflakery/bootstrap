@@ -139,6 +139,26 @@
           ${pkgs.vector}/bin/vector --config ${vectorStdout}
         '';
 
+        exit1 = pkgs.writeScript "exit1.sh" ''
+          echo '{ "hello": "world" }'
+          exit 1
+        '';
+
+        exit0 = pkgs.writeScript "exit0.sh" ''
+          echo '{ "hello": "world" }'
+          exit 0
+        '';
+
+        vec0 = pkgs.writeScript "vec0.sh" ''
+          ${exit0} | ${helloVector}
+          echo $?
+        '';
+
+        vec1 = pkgs.writeScript "vec1.sh" ''
+          ${exit1} | ${helloVector}
+          echo $?
+        '';
+
         rebuildScript = app: ''
           export RUST_BACKTRACE=1
           export DEPLOYMENT=$(${app}/bin/app --print-deployment-id)
@@ -176,6 +196,14 @@
           };
           stdout = flake-utils.lib.mkApp {
             drv = stdoutScript;
+            exePath = "";
+          };
+          vec0 = flake-utils.lib.mkApp {
+            drv = vec0;
+            exePath = "";
+          };
+          vec1 = flake-utils.lib.mkApp {
+            drv = vec1;
             exePath = "";
           };
         };
