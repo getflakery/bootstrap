@@ -8,7 +8,7 @@ sources:
 
 sinks:
   my_sink_id:
-    type: "stdout"
+    type: "console"
     inputs:
       - in
     encoding:
