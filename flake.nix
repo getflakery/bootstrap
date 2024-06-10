@@ -150,12 +150,12 @@
         '';
 
         vec0 = pkgs.writeScript "vec0.sh" ''
-          ${exit0} | ${helloVector}
+          ${exit0} | ${stdoutScript}
           echo $?
         '';
 
         vec1 = pkgs.writeScript "vec1.sh" ''
-          ${exit1} | ${helloVector}
+          ${exit1} | ${stdoutScript}
           echo $?
         '';
 
