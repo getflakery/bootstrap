@@ -153,6 +153,7 @@
           name = "vec0";
           text = ''
             ${exit0} | ${stdoutScript}
+            echo $?
           '';
           checkPhase = "";
         };
@@ -161,6 +162,7 @@
           name = "vec1";
           text = ''
             ${exit1} | ${stdoutScript}
+            echo $?
           '';
           checkPhase = "";
         };
