@@ -129,10 +129,16 @@
 
         };
         vectorConfigText = builtins.readFile ./vector.yaml;
+
         vectorConfig = builtins.toFile "vector.yaml" vectorConfigText;
         helloVector = pkgs.writeScript "vector.sh" ''
           ${pkgs.vector}/bin/vector --config ${vectorConfig}
         '';
+        vectorStdout = builtins.toFile "vector.yaml" (builtins.readFile ./stdout.yaml);
+        stdoutScript = pkgs.writeScript "stdout.sh" ''
+          ${pkgs.vector}/bin/vector --config ${vectorStdout}
+        '';
+
         rebuildScript = app: ''
           export RUST_BACKTRACE=1
           export DEPLOYMENT=$(${app}/bin/app --print-deployment-id)
@@ -140,6 +146,7 @@
           ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake $(${app}/bin/app --print-flake) --refresh --no-write-lock-file --impure 2>&1 | \
           ${app}/bin/app --wrap_with_deployment_id | \
           ${helloVector}
+          
         '';
         rebuildSH = pkgs.writeShellApplication {
           name = "rebuild";
@@ -165,6 +172,10 @@
           };
           vector = flake-utils.lib.mkApp {
             drv = helloVector;
+            exePath = "";
+          };
+          stdout = flake-utils.lib.mkApp {
+            drv = stdoutScript;
             exePath = "";
           };
         };
@@ -239,11 +250,9 @@
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
-          modules = bootstrapModules ++ [
-            sshconfMod
-          ];
-
+          modules = bootstrapModules;
         };
+
         packages.amiDebug = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";

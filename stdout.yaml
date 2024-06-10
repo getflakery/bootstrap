@@ -1,0 +1,15 @@
+# vector toml to read from stdin and write to stdout
+sources:
+  in:
+    type: "stdin"
+    decoding:
+      codec: "json"
+  
+
+sinks:
+  my_sink_id:
+    type: "stdout"
+    inputs:
+      - in
+    encoding:
+      codec: "json"
