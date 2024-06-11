@@ -307,6 +307,15 @@
             sshconfMod
           ];
         };
+
+
+        packages.qcow = nixos-generators.nixosGenerate {
+          system = "x86_64-linux";
+          format = "qcow";
+          modules = [
+            sshconfMod
+          ];
+        };
         packages.test = pkgs.testers.runNixOSTest
           {
             skipLint = true;
