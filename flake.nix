@@ -278,8 +278,8 @@
                 extraUpFlags = [ "--ssh" "--hostname" "debug-flakery" ];
               };
 
-              virtualisation.docker.enable
-            
+              virtualisation.docker.enable = true;
+
 
               # simple caddy server on port 8080
               services.caddy = {
