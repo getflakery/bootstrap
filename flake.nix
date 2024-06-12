@@ -309,9 +309,9 @@
         };
 
 
-        packages.qcow = nixos-generators.nixosGenerate {
+        packages.raw = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
-          format = "qcow";
+          format = "raw";
           modules = [
             sshconfMod
           ];
