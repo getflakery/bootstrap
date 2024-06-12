@@ -310,7 +310,7 @@
 
 
         packages.raw = nixos-generators.nixosGenerate {
-          system = "x86_64-linux";
+          system = "i686-linux";
           format = "raw";
           modules = [
             sshconfMod
