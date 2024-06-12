@@ -316,6 +316,8 @@
             sshconfMod
             {
               nixpkgs.hostPlatform.system = "i686-linux";
+              nixos-install.diskImage.size = 5 * 1024 * 1024 * 1024; # 5 GB
+
             }
           ];
         };
