@@ -314,6 +314,9 @@
           format = "raw";
           modules = [
             sshconfMod
+            {
+              nixpkgs.hostPlatform.system = "i686-linux";
+            }
           ];
         };
         packages.test = pkgs.testers.runNixOSTest
