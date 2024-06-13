@@ -316,7 +316,7 @@
             sshconfMod
             {
               nixpkgs.hostPlatform.system = "i686-linux";
-
+              virtualisation.diskSize = 1024 * 5;
             }
           ];
         };
