@@ -312,11 +312,13 @@
         packages.raw = nixos-generators.nixosGenerate {
           system = "i686-linux";
           format = "raw";
+          specialArgs = {
+                     diskSize = 1024 * 5;
+          };
           modules = [
             sshconfMod
             {
               nixpkgs.hostPlatform.system = "i686-linux";
-              virtualisation.diskSize = 1024 * 5;
             }
           ];
         };

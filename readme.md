@@ -186,3 +186,6 @@ do
     aws ec2 delete-launch-template --launch-template-id "$template_id" --region us-west-1 --no-cli-pager
 done
 ```
+
+
+https://github.com/nix-community/nixos-generators/blob/35c20ba421dfa5059e20e0ef2343c875372bdcf3/formats/raw.nix#L25C28-L25C36
