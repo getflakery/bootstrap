@@ -331,8 +331,6 @@
                 services.grafana = {
                   enable = true;
                   settings = {
-                    "auth.anonymous".enabled = true;
-                    users.allow_sign_up = true;
                     server = {
                       domain = builtins.readFile /grafana-domain;
                       root_url = builtins.readFile /grafana-root-url;
