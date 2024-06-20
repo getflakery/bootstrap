@@ -187,10 +187,10 @@
         rebuildSH = upkgs.writeShellApplication {
           name = "rebuild";
           text = rebuildScript bootstrap;
-          checkPhase = ""; 
+          checkPhase = "";
           bashOptions = [ "nounset" "pipefail" ];
 
- 
+
         };
       in
       {
@@ -294,6 +294,39 @@
           ];
         };
 
+        packages.nixosConfigurations.grafana = nixpkgs.lib.nixosSystem
+          {
+            inherit system;
+            specialArgs = {
+              inherit inputs;
+            };
+            modules = [
+              flakery.nixosModules.flakery
+              sshconfMod
+              {
+                networking.firewall.allowedTCPPorts = [ 3000 ];
+
+                services.tailscale = {
+                  enable = true;
+                  authKeyFile = "/tsauthkey";
+                  extraUpFlags = [ "--ssh" "--hostname" "debug-flakery" ];
+                };
+                services.grafana = {
+                  enable = true;
+                  settings = {
+                    "auth.anonymous".enabled = true;
+                    users.allow_sign_up = true;
+                    server = {
+                      domain = builtins.readFile /grafana-domain;
+                      root_url = builtins.readFile /grafana-root-url;
+                      protocol = "socket";
+                    };
+                  };
+                };
+              }
+            ];
+          };
+
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
@@ -378,6 +411,8 @@
               # assert "00f00f" in response
             '';
           };
+
+
       })
     );
 }
