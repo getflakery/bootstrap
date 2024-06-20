@@ -301,10 +301,24 @@
               inherit inputs;
             };
             modules = [
+              inputs.comin.nixosModules.comin
               flakery.nixosModules.flakery
               sshconfMod
               {
                 networking.firewall.allowedTCPPorts = [ 3000 ];
+
+
+              services.comin = {
+                  enable = true;
+                  hostname = "grafana";
+                  remotes = [
+                    {
+                      name = "origin";
+                      url = "https://github.com/getflakery/bootstrap";
+                      poller.period = 2;
+                    }
+                  ];
+                };
 
                 services.tailscale = {
                   enable = true;
