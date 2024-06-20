@@ -306,9 +306,11 @@
               sshconfMod
               {
                 networking.firewall.allowedTCPPorts = [ 3000 ];
+                nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
 
-              services.comin = {
+
+                services.comin = {
                   enable = true;
                   hostname = "grafana";
                   remotes = [
