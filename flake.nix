@@ -319,7 +319,6 @@
                     server = {
                       domain = builtins.readFile /grafana-domain;
                       root_url = builtins.readFile /grafana-root-url;
-                      protocol = "socket";
                     };
                   };
                 };
