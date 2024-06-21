@@ -1,18 +1,23 @@
+use core::fmt;
+
 use crate::EC2TagData;
 use anyhow::Result;
 
+use aws_sdk_route53::config;
 use libsql::params;
 use reqwest::get;
 
-async fn get_ip_address() -> Result<String> {
-    let response = get("http://169.254.169.254/latest/meta-data/local-ipv4").await?;
+async fn get_ip_address(config: crate::Config) -> Result<String> {
+    let response = get(
+        format!("http://{}/local-ipv4", config.ip_v4_url_prefix)
+    ).await?;
     let ip_address = response.text().await?;
     Ok(ip_address)
 }
 
-async fn try_get_ip_address() -> Result<String> {
+async fn try_get_ip_address(config: crate::Config) -> Result<String> {
     for _ in 0..100 {
-        match get_ip_address().await {
+        match get_ip_address(config.clone()).await {
             Ok(ip_address) => return Ok(ip_address),
             Err(e) => {
                 eprintln!("{:?} {}:{}", e, file!(), line!());
@@ -26,12 +31,13 @@ async fn try_get_ip_address() -> Result<String> {
 pub async fn add_target(
     ec2_tag_data: &EC2TagData,
     db: libsql::Database,
+    config: &config::Config,
 ) -> Result<()> {
     println!("add_target");
 
 
     // try to get the public ip address of the instance
-    let ip = try_get_ip_address().await?;
+    let ip = try_get_ip_address(config).await?;
     println!("private ip address: {}", ip);
 
     let id = uuid::Uuid::new_v4();

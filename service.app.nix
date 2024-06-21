@@ -81,6 +81,7 @@ in
     systemd.services.bootstrap = {
       environment = {
         "URL_PREFIX" = cfg.urlPrefix;
+        "IP_V4_URL_PREFIX" = cfg.urlPrefix;
         "SQL_URL" = cfg.sqlUrl;
         "USE_LOCAL" = cfg.useLocal;
         "APPLY_FLAKE" = cfg.applyFlake;

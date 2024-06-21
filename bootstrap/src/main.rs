@@ -84,9 +84,10 @@ impl File {
 
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Config {
     url_prefix: String,
+    ip_v4_url_prefix: String,
     sql_url: String,
     use_local: bool,
 }
@@ -94,10 +95,12 @@ pub struct Config {
 impl Config {
     fn new() -> Self {
         let url_prefix = std::env::var("URL_PREFIX").unwrap_or("http://169.254.169.254/latest/meta-data/tags/instance/".to_string());
+        let ip_v4_url_prefix = std::env::var("IP_V4_URL_PREFIX").unwrap_or("http://169.254.169.254/latest/meta-data/".to_string());
         let sql_url = std::env::var("SQL_URL").unwrap_or("libsql://flakery-r33drichards.turso.io".to_string());
         let use_local = std::env::var("USE_LOCAL").unwrap_or("false".to_string()) == "true";
         Self {
             url_prefix,
+            ip_v4_url_prefix,
             sql_url,
             use_local,
         }
@@ -220,7 +223,7 @@ async fn bootstrap() -> Result<()> {
     println!("finished bootstrapping"); 
 
     println!("adding target");
-    add_target(&ec2_tag_data, db).await?;
+    add_target(&ec2_tag_data, db, config.clone()).await?;
     println!("added target");
 
     Ok(())
