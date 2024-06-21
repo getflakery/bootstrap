@@ -343,6 +343,58 @@
             ];
           };
 
+        packages.nixosConfigurations.woodpecker = nixpkgs.lib.nixosSystem
+          { config
+          , ...
+          }:
+          let
+            domain = builitins.readFile /woodpecker-domain;
+          in
+          {
+
+            networking.firewall.allowedTCPPorts = [ 3007 ];
+
+            services.woodpecker-server = {
+              enable = true;
+              environment = {
+                WOODPECKER_HOST = "https://${domain}";
+                WOODPECKER_SERVER_ADDR = ":3007";
+                WOODPECKER_OPEN = "true";
+              };
+              # You can pass a file with env vars to the system it could look like:
+              # WOODPECKER_AGENT_SECRET=XXXXXXXXXXXXXXXXXXXXXX
+              # environmentFile = "/path/to/my/secrets/file";
+            };
+
+            # This sets up a woodpecker agent
+            services.woodpecker-agents.agents."docker" = {
+              enable = true;
+              # We need this to talk to the podman socket
+              extraGroups = [ "podman" ];
+              environment = {
+                WOODPECKER_SERVER = "localhost:9000";
+                WOODPECKER_MAX_WORKFLOWS = "4";
+                DOCKER_HOST = "unix:///run/podman/podman.sock";
+                WOODPECKER_BACKEND = "docker";
+              };
+              # Same as with woodpecker-server
+              environmentFile = [ "/var/lib/secrets/woodpecker.env" ];
+            };
+
+            # Here we setup podman and enable dns
+            virtualisation.podman = {
+              enable = true;
+              defaultNetwork.settings = {
+                dns_enabled = true;
+              };
+            };
+            # This is needed for podman to be able to talk over dns
+            networking.firewall.interfaces."podman0" = {
+              allowedUDPPorts = [ 53 ];
+              allowedTCPPorts = [ 53 ];
+            };
+          };
+
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
