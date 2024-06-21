@@ -81,7 +81,13 @@ pub async fn exit_code(
         let deployment_data = conn.query(&query, params!(
             deployment_id.clone(),
         )).await?.next().await?.unwrap().get::<String>(0)?;
-        let desired_count = serde_json::from_str::<serde_json::Value>(&deployment_data)?.get("min_instances")?;
+        let data: serde_json::Value = serde_json::from_str(&deployment_data)?;
+        let maybe_count = data.get("min_instances");
+        let desired_count = match maybe_count {
+            Some(count) => count.as_i64().unwrap(),
+            None => return Err(anyhow::anyhow!("could not get desired count")),
+        };
+
         let all_targets_completed =  desired_count.eq(&c);
         if promote_to_production && all_targets_completed {
             // find current production deployment and set production to false

@@ -25,7 +25,6 @@ pub struct EC2TagData {
     deployment_id: String,
     github_token: String,
     bootstrap_args: Vec<String>,
-    name: String,
 }
 
 impl EC2TagData {
@@ -38,7 +37,6 @@ impl EC2TagData {
         let deployment_id = reqwest::get(&format!("{}deployment_id", url_prefix)).await?.text().await?;
         let github_token = reqwest::get(&format!("{}github_token", url_prefix)).await?.text().await?;
         let bootstrap_args = reqwest::get(&format!("{}bootstrap_args", url_prefix)).await?.text().await?.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
-        let name = reqwest::get(&format!("{}name", url_prefix)).await?.text().await?;
         if config.use_local {
             return Ok(Self {
                 turso_token: None,
@@ -48,7 +46,6 @@ impl EC2TagData {
                 deployment_id,
                 github_token,
                 bootstrap_args,
-                name
             });
         }
 
@@ -62,7 +59,6 @@ impl EC2TagData {
             deployment_id,
             github_token,
             bootstrap_args,
-            name
         })
     }
 }
@@ -73,9 +69,7 @@ pub struct File {
 }
 
 impl File {
-    fn new(path: String, content: String) -> Self {
-        Self { path, content }
-    }
+
 
     fn write(&self) -> Result<()> {
         if !self.path.starts_with('/') {
