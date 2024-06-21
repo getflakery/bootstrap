@@ -357,7 +357,7 @@
             services.woodpecker-server = {
               enable = true;
               environment = {
-                WOODPECKER_HOST = "https://${domain}";
+                WOODPECKER_HOST = "${domain}";
                 WOODPECKER_SERVER_ADDR = ":3007";
                 WOODPECKER_OPEN = "true";
               };
