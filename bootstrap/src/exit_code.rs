@@ -71,7 +71,19 @@ pub async fn exit_code(
         let promote_to_production = conn.query(&query, params!(
             deployment_id.clone(),
         )).await?.next().await?.unwrap().get::<bool>(0)?;
-        if promote_to_production {
+        let query = "select count(*) from target where deployment_id = ?1 and completed = true and exit_code = 0";
+        let mut count = conn.query(&query, params!(
+            deployment_id.clone(),
+        )).await?;
+        let c = count.next().await?.unwrap().get::<i64>(0)?;
+        // desired_count is data["min_instances"] on the deployment where data is json text in sqlite
+        let query = "select data from deployment where id = ?1";
+        let deployment_data = conn.query(&query, params!(
+            deployment_id.clone(),
+        )).await?.next().await?.unwrap().get::<String>(0)?;
+        let desired_count = serde_json::from_str::<serde_json::Value>(&deployment_data)?.get("min_instances")?;
+        let all_targets_completed =  desired_count.eq(&c);
+        if promote_to_production && all_targets_completed {
             // find current production deployment and set production to false
             let template_id = conn.query("select template_id from deployment where id = ?1", params!(deployment_id.clone())).await?.next().await?.unwrap().get::<String>(0)?;
             let query = "select id from deployment where template_id = ?1 and state = production";
