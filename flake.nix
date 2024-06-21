@@ -423,8 +423,9 @@
               response = machine1.succeed("cat /foo/bar.txt")
               assert "secret" in response
               # todo add me back
-              # response = machine1.succeed("sqlite3 /tmp/db.sqlite3 'SELECT * FROM target;'")
-              # assert "00f00f" in response
+              response = machine1.succeed("${pkgs.sqlite}/bin/sqlite /tmp/db.sqlite3 'SELECT * FROM target;'")
+              print(response)
+              assert "00f00f" in response
             '';
           };
 
