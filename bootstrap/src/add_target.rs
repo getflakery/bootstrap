@@ -7,7 +7,7 @@ use reqwest::get;
 
 async fn get_ip_address(config: crate::Config) -> Result<String> {
     let response = get(
-        format!("http://{}/local-ipv4", config.ip_v4_url_prefix)
+        format!("{}/local-ipv4", config.ip_v4_url_prefix)
     ).await?;
     let ip_address = response.text().await?;
     Ok(ip_address)
