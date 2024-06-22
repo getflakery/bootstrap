@@ -165,7 +165,7 @@ async fn bootstrap() -> Result<()> {
     args.append(&mut ec2_tag_data.bootstrap_args);
 
 
-    let sql_url = config.sql_url;
+    let sql_url = config.clone().sql_url;
     let token = ec2_tag_data.clone().turso_token;
     let mut buffer = [0; 32];
     hex::decode_to_slice(&ec2_tag_data.file_encryption_key, &mut buffer)?;
@@ -223,7 +223,7 @@ async fn bootstrap() -> Result<()> {
     println!("finished bootstrapping"); 
 
     println!("adding target");
-    add_target(&ec2_tag_data, db, config.clone()).await?;
+    add_target(&ec2_tag_data, db, config.clone()).await?; // Pass the cloned sql_url to add_target
     println!("added target");
 
     Ok(())

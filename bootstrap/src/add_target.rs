@@ -1,9 +1,7 @@
-use core::fmt;
 
 use crate::EC2TagData;
 use anyhow::Result;
 
-use aws_sdk_route53::config;
 use libsql::params;
 use reqwest::get;
 
@@ -31,13 +29,13 @@ async fn try_get_ip_address(config: crate::Config) -> Result<String> {
 pub async fn add_target(
     ec2_tag_data: &EC2TagData,
     db: libsql::Database,
-    config: &config::Config,
+    config: crate::Config,
 ) -> Result<()> {
     println!("add_target");
 
 
     // try to get the public ip address of the instance
-    let ip = try_get_ip_address(config).await?;
+    let ip = try_get_ip_address(config.clone()).await?;
     println!("private ip address: {}", ip);
 
     let id = uuid::Uuid::new_v4();
