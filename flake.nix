@@ -343,13 +343,8 @@
             ];
           };
 
-        packages.nixosConfigurations.woodpecker = nixpkgs.lib.nixosSystem
-          { config
-          , ...
-          }:
-          let
-            domain = builitins.readFile /woodpecker-domain;
-          in
+        packages.nixosConfigurations.woodpecker = nixpkgs.lib.nixosSystem{
+          modules = [
           {
 
             networking.firewall.allowedTCPPorts = [ 3007 ];
@@ -357,7 +352,7 @@
             services.woodpecker-server = {
               enable = true;
               environment = {
-                WOODPECKER_HOST = "${domain}";
+                WOODPECKER_HOST = builitins.readFile /woodpecker-domain;
                 WOODPECKER_SERVER_ADDR = ":3007";
                 WOODPECKER_OPEN = "true";
               };
@@ -393,7 +388,10 @@
               allowedUDPPorts = [ 53 ];
               allowedTCPPorts = [ 53 ];
             };
-          };
+          }
+
+          ];
+        };
 
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
