@@ -483,9 +483,9 @@
               print(response)
               assert "00f00f" in response
               # select production from deployment
-              response = machine1.succeed("sqlite3 /tmp/db.sqlite3 'SELECT production FROM deployment;'")
+              response = machine1.succeed("sqlite3 /tmp/db.sqlite3 'SELECT production from deployments WHERE id == \"00f00f\";'")
               print(response)
-              assert "haha" in response
+              assert "1" == response
             '';
           };
 
