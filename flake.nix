@@ -352,7 +352,7 @@
             services.woodpecker-server = {
               enable = true;
               environment = {
-                WOODPECKER_HOST = builitins.readFile /woodpecker-domain;
+                WOODPECKER_HOST = builtins.readFile /woodpecker-domain;
                 WOODPECKER_SERVER_ADDR = ":3007";
                 WOODPECKER_OPEN = "true";
               };
