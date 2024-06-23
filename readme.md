@@ -137,7 +137,7 @@ nix build -L .#test
 
 ```
 ssh root@localhost -p2222 -o StrictHostKeyChecking=no
-ssh -J root@100.79.173.119 root@localhost -p 2222 -o StrictHostKeyChecking=no    
+ssh -J root@100.111.162.66  root@localhost -p 2222 -o StrictHostKeyChecking=no    
 ```
 
 # switch to bootstrap configuration
