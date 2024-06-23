@@ -130,7 +130,7 @@ aws elbv2 describe-load-balancers --region us-west-1 | jq -r '.LoadBalancers[].L
 
 # integration testing 
 ```
- ssh root@100.111.162.66 "nix build --extra-experimental-features 'nix-command flakes' --refresh -L github:getflakery/bootstrap#test.driverInteractive && ./result/bin/nixos-test-driver"
+ ssh root@100.101.243.23 "nix build --extra-experimental-features 'nix-command flakes' --refresh -L github:getflakery/bootstrap#test.driverInteractive && ./result/bin/nixos-test-driver"
 nix build -L .#test.driverInteractive && ./result/bin/nixos-test-driver
 nix build -L .#test
  ssh root@100.111.162.66 "nix build --extra-experimental-features 'nix-command flakes' --refresh -L github:getflakery/bootstrap#test"
@@ -138,7 +138,7 @@ nix build -L .#test
 
 ```
 ssh root@localhost -p2222 -o StrictHostKeyChecking=no
-ssh -J root@100.111.162.66  root@localhost -p 2222 -o StrictHostKeyChecking=no    
+ssh -J root@100.101.243.23  root@localhost -p 2222 -o StrictHostKeyChecking=no    
 ```
 
 # switch to bootstrap configuration

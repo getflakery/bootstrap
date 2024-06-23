@@ -16,3 +16,9 @@ sinks:
     method: post
     encoding: 
       codec: json
+  console_sink:
+    type: console
+    inputs:
+      - in
+    encoding:
+      codec: json
