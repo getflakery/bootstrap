@@ -41,9 +41,6 @@ pub async fn exit_code(
     let mut count = conn.query(&query, params!(deployment_id.clone(),)).await?;
     let c = count.next().await?.unwrap().get::<i64>(0)?;
     if c == 0 {
-        let query = "update deployment set state = completed where id = ?1";
-        conn.execute(&query, params!(deployment_id.clone(),))
-            .await?;
 
         // if promote_to_production is true, update deployment state to production
         let query = "select promote_to_production from deployment where id = ?1";
@@ -91,11 +88,12 @@ pub async fn exit_code(
                 .query(&query, params!(template_id))
                 .await?
                 .next()
-                .await?
-                .unwrap()
-                .get::<String>(0)?;
-            let query = "update deployment set production = 0 where id = ?1";
-            conn.execute(&query, params!(production_id,)).await?;
+                .await;
+            if let Ok(Some(production_id)) = production_id {
+                let production_id = production_id.get::<String>(0)?;
+                let query = "update deployment set production = 0 where id = ?1";
+                conn.execute(&query, params!(production_id,)).await?;
+            }
 
             // set current deployment to production
             let query = "update deployment set production = 1 where id = ?1";
