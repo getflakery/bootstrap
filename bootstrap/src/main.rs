@@ -223,7 +223,9 @@ async fn bootstrap() -> Result<()> {
             args[args.iter().position(|arg| arg == "--exit-code").unwrap() + 1].parse::<i32>();
         if let Ok(ecode) = ecode {
             let ip = config.clone().try_get_ip_address().await?;
-            return exit_code(ecode, ec2_tag_data.deployment_id, &db, ip).await;
+            let conn: libsql::Connection = db.connect().unwrap();
+
+            return exit_code(ecode, ec2_tag_data.deployment_id, &conn, ip).await;
         }
         return Err(anyhow::anyhow!("could not parse exit code"));
     }
