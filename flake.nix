@@ -471,7 +471,7 @@
             };
 
             interactive.nodes.machine1 = import ./debug-host-module.nix;
-            testScript = builtins.readFile ./testScript.py
+            testScript = builtins.readFile ./testScript.py;
           };
 
 
