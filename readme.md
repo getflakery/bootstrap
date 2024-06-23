@@ -133,6 +133,7 @@ aws elbv2 describe-load-balancers --region us-west-1 | jq -r '.LoadBalancers[].L
  ssh root@100.111.162.66 "nix build --extra-experimental-features 'nix-command flakes' --refresh -L github:getflakery/bootstrap#test.driverInteractive && ./result/bin/nixos-test-driver"
 nix build -L .#test.driverInteractive && ./result/bin/nixos-test-driver
 nix build -L .#test
+ ssh root@100.111.162.66 "nix build --extra-experimental-features 'nix-command flakes' --refresh -L github:getflakery/bootstrap#test"
 ```
 
 ```
