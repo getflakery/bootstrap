@@ -1,27 +1,39 @@
 use anyhow::Result;
 
 use libsql::params;
-
 pub async fn exit_code(
     exit_code: i32,
     deployment_id: String,
     conn: &libsql::Connection,
     ip: String,
 ) -> Result<()> {
-    print!("rebuild exited with code {}", exit_code);
+    println!("rebuild exited with code {}", exit_code);
 
     println!("set target completed to true and exit code to {}", exit_code);
 
-    // update target set completed = true, exit_code = ?2 where deployment_id = ?1
-    let completed = true;
-    let query =
-        "update target set completed = ?2, exit_code = ?3 where deployment_id = ?1 and host = ?4";
-    conn.execute(
-        &query,
-        params!(deployment_id.clone(), completed, exit_code, ip,),
-    )
-    .await?;
-    print!("inserted target into database");
+    let out = conn.execute(
+        "UPDATE target SET completed = ?1, exit_code = ?2 where deployment_id = ?3 and host = ?4",
+        params![
+            1i32,
+            exit_code,
+            deployment_id.clone(),
+            ip.clone(),
+        ],
+    ).await;
+    match out {
+        Ok(u) => {
+            println!("updated {} rows", u);
+            if u == 0 {
+                return Err(anyhow::anyhow!("no rows updated"));
+            }
+        }
+        Err(e) => {
+            println!("error inserting target into database: {:?}", e);
+            return Err(anyhow::anyhow!("error inserting target into database"));
+        }
+    }
+
+
 
     // select all targets where deployment_id = ?1
     // if all targets are completed, update deployment state to completed
@@ -96,14 +108,18 @@ pub async fn exit_code(
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
     use libsql::{params, Builder};
     use tokio;
+    use std::fs::remove_file;
 
 
     #[tokio::test]
     async fn test_exit_code() {
-        let db = Builder::new_local(":memory:").build().await.unwrap();
+        // rm /tmp/db.test.sqlite
+        remove_file("/tmp/db.test.sqlite").unwrap_or_default();
+        let db = Builder::new_local("/tmp/db.test.sqlite").build().await.unwrap();
 
         let conn = db.connect().unwrap();
 
@@ -112,10 +128,10 @@ mod tests {
             "CREATE TABLE deployment (
                 id TEXT PRIMARY KEY,
                 state TEXT,
-                promote_to_production BOOLEAN,
+                promote_to_production INTEGER,
                 data TEXT,
                 template_id TEXT,
-                production BOOLEAN
+                production INTEGER
             )",
             params![],
         )
@@ -126,7 +142,7 @@ mod tests {
             "CREATE TABLE target (
                 deployment_id TEXT,
                 host TEXT,
-                completed BOOLEAN,
+                completed INTEGER,
                 exit_code INTEGER,
                 PRIMARY KEY (deployment_id, host)
             )",
@@ -146,7 +162,7 @@ mod tests {
 
         conn.execute(
             "INSERT INTO target (deployment_id, host, completed, exit_code)
-             VALUES ('test_deployment', 'host_1', false, NULL)",
+             VALUES ('test_deployment', 'host_1', 0, NULL)",
             params![],
         )
         .await
@@ -161,11 +177,10 @@ mod tests {
             println!("{:?}", row);
         }
 
-        let mut rows = conn.query("SELECT * FROM target", params![]).await.unwrap();
+        let mut rows = conn.query("SELECT completed FROM target", params![]).await.unwrap();
         while let Ok(Some(row)) = rows.next().await {
             println!("{:?}", row);
         }
-        let conn: libsql::Connection = db.connect().unwrap();
 
         let result = exit_code(0, "test_deployment".to_string(), &conn, "host_1".to_string()).await;
         println!("{:?}", result);
