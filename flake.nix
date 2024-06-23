@@ -183,6 +183,7 @@
           ${app}/bin/app --wrap_with_deployment_id | \
           ${helloVector}
           ${app}/bin/app --exit-code $?
+          touch /tmp/rebuilt
         '';
         rebuildSH = upkgs.writeShellApplication {
           name = "rebuild";

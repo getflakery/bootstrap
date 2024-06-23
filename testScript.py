@@ -12,17 +12,7 @@ print(response)
 assert ".service" in response
 assert "run" in response
 
-# Strip any extra whitespace from the response
-response = response.strip()
-# remove '' from the response
-response = response[1:-1]
-
-
-# Wait for the service in the response to complete
-status_check_command = f"journalctl -xeu --no-pager {response} | grep -Eo 'completed and consumed the indicated resources'"
-response = machine1.wait_until_succeeds(status_check_command, 300)
-print(response)
-
+machine1.wait_for_file("/tmp/rebuilt")
 
 # todo add me back
 response = machine1.succeed("sqlite3 /tmp/db.sqlite3 'SELECT * FROM target;'")

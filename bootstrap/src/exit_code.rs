@@ -59,6 +59,7 @@ pub async fn exit_code(
         println!("c: {}", c);
         // desired_count is data["min_instances"] on the deployment where data is json text in sqlite
         let query = "select data from deployments where id = ?1";
+        println!("fetching deployment data");
         let deployment_data = conn
             .query(&query, params!(deployment_id.clone(),))
             .await?
@@ -67,6 +68,7 @@ pub async fn exit_code(
             .unwrap()
             .get::<String>(0)?;
         let data: serde_json::Value = serde_json::from_str(&deployment_data)?;
+        println!("deployment_data: {:?}", data);  
         let maybe_count = data.get("min_instances");
         let desired_count = match maybe_count {
             Some(count) => count.as_i64().unwrap(),
