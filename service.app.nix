@@ -104,14 +104,14 @@ in
         ${app}/bin/app && \
         systemd-run \
           --expand-environment=True \
-          -E "URL_PREFIX=${URL_PREFIX}" \
-          -E "IP_V4_URL_PREFIX=${IP_V4_URL_PREFIX}" \
-          -E "SQL_URL=${SQL_URL}" \
-          -E "USE_LOCAL=${USE_LOCAL}" \
-          -E "APPLY_FLAKE=${APPLY_FLAKE}" \
-          -E "TEST=${TEST}" \
-          -E "LOG_URL=${LOG_URL}" \
-          -E "SET_DEBUG_HEADER=${SET_DEBUG_HEADER}" \
+          -E "URL_PREFIX=$URL_PREFIX" \
+          -E "IP_V4_URL_PREFIX=$IP_V4_URL_PREFIX" \
+          -E "SQL_URL=$SQL_URL" \
+          -E "USE_LOCAL=$USE_LOCAL" \
+          -E "APPLY_FLAKE=$APPLY_FLAKE" \
+          -E "TEST=$TEST" \
+          -E "LOG_URL=$LOG_URL" \
+          -E "SET_DEBUG_HEADER=$SET_DEBUG_HEADER" \
           -E "PATH=${pkgs.coreutils}/bin:${pkgs.git}/bin:${pkgs.nix}/bin" \
           ${rebuildSH}/bin/rebuild
       '';
