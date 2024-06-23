@@ -43,7 +43,7 @@ pub async fn exit_code(
     if c == 0 {
 
         // if promote_to_production is true, update deployment state to production
-        let query = "select promote_to_production from deployment where id = ?1";
+        let query = "select promote_to_production from deployments where id = ?1";
         let promote_to_production = conn
             .query(&query, params!(deployment_id.clone(),))
             .await?
@@ -58,7 +58,7 @@ pub async fn exit_code(
         let c = count.next().await?.unwrap().get::<i64>(0)?;
         println!("c: {}", c);
         // desired_count is data["min_instances"] on the deployment where data is json text in sqlite
-        let query = "select data from deployment where id = ?1";
+        let query = "select data from deployments where id = ?1";
         let deployment_data = conn
             .query(&query, params!(deployment_id.clone(),))
             .await?
@@ -80,7 +80,7 @@ pub async fn exit_code(
             // find current production deployment and set production to false
             let template_id = conn
                 .query(
-                    "select template_id from deployment where id = ?1",
+                    "select template_id from deployments where id = ?1",
                     params!(deployment_id.clone()),
                 )
                 .await?
@@ -88,7 +88,7 @@ pub async fn exit_code(
                 .await?
                 .unwrap()
                 .get::<String>(0)?;
-            let query = "select id from deployment where template_id = ?1 and production = 1";
+            let query = "select id from deployments where template_id = ?1 and production = 1";
             let production_id = conn
                 .query(&query, params!(template_id))
                 .await?
@@ -97,12 +97,12 @@ pub async fn exit_code(
             if let Ok(Some(production_id)) = production_id {
                 // todo this is not tested yet
                 let production_id = production_id.get::<String>(0)?;
-                let query = "update deployment set production = 0 where id = ?1";
+                let query = "update deployments set production = 0 where id = ?1";
                 conn.execute(&query, params!(production_id,)).await?;
             }
 
             // set current deployment to production
-            let query = "update deployment set production = 1 where id = ?1";
+            let query = "update deployments set production = 1 where id = ?1";
             let out = conn.execute(&query, params!(deployment_id.clone(),))
                 .await;
             match out {
@@ -141,7 +141,7 @@ mod tests {
 
         // Create the necessary tables
         conn.execute(
-            "CREATE TABLE deployment (
+            "CREATE TABLE deployments (
                 id TEXT PRIMARY KEY,
                 state TEXT,
                 promote_to_production INTEGER,
@@ -169,7 +169,7 @@ mod tests {
 
         // Insert test data
         conn.execute(
-            "INSERT INTO deployment (id, state, promote_to_production, data, template_id, production)
+            "INSERT INTO deployments (id, state, promote_to_production, data, template_id, production)
              VALUES ('test_deployment', 'in_progress', true, '{\"min_instances\": 1}', 'template_1', false)",
             params![],
         )
@@ -186,7 +186,7 @@ mod tests {
 
         // print the tables
         let mut rows = conn
-            .query("SELECT * FROM deployment", params![])
+            .query("SELECT * FROM deployments", params![])
             .await
             .unwrap();
         while let Ok(Some(row)) = rows.next().await {
@@ -213,7 +213,7 @@ mod tests {
 
         // Verify deployment table
         let mut count = conn
-            .query("SELECT count(*) FROM deployment WHERE id = 'test_deployment' AND production = 1", params![])
+            .query("SELECT count(*) FROM deployments WHERE id = 'test_deployment' AND production = 1", params![])
             .await
             .unwrap();
         let c = count.next().await.unwrap().unwrap().get::<i64>(0).unwrap();

@@ -4,18 +4,22 @@ machine1.wait_for_file("/foo/bar.txt")
 response = machine1.succeed("cat /foo/bar.txt")
 assert "secret" in response
 
-response = machine1.succeed("journalctl -xeu bootstrap.service --no-pager | grep -Eo run.+.service")
+# Run the command to get the service name from the journal logs
+response = machine1.succeed("journalctl -xeu bootstrap.service --no-pager | grep -Eo 'run-.+\\.service'")
 print(response)
+
+# Ensure the response contains a service name
 assert ".service" in response
 assert "run" in response
 
-# wait for the service in response to finish by checking the status for
-# ░░ The unit run-r7c73cc8979ef44e08e10d0d5f3713395.service completed and consumed the indicated resources.
-response = machine1.wait_until_succeeds(
-    f"journalctl -xeu --no-pager {response} | grep -Eo 'completed and consumed the indicated resources'",
-    300
-)
+# Strip any extra whitespace from the response
+response = response.strip()
+
+# Wait for the service in the response to complete
+status_check_command = f"journalctl -xeu --no-pager {response} | grep -Eo 'completed and consumed the indicated resources'"
+response = machine1.wait_until_succeeds(status_check_command, 300)
 print(response)
+
 
 # todo add me back
 response = machine1.succeed("sqlite3 /tmp/db.sqlite3 'SELECT * FROM target;'")
