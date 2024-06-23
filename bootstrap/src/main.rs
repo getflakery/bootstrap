@@ -133,7 +133,7 @@ impl Config {
     }
 
     async fn get_ip_address(self) -> Result<String> {
-        let response = get(format!("{}/local-ipv4", self.ip_v4_url_prefix)).await?;
+        let response = get(format!("{}local-ipv4", self.ip_v4_url_prefix)).await?;
         let ip_address = response.text().await?;
         Ok(ip_address)
     }
