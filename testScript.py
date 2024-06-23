@@ -11,7 +11,10 @@ assert "run" in response
 
 # wait for the service in response to finish by checking the status for
 # ░░ The unit run-r7c73cc8979ef44e08e10d0d5f3713395.service completed and consumed the indicated resources.
-response = machine1.wait_until_succeeds(f"journalctl -xeu {response} --no-pager | grep -Eo 'completed and consumed the indicated resources'", 30)
+response = machine1.wait_until_succeeds(
+    f"journalctl -xeu --no-pager {response} | grep -Eo 'completed and consumed the indicated resources'",
+    300
+)
 print(response)
 
 # todo add me back
