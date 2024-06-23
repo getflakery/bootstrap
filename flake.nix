@@ -432,7 +432,7 @@
 
               machine1 = { pkgs, ... }: {
 
-                environment.systemPackages = [ pkgs.sqlite ];
+                environment.systemPackages = [ pkgs.sqlite pkgs.gnugrep ];
 
                 # Empty config sets some defaults
                 imports = [
