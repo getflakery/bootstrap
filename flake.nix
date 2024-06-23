@@ -326,7 +326,7 @@
                 services.tailscale = {
                   enable = true;
                   authKeyFile = "/tsauthkey";
-                  extraUpFlags = [ "--ssh" "--hostname" "debug-flakery" ];
+                  extraUpFlags = [ "--ssh" "--hostname" "grafana" ];
                 };
                 services.grafana = {
                   enable = true;
