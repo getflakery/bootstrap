@@ -3,41 +3,18 @@ use anyhow::Result;
 use libsql::params;
 
 
-use reqwest::get;
-
-async fn get_ip_address() -> Result<String> {
-    let response = get("http://169.254.169.254/latest/meta-data/local-ipv4").await?;
-    let ip_address = response.text().await?;
-    Ok(ip_address)
-}
-
-async fn try_get_ip_address() -> Result<String> {
-    for _ in 0..100 {
-        match get_ip_address().await {
-            Ok(ip_address) => return Ok(ip_address),
-            Err(e) => {
-                eprintln!("{:?} {}:{}", e, file!(), line!());
-                std::thread::sleep(std::time::Duration::from_secs(1));
-            }
-        }
-    }
-    Err(anyhow::anyhow!("could not get ip address"))
-}
 
 pub async fn exit_code(
     exit_code: i32,
     deployment_id: String,
-    db: libsql::Database,
+    db: &libsql::Database,
+    ip: String
 ) -> Result<()> {
     print!("rebuild exited with code {}", exit_code);
 
     println!("add_target");
 
 
-    // try to get the public ip address of the instance
-    let ip = try_get_ip_address().await?;
-    println!("private ip address: {}", ip);
-    
     // update target set completed = true, exit_code = ?2 where deployment_id = ?1
     let completed = true;
     let query = "update target set completed = ?2, exit_code = ?3 where deployment_id = ?1 and host = ?4";
@@ -116,4 +93,99 @@ pub async fn exit_code(
         }
     }
     Ok(())
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use libsql::{params, Builder, Database};
+    use tokio;
+
+    async fn setup_db() -> Database {
+        let db = Builder::new_local(":memory:").build().await.unwrap();
+
+        let conn = db.connect().unwrap();
+
+        // Create the necessary tables
+        conn.execute(
+            "CREATE TABLE deployment (
+                id TEXT PRIMARY KEY,
+                state TEXT,
+                promote_to_production BOOLEAN,
+                data TEXT,
+                template_id TEXT,
+                production BOOLEAN
+            )",
+            params![],
+        )
+        .await
+        .unwrap();
+
+        conn.execute(
+            "CREATE TABLE target (
+                deployment_id TEXT,
+                host TEXT,
+                completed BOOLEAN,
+                exit_code INTEGER,
+                PRIMARY KEY (deployment_id, host)
+            )",
+            params![],
+        )
+        .await
+        .unwrap();
+
+        // Insert test data
+        conn.execute(
+            "INSERT INTO deployment (id, state, promote_to_production, data, template_id, production)
+             VALUES ('test_deployment', 'in_progress', true, '{\"min_instances\": 1}', 'template_1', false)",
+            params![],
+        )
+        .await
+        .unwrap();
+
+        conn.execute(
+            "INSERT INTO target (deployment_id, host, completed, exit_code)
+             VALUES ('test_deployment', 'host_1', false, NULL)",
+            params![],
+        )
+        .await
+        .unwrap();
+
+        db
+    }
+
+    #[tokio::test]
+    async fn test_exit_code() {
+        let db = setup_db().await;
+
+        let result = exit_code(0, "test_deployment".to_string(), &db, "host_1".to_string()).await;
+        assert!(result.is_ok());
+
+        let conn = db.connect().unwrap();
+
+        // Verify target table
+        let mut count = conn
+            .query("SELECT count(*) FROM target WHERE deployment_id = 'test_deployment' AND completed = true", params![])
+            .await
+            .unwrap();
+        let c = count.next().await.unwrap().unwrap().get::<i64>(0).unwrap();
+        assert_eq!(c, 1);
+
+        // Verify deployment table
+        let mut count = conn
+            .query("SELECT count(*) FROM deployment WHERE id = 'test_deployment' AND state = 'completed'", params![])
+            .await
+            .unwrap();
+        let c = count.next().await.unwrap().unwrap().get::<i64>(0).unwrap();
+        assert_eq!(c, 1);
+
+        let mut count = conn
+            .query("SELECT count(*) FROM deployment WHERE id = 'test_deployment' AND production = 1", params![])
+            .await
+            .unwrap();
+        let c = count.next().await.unwrap().unwrap().get::<i64>(0).unwrap();
+        assert_eq!(c, 1);
+    }
 }
