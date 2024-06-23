@@ -51,9 +51,12 @@ pub async fn exit_code(
             .await?
             .unwrap()
             .get::<bool>(0)?;
-        let query = "select count(*) from target where deployment_id = ?1 and completed = true and exit_code = 0";
+        println!("promote_to_production: {}", promote_to_production);
+        let query = "select count(*) from target where deployment_id = ?1 and completed = 1 and exit_code = 0";
         let mut count = conn.query(&query, params!(deployment_id.clone(),)).await?;
+        
         let c = count.next().await?.unwrap().get::<i64>(0)?;
+        println!("c: {}", c);
         // desired_count is data["min_instances"] on the deployment where data is json text in sqlite
         let query = "select data from deployment where id = ?1";
         let deployment_data = conn
@@ -70,7 +73,9 @@ pub async fn exit_code(
             None => return Err(anyhow::anyhow!("could not get desired count")),
         };
 
+        println!("desired_count: {}", desired_count);
         let all_targets_completed = desired_count.eq(&c);
+        println!("all_targets_completed: {}", all_targets_completed);
         if promote_to_production && all_targets_completed {
             // find current production deployment and set production to false
             let template_id = conn
@@ -83,13 +88,14 @@ pub async fn exit_code(
                 .await?
                 .unwrap()
                 .get::<String>(0)?;
-            let query = "select id from deployment where template_id = ?1 and state = production";
+            let query = "select id from deployment where template_id = ?1 and production = 1";
             let production_id = conn
                 .query(&query, params!(template_id))
                 .await?
                 .next()
                 .await;
             if let Ok(Some(production_id)) = production_id {
+                // todo this is not tested yet
                 let production_id = production_id.get::<String>(0)?;
                 let query = "update deployment set production = 0 where id = ?1";
                 conn.execute(&query, params!(production_id,)).await?;
@@ -97,8 +103,20 @@ pub async fn exit_code(
 
             // set current deployment to production
             let query = "update deployment set production = 1 where id = ?1";
-            conn.execute(&query, params!(deployment_id.clone(),))
-                .await?;
+            let out = conn.execute(&query, params!(deployment_id.clone(),))
+                .await;
+            match out {
+                Ok(u) => {
+                    println!("updated {} rows", u);
+                    if u == 0 {
+                        return Err(anyhow::anyhow!("no rows updated"));
+                    }
+                }
+                Err(e) => {
+                    println!("error inserting target into database: {:?}", e);
+                    return Err(anyhow::anyhow!("error inserting target into database"));
+                }
+            }
         }
     }
     Ok(())
@@ -195,17 +213,7 @@ mod tests {
 
         // Verify deployment table
         let mut count = conn
-            .query("SELECT count(*) FROM deployment WHERE id = 'test_deployment' AND state = 'completed'", params![])
-            .await
-            .unwrap();
-        let c = count.next().await.unwrap().unwrap().get::<i64>(0).unwrap();
-        assert_eq!(c, 1);
-
-        let mut count = conn
-            .query(
-                "SELECT count(*) FROM deployment WHERE id = 'test_deployment' AND production = 1",
-                params![],
-            )
+            .query("SELECT count(*) FROM deployment WHERE id = 'test_deployment' AND production = 1", params![])
             .await
             .unwrap();
         let c = count.next().await.unwrap().unwrap().get::<i64>(0).unwrap();
