@@ -14,6 +14,9 @@ assert "run" in response
 
 # Strip any extra whitespace from the response
 response = response.strip()
+# remove '' from the response
+response = response[1:-1]
+
 
 # Wait for the service in the response to complete
 status_check_command = f"journalctl -xeu --no-pager {response} | grep -Eo 'completed and consumed the indicated resources'"
