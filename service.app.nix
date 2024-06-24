@@ -13,6 +13,12 @@ in
       example = "http://0.0.0.0:8000";
       description = "";
     };
+    ipv4Prefix = lib.mkOption {
+      type = lib.types.str;
+      default = "http://169.254.169.254/latest/meta-data/";
+      example = "http://0.0.0.0:8000";
+      description = "";
+    };
     sqlUrl = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = "libsql://flakery-r33drichards.turso.io";
@@ -81,7 +87,7 @@ in
     systemd.services.bootstrap = {
       environment = {
         "URL_PREFIX" = cfg.urlPrefix;
-        "IP_V4_URL_PREFIX" = cfg.urlPrefix;
+        "IP_V4_URL_PREFIX" = cfg.ipv4Prefix;
         "SQL_URL" = cfg.sqlUrl;
         "USE_LOCAL" = cfg.useLocal;
         "APPLY_FLAKE" = cfg.applyFlake;

@@ -442,6 +442,7 @@
 
                 services.app.enable = true;
                 services.app.urlPrefix = "http://localhost:8080/";
+                services.app.ipv4Prefix = "http://localhost:8080/";
                 services.app.sqlUrl = "file:///tmp/db.sqlite3";
                 services.app.useLocal = "true";
                 services.app.applyFlake = "false";
