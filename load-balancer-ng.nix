@@ -47,8 +47,13 @@
           acme = {
             email = "rwendt1337@gmail.com";
             storage = "/var/lib/traefik/acme.json";
-            httpChallenge = {
-              entryPoint = "web";
+            dnsChallenge = {
+              provider = "route53";
+              resolvers = [ "8.8.8.8:53" "1.1.1.1:53" ];
+            };
+            domains = {
+              main = "*.flakery.xyz";
+              sans = [ "flakery.xyz" ];
             };
           };
         };
@@ -83,6 +88,13 @@
           };
         };
       };
+    };
+  };
+  systemd.services.traefik = {
+    environment = {
+      AWS_ACCESS_KEY_ID = builtins.readFile "/AWS_ACCESS_KEY_ID";
+      AWS_SECRET_ACCESS_KEY = builtins.readFile "/AWS_SECRET_ACCESS_KEY";
+      AWS_HOSTED_ZONE_ID = "Z03309493AGZOVY2IU47X";
     };
   };
 }
