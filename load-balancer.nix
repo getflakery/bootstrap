@@ -31,10 +31,6 @@ in
           pollInterval = "10s";
         };
       };
-      tls = {
-        certfile = "/cert.pem";
-        keyfile = "/key.pem";
-      }
     };
   };
 }

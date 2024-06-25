@@ -42,24 +42,12 @@
           address = ":443";
         };
       };
-                domains = {
-            main = "*.flakery.xyz";
-            sans = [ "flakery.xyz" ];
-          };
-      certificatesResolvers = {
-        letsencrypt = {
-          acme = {
-            email = "rwendt1337@gmail.com";
-            storage = "/var/lib/traefik/acme.json";
-            dnsChallenge = {
-              provider = "route53";
-              resolvers = [ "8.8.8.8:53" "1.1.1.1:53" ];
 
-            };
-
-          };
-        };
+      tls = {
+        certfile = "/cert.pem";
+        keyfile = "/key.pem";
       };
+
       providers = {
         http = {
           endpoint = "https://flakery.dev/api/deployments/lb-config-ng";
