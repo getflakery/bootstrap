@@ -25,23 +25,16 @@ in
           address = ":443";
         };
       };
-      certificatesResolvers = {
-        letsencrypt = {
-          acme = {
-            email = "rwendt1337@gmail.com";
-            storage = "/var/lib/traefik/acme.json";
-            httpChallenge = {
-              entryPoint = "web";
-            };
-          };
-        };
-      };
       providers = {
         http = {
           endpoint = configURL;
           pollInterval = "10s";
         };
       };
+      tls = {
+        certfile = "/cert.pem";
+        keyfile = "/key.pem";
+      }
     };
   };
 }
