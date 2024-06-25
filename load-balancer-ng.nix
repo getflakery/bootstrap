@@ -44,16 +44,17 @@
       };
       certificatesResolvers = {
         letsencrypt = {
+          domains = {
+            main = "*.flakery.xyz";
+            sans = [ "flakery.xyz" ];
+          };
           acme = {
             email = "rwendt1337@gmail.com";
             storage = "/var/lib/traefik/acme.json";
             dnsChallenge = {
               provider = "route53";
               resolvers = [ "8.8.8.8:53" "1.1.1.1:53" ];
-              domains = {
-                main = "*.flakery.xyz";
-                sans = [ "flakery.xyz" ];
-              };
+
             };
 
           };
