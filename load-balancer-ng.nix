@@ -97,6 +97,7 @@
       AWS_ACCESS_KEY_ID = builtins.readFile "/AWS_ACCESS_KEY_ID";
       AWS_SECRET_ACCESS_KEY = builtins.readFile "/AWS_SECRET_ACCESS_KEY";
       AWS_HOSTED_ZONE_ID = "Z03309493AGZOVY2IU47X";
+      AWS_REGION = "us-west-2";
     };
   };
 }
