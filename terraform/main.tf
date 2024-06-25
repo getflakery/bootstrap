@@ -32,7 +32,8 @@ resource "aws_iam_policy" "route53" {
         Effect   = "Allow"
         Action   = [
           "route53:GetChange",
-          "route53:ListHostedZonesByName"
+          "route53:ListHostedZonesByName",
+          "route53:ListResourceRecordSets"
         ]
         Resource = "*"
       },
