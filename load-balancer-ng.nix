@@ -42,12 +42,12 @@
           address = ":443";
         };
       };
-      certificatesResolvers = {
-        letsencrypt = {
-          domains = {
+                domains = {
             main = "*.flakery.xyz";
             sans = [ "flakery.xyz" ];
           };
+      certificatesResolvers = {
+        letsencrypt = {
           acme = {
             email = "rwendt1337@gmail.com";
             storage = "/var/lib/traefik/acme.json";
