@@ -44,8 +44,10 @@
       };
 
       tls = {
-        certfile = "/cert.pem";
-        keyfile = "/key.pem";
+        certificates = [{
+          certfile = "/cert.pem";
+          keyfile = "/key.pem";
+        }];
       };
 
       providers = {
@@ -63,9 +65,6 @@
             rule = "Host(`loadb.flakery.xyz`)";
             service = "loadbal-service";
             entryPoints = [ "websecure" ];
-            tls = {
-              certResolver = "letsencrypt";
-            };
           };
         };
         services = {
