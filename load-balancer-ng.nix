@@ -43,12 +43,6 @@
         };
       };
 
-      tls = {
-        certificates = [{
-          certfile = "/cert.pem";
-          keyfile = "/key.pem";
-        }];
-      };
 
       providers = {
         http = {
@@ -59,6 +53,13 @@
     };
 
     dynamicConfigOptions = {
+
+      tls = {
+        certificates = [{
+          certfile = "/cert.pem";
+          keyfile = "/key.pem";
+        }];
+      };
       http = {
         routers = {
           loadbal = {
