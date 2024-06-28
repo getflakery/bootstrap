@@ -342,8 +342,8 @@
                   WOODPECKER_OPEN="true";
                   WOODPECKER_ORGS="getflakery";
                   WOODPECKER_GITHUB = "true";
-                  WOODPECKER_GITHUB_CLIENT_ID = "Ov23li77VshZc9W7M4Gp";
-                  WOODPECKER_GITHUB_CLIENT_SECRET = builtins.readFile /github-client-secret;
+                  WOODPECKER_GITHUB_CLIENT = "Ov23li77VshZc9W7M4Gp";
+                  WOODPECKER_GITHUB_SECRET = builtins.readFile /github-client-secret;
                 };
                 # You can pass a file with env vars to the system it could look like:
                 # WOODPECKER_AGENT_SECRET=XXXXXXXXXXXXXXXXXXXXXX
