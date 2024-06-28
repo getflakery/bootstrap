@@ -100,16 +100,16 @@ in
     certs = {
       "${domain}" = {
         # Use DNS challenge for wildcard certificates
-        dnsProvider = {
-          name = "route53";  # Update this to your DNS provider if different
-        };
-        domain = "*.${domain}";
+        dnsProvider = "route53"; # Update this to your DNS provider if different
+        environmentFile = "/var/lib/acme/route53-credentials";
       };
+      domain = "*.${domain}";
     };
   };
+};
 
-  systemd.services."acme-${domain}" = {
-    after = [ "network.target" ];
-    wants = [ "network.target" ];
-  };
+systemd.services."acme-${domain}" = {
+after = [ "network.target" ];
+wants = [ "network.target" ];
+};
 }
