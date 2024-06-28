@@ -12,7 +12,7 @@ steps:
     when:
       - event: manual
 
-  run-greet:
+  - run-greet:
     image: nixos/nix
     commands:
       - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
