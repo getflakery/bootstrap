@@ -30,6 +30,14 @@ in
     ];
   };
 
+  # systemd.services.traefik = {
+  #   environment = {
+  #     AWS_ACCESS_KEY_ID = builtins.readFile "/AWS_ACCESS_KEY_ID";
+  #     AWS_SECRET_ACCESS_KEY = builtins.readFile "/AWS_SECRET_ACCESS_KEY";
+  #     AWS_HOSTED_ZONE_ID = "Z03309493AGZOVY2IU47X";
+  #     AWS_REGION = "us-west-2";
+  #   };
+  # };
   # Enable the Traefik service
   services.traefik = {
     enable = true;
@@ -60,22 +68,24 @@ in
         stores = {
           default = {
             defaultCertificate = {
-              certFile = "/var/lib/acme/${domain}/fullchain.pem";
-              keyFile = "/var/lib/acme/${domain}/key.pem";
+              certFile = "/var/lib/acme/flakery.xyz/fullchain.pem";
+              keyFile = "/var/lib/acme/flakery.xyz/key.pem";
             };
             certificates = [{
-              certfile = "/var/lib/acme/${domain}/fullchain.pem";
-              keyfile = "/var/lib/acme/${domain}/key.pem";
+              certfile = "/var/lib/acme/flakery.xyz/fullchain.pem";
+              keyfile = "/var/lib/acme/flakery.xyz/key.pem";
             }];
           };
         };
         default.defaultCertificate = {
-          certFile = "/var/lib/acme/${domain}/fullchain.pem";
-          keyFile = "/var/lib/acme/${domain}/key.pem";
+
+          certfile = "/var/lib/acme/flakery.xyz/fullchain.pem";
+          keyfile = "/var/lib/acme/flakery.xyz/key.pem";
         };
         certificates = [{
-          certfile = "/var/lib/acme/${domain}/fullchain.pem";
-          keyfile = "/var/lib/acme/${domain}/key.pem";
+          certfile = "/var/lib/acme/flakery.xyz/fullchain.pem";
+          keyfile = "/var/lib/acme/flakery.xyz/key.pem";
+
         }];
       };
       http = {
