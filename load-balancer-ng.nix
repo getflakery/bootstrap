@@ -95,6 +95,7 @@ in
   # Now we can configure ACME
 
   security.acme = {
+    acceptTerms = true;
     defaults.email = "rwendt1337@gmail.com";
     email = email;
     certs = {
