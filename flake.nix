@@ -339,14 +339,14 @@
                 environment = {
                   WOODPECKER_SERVER_ADDR = ":3007";
                   WOODPECKER_HOST = "https://woodpecker-ci-19fcc5.flakery.xyz";
-                  WOODPECKER_OPEN="true";
-                  WOODPECKER_ORGS="getflakery";
+                  WOODPECKER_OPEN = "true";
+                  WOODPECKER_ORGS = "getflakery";
                   WOODPECKER_GITHUB = "true";
                   WOODPECKER_GITHUB_CLIENT = "Ov23li77VshZc9W7M4Gp";
                   WOODPECKER_GITHUB_SECRET = builtins.readFile /github-client-secret;
                 };
                 # You can pass a file with env vars to the system it could look like:
-                # WOODPECKER_AGENT_SECRET=XXXXXXXXXXXXXXXXXXXXXX
+                WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
                 # environmentFile = "/path/to/my/secrets/file";
               };
 
@@ -360,6 +360,8 @@
                   WOODPECKER_MAX_WORKFLOWS = "4";
                   DOCKER_HOST = "unix:///run/podman/podman.sock";
                   WOODPECKER_BACKEND = "docker";
+                  WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
+
                 };
                 # Same as with woodpecker-server
                 # environmentFile = [ "/var/lib/secrets/woodpecker.env" ];
