@@ -338,7 +338,7 @@
                 enable = true;
                 environment = {
                   WOODPECKER_SERVER_ADDR = ":3007";
-                  WOODPECKER_HOST = "http://0.0.0.0";
+                  WOODPECKER_HOST = "https://woodpecker-ci-19fcc5.flakery.xyz";
                   WOODPECKER_OPEN="true";
                   WOODPECKER_ORGS="getflakery";
                   WOODPECKER_GITHUB = "true";
