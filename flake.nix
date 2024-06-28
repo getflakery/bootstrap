@@ -237,29 +237,6 @@
           modules = bootstrapModules;
         };
 
-        packages.nixosConfigurations.lb = nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules = [
-            flakery.nixosModules.flakery
-            ./load-balancer.nix
-            sshconfMod
-          ];
-        };
-
-
-        packages.nixosConfigurations.lb-ng = nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = {
-            inherit inputs;
-          };
-
-          modules = [
-            flakery.nixosModules.flakery
-            ./load-balancer-ng.nix
-            sshconfMod
-          ];
-        };
-
 
         packages.nixosConfigurations.debugSystem = nixpkgs.lib.nixosSystem {
           inherit system;
