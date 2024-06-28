@@ -106,10 +106,4 @@ in
       domain = "*.${domain}";
     };
   };
-};
-
-systemd.services."acme-${domain}" = {
-after = [ "network.target" ];
-wants = [ "network.target" ];
-};
 }
