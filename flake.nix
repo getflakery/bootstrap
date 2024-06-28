@@ -225,6 +225,8 @@
           };
           exit0 = flake-utils.lib.mkApp {
             drv = exit0;
+            exePath = "";
+
           };
         };
         packages.default = bootstrap;
@@ -348,7 +350,7 @@
                   WOODPECKER_GITHUB_CLIENT = "Ov23li77VshZc9W7M4Gp";
                   WOODPECKER_GITHUB_SECRET = builtins.readFile /github-client-secret;
                   WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
-                  WOODPECKER_ADMIN="r33drichards";
+                  WOODPECKER_ADMIN = "r33drichards";
 
                 };
                 # You can pass a file with env vars to the system it could look like:
