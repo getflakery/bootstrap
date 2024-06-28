@@ -1,0 +1,9 @@
+steps:
+  - name: build
+    image: debian
+    commands:
+      - echo "test content" > myfile
+  - name: a-test-step
+    image: debian
+    commands:
+      - cat myfile
