@@ -339,6 +339,7 @@
                 environment = {
                   WOODPECKER_SERVER_ADDR = ":3007";
                   WOODPECKER_OPEN = "true";
+                  WOODPECKER_HOST = "localhost";
                 };
                 # You can pass a file with env vars to the system it could look like:
                 # WOODPECKER_AGENT_SECRET=XXXXXXXXXXXXXXXXXXXXXX
