@@ -1,5 +1,9 @@
 { config, pkgs, inputs, ... }:
 
+let
+  domain = "flakery.xyz";
+  email = "your-email@example.com";
+in
 {
   imports = [
     inputs.comin.nixosModules.comin
@@ -43,7 +47,6 @@
         };
       };
 
-
       providers = {
         http = {
           endpoint = "https://flakery.dev/api/deployments/lb-config-ng";
@@ -53,11 +56,10 @@
     };
 
     dynamicConfigOptions = {
-
       tls = {
         certificates = [{
-          certfile = "/cert.pem";
-          keyfile = "/key.pem";
+          certfile = "/var/lib/acme/certs/${domain}/fullchain.pem";
+          keyfile = "/var/lib/acme/certs/${domain}/key.pem";
         }];
       };
       http = {
@@ -80,6 +82,7 @@
       };
     };
   };
+
   systemd.services.traefik = {
     environment = {
       AWS_ACCESS_KEY_ID = builtins.readFile "/AWS_ACCESS_KEY_ID";
@@ -87,5 +90,26 @@
       AWS_HOSTED_ZONE_ID = "Z03309493AGZOVY2IU47X";
       AWS_REGION = "us-west-2";
     };
+  };
+
+  security.acme = {
+    enable = true;
+    acceptTerms = true;
+    email = email;
+    certs = {
+      "${domain}" = {
+        # Use DNS challenge for wildcard certificates
+        dnsProvider = {
+          name = "route53";  # Update this to your DNS provider if different
+          credentialsFile = "/var/lib/acme/route53-credentials";
+        };
+        domain = "*.${domain}";
+      };
+    };
+  };
+
+  systemd.services."acme-${domain}" = {
+    after = [ "network.target" ];
+    wants = [ "network.target" ];
   };
 }
