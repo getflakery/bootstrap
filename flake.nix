@@ -223,6 +223,9 @@
           vec1 = flake-utils.lib.mkApp {
             drv = vec1;
           };
+          exit0 = flake-utils.lib.mkApp {
+            drv = exit0;
+          };
         };
         packages.default = bootstrap;
 
