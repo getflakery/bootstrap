@@ -97,7 +97,6 @@ in
   security.acme = {
     acceptTerms = true;
     defaults.email = "rwendt1337@gmail.com";
-    email = email;
     certs = {
       "${domain}" = {
         domain = domain;
