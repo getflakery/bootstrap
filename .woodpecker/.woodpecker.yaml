@@ -1,21 +1,13 @@
+variables:
+  - &message 'echo "hello"> myfile'
 steps:
   - name: build
     image: debian
     commands:
-      - echo "test content" > myfile
-    when:
-      - event: manual
+      - *message
+
   - name: a-test-step
     image: debian
     commands:
       - cat myfile
-    when:
-      - event: manual
 
-  - run-greet:
-    image: nixos/nix
-    commands:
-      - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
-      - nix run --store unix:///mnt/nix/var/nix/daemon-socket/socket?root=/mnt .#exit0 -L
-    volumes:
-      - /nix:/mnt/nix:ro
