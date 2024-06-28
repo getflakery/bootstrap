@@ -104,7 +104,6 @@ in
         dnsProvider = "route53"; # Update this to your DNS provider if different
         environmentFile = "/var/lib/acme/route53-credentials";
       };
-      domain = "*.${domain}";
     };
   };
 }
