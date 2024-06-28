@@ -44,6 +44,16 @@ in
         };
         websecure = {
           address = ":443";
+          tls = {
+            default.defaultCertificate = {
+              certFile = "/var/lib/acme/certs/${domain}/fullchain.pem";
+              keyFile = "/var/lib/acme/certs/${domain}/key.pem";
+            };
+            certificates = [{
+              certfile = "/var/lib/acme/certs/${domain}/fullchain.pem";
+              keyfile = "/var/lib/acme/certs/${domain}/key.pem";
+            }];
+          };
         };
       };
 
@@ -56,16 +66,7 @@ in
     };
 
     dynamicConfigOptions = {
-      tls = {
-        default.defaultCertificate = {
-          certFile = "/var/lib/acme/certs/${domain}/fullchain.pem";
-          keyFile = "/var/lib/acme/certs/${domain}/key.pem";
-        };
-        certificates = [{
-          certfile = "/var/lib/acme/certs/${domain}/fullchain.pem";
-          keyfile = "/var/lib/acme/certs/${domain}/key.pem";
-        }];
-      };
+
       http = {
         routers = {
           loadbal = {
