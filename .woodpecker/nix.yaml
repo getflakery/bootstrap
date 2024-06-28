@@ -5,7 +5,7 @@ steps:
     image: nixos/nix
     commands:
       - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
-      - nix build --real /mnt/nix --store /mnt/nix .#test -L
+      - nix build --eval-store local --store /mnt/nix .#test -L
     volumes:
       - *vol
 
