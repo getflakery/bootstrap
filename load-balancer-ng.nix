@@ -68,22 +68,22 @@ in
         stores = {
           default = {
             defaultCertificate = {
-              certFile = "/var/lib/acme/flakery.xyz/fullchain.pem";
+              certFile = "/var/lib/acme/flakery.xyz/cert.pem";
               keyFile = "/var/lib/acme/flakery.xyz/key.pem";
             };
             certificates = [{
-              certfile = "/var/lib/acme/flakery.xyz/fullchain.pem";
+              certfile = "/var/lib/acme/flakery.xyz/cert.pem";
               keyfile = "/var/lib/acme/flakery.xyz/key.pem";
             }];
           };
         };
         default.defaultCertificate = {
 
-          certfile = "/var/lib/acme/flakery.xyz/fullchain.pem";
+          certfile = "/var/lib/acme/flakery.xyz/cert.pem";
           keyfile = "/var/lib/acme/flakery.xyz/key.pem";
         };
         certificates = [{
-          certfile = "/var/lib/acme/flakery.xyz/fullchain.pem";
+          certfile = "/var/lib/acme/flakery.xyz/cert.pem";
           keyfile = "/var/lib/acme/flakery.xyz/key.pem";
 
         }];
