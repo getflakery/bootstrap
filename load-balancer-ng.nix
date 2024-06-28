@@ -92,9 +92,10 @@ in
     };
   };
 
+  # Now we can configure ACME
+
   security.acme = {
-    enable = true;
-    acceptTerms = true;
+    defaults.email = "rwendt1337@gmail.com";
     email = email;
     certs = {
       "${domain}" = {
