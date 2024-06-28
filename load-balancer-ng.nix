@@ -99,6 +99,7 @@ in
     email = email;
     certs = {
       "${domain}" = {
+        domain = domain;
         # Use DNS challenge for wildcard certificates
         dnsProvider = "route53"; # Update this to your DNS provider if different
         environmentFile = "/var/lib/acme/route53-credentials";
