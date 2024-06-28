@@ -329,6 +329,7 @@
           modules = [
             inputs.comin.nixosModules.comin
             flakery.nixosModules.flakery
+            flakery.nixosConfigurations.base
             {
 
               networking.firewall.allowedTCPPorts = [ 3007 ];
