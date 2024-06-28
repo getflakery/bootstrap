@@ -102,7 +102,6 @@ in
         # Use DNS challenge for wildcard certificates
         dnsProvider = {
           name = "route53";  # Update this to your DNS provider if different
-          credentialsFile = "/var/lib/acme/route53-credentials";
         };
         domain = "*.${domain}";
       };
