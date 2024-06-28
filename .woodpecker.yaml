@@ -3,7 +3,11 @@ steps:
     image: debian
     commands:
       - echo "test content" > myfile
+    when:
+      - event: manual
   - name: a-test-step
     image: debian
     commands:
       - cat myfile
+    when:
+      - event: manual
