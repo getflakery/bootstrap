@@ -105,7 +105,7 @@ in
     acceptTerms = true;
     defaults.email = "rwendt1337@gmail.com";
     certs = {
-      "${domain}" = {
+      "flakery.xyz" = {
         domain = domain;
         # Use DNS challenge for wildcard certificates
         dnsProvider = "route53"; # Update this to your DNS provider if different
