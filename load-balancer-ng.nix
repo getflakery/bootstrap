@@ -60,22 +60,22 @@ in
         stores = {
           default = {
             defaultCertificate = {
-              certFile = "/var/lib/acme/certs/${domain}/fullchain.pem";
-              keyFile = "/var/lib/acme/certs/${domain}/key.pem";
+              certFile = "/var/lib/acme/${domain}/fullchain.pem";
+              keyFile = "/var/lib/acme/${domain}/key.pem";
             };
             certificates = [{
-              certfile = "/var/lib/acme/certs/${domain}/fullchain.pem";
-              keyfile = "/var/lib/acme/certs/${domain}/key.pem";
+              certfile = "/var/lib/acme/${domain}/fullchain.pem";
+              keyfile = "/var/lib/acme/${domain}/key.pem";
             }];
           };
         };
         default.defaultCertificate = {
-          certFile = "/var/lib/acme/certs/${domain}/fullchain.pem";
-          keyFile = "/var/lib/acme/certs/${domain}/key.pem";
+          certFile = "/var/lib/acme/${domain}/fullchain.pem";
+          keyFile = "/var/lib/acme/${domain}/key.pem";
         };
         certificates = [{
-          certfile = "/var/lib/acme/certs/${domain}/fullchain.pem";
-          keyfile = "/var/lib/acme/certs/${domain}/key.pem";
+          certfile = "/var/lib/acme/${domain}/fullchain.pem";
+          keyfile = "/var/lib/acme/${domain}/key.pem";
         }];
       };
       http = {
