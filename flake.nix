@@ -362,7 +362,7 @@
                   WOODPECKER_BACKEND = "docker";
                 };
                 # Same as with woodpecker-server
-                environmentFile = [ "/var/lib/secrets/woodpecker.env" ];
+                # environmentFile = [ "/var/lib/secrets/woodpecker.env" ];
               };
 
               # Here we setup podman and enable dns
