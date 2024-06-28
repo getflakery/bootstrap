@@ -1,7 +1,7 @@
 { config, pkgs, inputs, ... }:
 
 let
-  domain = "flakery.xyz";
+  domain = "*.flakery.xyz";
   email = "your-email@example.com";
 in
 {
