@@ -406,10 +406,24 @@
             flakery.nixosConfigurations.base
             {
               networking.firewall.allowedTCPPorts = [ 5000 ];
+              # set perms fpr "/var/cache-priv-key.pem" to 600 
+              # before running nix-serve
+              systemd.services.setPerms = {
+                wantedBy = [ "multi-user.target" ];
+                script = ''
+                  chmod 600 /var/cache-priv-key.pem
+                '';
+                serviceConfig = {
+                  Type = "oneshot";
+                };
+              };
+
               services.nix-serve = {
                 enable = true;
                 secretKeyFile = "/var/cache-priv-key.pem";
               };
+              # follow setPerms 
+              systemd.services.nix-serve.after = [ "setPerms.service" ];
             }
           ];
         };
