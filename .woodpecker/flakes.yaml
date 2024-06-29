@@ -1,6 +1,5 @@
 matrix:
   flake:
-    - ami
     - test
     - bootstrap
 
@@ -9,7 +8,7 @@ steps:
     image: nixos/nix
     commands:
       - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
-      - nix build --store "unix:///mnt/nix/var/nix/daemon-socket/socket?root=/mnt" .#${flake} -L
+      - nix build --store "unix:///mnt/nix/var/nix/daemon-socket/socket?root=/mnt" .#${flake} -L --print-out-paths
     volumes:
       - /nix:/mnt/nix:ro
   
