@@ -11,3 +11,4 @@ steps:
       - ./create-ami-wp.py --flake .#${ami} --s3-key ${ami}
     volumes:
       - /nix:/mnt/nix:ro
+    secrets: [ AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY ]
