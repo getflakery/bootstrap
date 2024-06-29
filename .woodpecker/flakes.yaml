@@ -15,6 +15,6 @@ steps:
       - echo ${SSH_PRIVATE_KEY_B64} | base64 -d > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - ssh-keyscan binary-cache-6b1b4a.flakery.xyz >> ~/.ssh/known_hosts
-      - nix build .#${flake} -L --print-out-paths  | xargs -I{} nix copy --to flakery@binary-cache-6b1b4a.flakery.xyz {}
+      - nix build .#${flake} -L --print-out-paths  | xargs -I{} nix copy --to flakery@35.164.151.132 {}
 
   
