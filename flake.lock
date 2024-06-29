@@ -63,11 +63,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1719602246,
-        "narHash": "sha256-ar/grpRhd1g4p6Ky5kUzXllfHxdaS31Jl1bpNnwK79Q=",
+        "lastModified": 1719633769,
+        "narHash": "sha256-oRfmgblqOLuUFlOt8U04QqBQUZL7QQr4CPn3jL8V8aM=",
         "owner": "getflakery",
         "repo": "flakes",
-        "rev": "52e337594d2c3e5b151dfcf0aa615360633f5627",
+        "rev": "cf321c1b1199a1280d80117c50b0a6351a7e2a25",
         "type": "github"
       },
       "original": {
