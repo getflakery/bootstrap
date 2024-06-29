@@ -89,31 +89,22 @@ my_config = Config(
 
 def main():
     parser = argparse.ArgumentParser(description="A script to handle AWS snapshot and image registration.")
-    parser.add_argument("--flake", help="Build using nix", default=None)
     parser.add_argument("--s3-key", help="S3 key to upload the image to")
 
     
     args = parser.parse_args()
 
-    if args.flake is not None: 
-        subprocess.run([
-            "nix",
-              "build",
-              "-o", "result",
-            "--store", 
-            "unix:///mnt/nix/var/nix/daemon-socket/socket?root=/mnt",
-                         args.flake])
 
-        result_path = get_result_path()
+    result_path = get_result_path()
 
-        s3_client = boto3.client('s3', config=my_config)
-        print("uploading to s3")
-        print(f"Uploading {result_path} to s3://oofers/{args.s3_key}")
-        s3_client.upload_file(
-            result_path,
-            'oofers',
-            args.s3_key,
-        )
+    s3_client = boto3.client('s3', config=my_config)
+    print("uploading to s3")
+    print(f"Uploading {result_path} to s3://oofers/{args.s3_key}")
+    s3_client.upload_file(
+        result_path,
+        'oofers',
+        args.s3_key,
+    )
 
     disk_container = {
         "Description": "NixOS Base",

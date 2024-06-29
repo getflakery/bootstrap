@@ -8,7 +8,8 @@ steps:
     image: nixos/nix
     commands:
       - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
-      - ./create-ami-wp.py --flake .#${ami} --s3-key ${ami}
+      - nix build --store "unix:///mnt/nix/var/nix/daemon-socket/socket?root=/mnt" .#${ami} -L
+      - ./create-ami-wp.py --s3-key ${ami}
     volumes:
       - /nix:/mnt/nix:ro
     secrets: [ AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY ]
