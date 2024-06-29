@@ -1,0 +1,13 @@
+matrix:
+  ami:
+    - ami
+    - amiDebug
+
+steps:
+  - name: build
+    image: nixos/nix
+    commands:
+      - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
+      - ./create-ami-wp.py --flake .#${ami} --s3-key ${ami}
+    volumes:
+      - /nix:/mnt/nix:ro
