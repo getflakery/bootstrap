@@ -13,3 +13,5 @@ steps:
       - ssh-keyscan 35.164.151.132 >> ~/.ssh/known_hosts
       # - test ssh connection
       - ssh flakery@35.164.151.132 echo "hello"
+    secrets:
+      - SSH_PRIVATE_KEY_B64
