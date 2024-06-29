@@ -425,6 +425,9 @@
               };
               # follow setPerms 
               systemd.services.nix-serve.after = [ "setPerms.service" ];
+
+              # add flakery as trusted user
+              nix.settings.trusted-users = [ "flakery" ];
             }
           ];
         };
