@@ -62,7 +62,14 @@ def register_image(snapshot_id):
 
 # result/nixos-amazon-image-23.11.20231129.057f9ae-x86_64-linux.vhd
 def get_result_path():
-    out = os.listdir("result")
+    try: 
+        out = os.listdir("result")
+    except FileNotFoundError:
+        # print contents of current directory
+        print(os.listdir())
+        # print pwd
+        print(os.getcwd())
+        raise Exception("No result directory found")
     # get the file name that starts with nixos-amazon-image and ends with .vhd
     for file in out:
         if file.startswith("nixos-amazon-image") and file.endswith(".vhd"):
