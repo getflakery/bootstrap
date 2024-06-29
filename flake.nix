@@ -396,6 +396,26 @@
           ];
         };
 
+        packages.nixosConfigurations.binary-cache = nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = {
+            inherit inputs;
+          };
+          modules = [
+            flakery.nixosModules.flakery
+            flakery.nixosConfigurations.base
+            {
+              networking.firewall.allowedTCPPorts = [ 5000 ];
+              services.nix-serve = {
+                enable = true;
+                secretKeyFile = "/var/cache-priv-key.pem";
+              };
+            }
+          ];
+        };
+
+
+
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
