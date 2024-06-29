@@ -6,12 +6,10 @@ steps:
       - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
       - echo "extra-substituters = https://binary-cache-6b1b4a.flakery.xyz" >> /etc/nix/nix.conf
       - echo "extra-trusted-public-keys = binary-cache-6b1b4a.flakery.xyz/:Du7IeCqQQiJpvdhizPnX2ZN2GTlMeUR7C+r9x8Xkjz0=" >> /etc/nix/nix.conf
-      # add ${SSH_PRIVATE_KEY_B64} to /root/.ssh/id_rsa
       - mkdir -p ~/.ssh
       - echo ${SSH_PRIVATE_KEY_B64} | base64 -d > ~/.ssh/id_ed25519
       - chmod 600 ~/.ssh/id_ed25519
       - ssh-keyscan 35.164.151.132 >> ~/.ssh/known_hosts
-      # - test ssh connection
       - ssh flakery@35.164.151.132 echo "hello"
     secrets:
       - SSH_PRIVATE_KEY_B64
