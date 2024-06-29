@@ -99,6 +99,7 @@ def main():
         subprocess.run([
             "nix",
               "build",
+              "-o", "resul",
             "--store", 
             "unix:///mnt/nix/var/nix/daemon-socket/socket?root=/mnt",
                          args.flake])
