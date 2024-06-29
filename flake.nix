@@ -121,6 +121,9 @@
           # allow sudo without password for wheel
           security.sudo.wheelNeedsPassword = false;
 
+          # port 22
+          networking.firewall.allowedTCPPorts = [ 22 ];
+
           services.openssh = {
             enable = true;
             # require public key authentication for better security
