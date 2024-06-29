@@ -10,7 +10,7 @@ steps:
       - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
       - nix build .#${ami} -L
 
-  -  name: create ami
+  - name: create ami
     image: amazonlinux
     commands:
       - ./create-ami-wp.py --s3-key ${ami}
