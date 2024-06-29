@@ -8,7 +8,9 @@ steps:
       - echo "extra-trusted-public-keys = binary-cache-6b1b4a.flakery.xyz/:Du7IeCqQQiJpvdhizPnX2ZN2GTlMeUR7C+r9x8Xkjz0=" >> /etc/nix/nix.conf
       # add ${SSH_PRIVATE_KEY_B64} to /root/.ssh/id_rsa
       - mkdir -p ~/.ssh
-      - echo ${SSH_PRIVATE_KEY_B64} | base64 -d > ~/.ssh/id_rsa
+      - echo ${SSH_PRIVATE_KEY_B64} | base64 -d > ~/.ssh/id_ed25519
+      # - add newline to the end of the file
+      - echo >> ~/.ssh/id_ed25519
       - chmod 600 ~/.ssh/id_rsa
       - ssh-keyscan 35.164.151.132 >> ~/.ssh/known_hosts
       # - test ssh connection
