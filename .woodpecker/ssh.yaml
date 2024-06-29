@@ -9,8 +9,6 @@ steps:
       # add ${SSH_PRIVATE_KEY_B64} to /root/.ssh/id_rsa
       - mkdir -p ~/.ssh
       - echo ${SSH_PRIVATE_KEY_B64} | base64 -d > ~/.ssh/id_ed25519
-      # - add newline to the end of the file
-      - echo >> ~/.ssh/id_ed25519
       - chmod 600 ~/.ssh/id_ed25519
       - ssh-keyscan 35.164.151.132 >> ~/.ssh/known_hosts
       # - test ssh connection
