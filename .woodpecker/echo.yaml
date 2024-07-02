@@ -2,8 +2,8 @@
 steps:
   - name: testssh
     image: nixos/nix
-    environment:
-      MESSAGE: "Hello, World!"
+    # environment:
+    #   MESSAGE: "Hello, World!"
     commands:
     # echo the message 
       - echo $MESSAGE
