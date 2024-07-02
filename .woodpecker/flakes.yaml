@@ -18,4 +18,4 @@ steps:
       # - ssh-keyscan binary-cache-6b1b4a.flakery.xyz >> ~/.ssh/known_hosts
       # - nix build .#${flake} -L --print-out-paths  | xargs -I{} nix copy --to flakery@35.164.151.132 {}
 
-  
+skip_clone: true

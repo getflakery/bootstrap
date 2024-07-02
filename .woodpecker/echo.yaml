@@ -10,3 +10,5 @@ steps:
     # echo the message 
       - echo $MESSAGE
       - *echo
+
+skip_clone: true
