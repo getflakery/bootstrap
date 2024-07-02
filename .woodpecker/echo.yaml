@@ -6,6 +6,7 @@ steps:
       MESSAGE: "Hello, World!"
     commands:
     # echo the message 
-      - echo ${MESSAGE}
+      - echo $MESSAGE
+      - env
 
 skip_clone: true
