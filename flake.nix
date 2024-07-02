@@ -437,7 +437,8 @@
         packages.ami = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "amazon";
-          modules = bootstrapModules ++ [ sshconfMod ];
+          # modules = bootstrapModules ++ [ sshconfMod ];
+          modules = bootstrapModules;
         };
 
         packages.amiDebug = nixos-generators.nixosGenerate {
