@@ -356,7 +356,7 @@
                   WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
                   WOODPECKER_ADMIN = "r33drichards";
                   WOODPECKER_DATABASE_DRIVER="postgres";
-                  WOODPECKER_DATABASE_URL= builtins.readFile /pgurl;
+                  WOODPECKER_DATABASE_DATASOURCE= builtins.readFile /pgurl;
                 };
                 # You can pass a file with env vars to the system it could look like:
                 # environmentFile = "/path/to/my/secrets/file";
