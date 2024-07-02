@@ -1,6 +1,5 @@
 variables:
-  &message: 'Hello, World!'
-  &echo: 'echo bar'
+  message: &message: 'Hello, World!'
 steps:
   - name: testssh
     image: nixos/nix
@@ -9,6 +8,5 @@ steps:
     commands:
     # echo the message 
       - echo $MESSAGE
-      - *echo
 
 skip_clone: true
