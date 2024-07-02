@@ -3,6 +3,8 @@ variables:
 steps:
   - name: testssh
     image: nixos/nix
+    environment:
+      MESSAGE: *message
     commands:
     # echo the message 
-      - echo *message
+      - echo $MESSAGE
