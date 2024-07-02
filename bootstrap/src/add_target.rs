@@ -16,6 +16,9 @@ pub async fn add_target(
 
     // this def qualifies as tech debt 
     println!("inserting target into database");
+    println!("id: {}", id);
+    println!("deployment_id: {}", deployment_id);
+    println!("ip: {}", ip);
     let query = "INSERT INTO target (id, deployment_id, host) VALUES (?1, ?2, ?3)";
     let conn =  db.connect()?;
     conn.execute(&query, params!(
