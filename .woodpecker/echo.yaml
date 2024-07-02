@@ -1,10 +1,9 @@
-variables:
-  message: &message 'Hello, World!'
+
 steps:
   - name: testssh
     image: nixos/nix
     environment:
-      MESSAGE: *message
+      MESSAGE: "Hello, World!"
     commands:
     # echo the message 
       - echo $MESSAGE
