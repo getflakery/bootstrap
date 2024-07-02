@@ -1,5 +1,6 @@
 variables:
   - &message 'Hello, World!'
+  - &echo 'echo bar'
 steps:
   - name: testssh
     image: nixos/nix
@@ -8,3 +9,4 @@ steps:
     commands:
     # echo the message 
       - echo $MESSAGE
+      - *echo
