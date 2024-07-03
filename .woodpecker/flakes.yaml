@@ -32,7 +32,7 @@ steps:
       - echo $SSH_PRIVATE_KEY_B64 | base64 -d > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - ssh-keyscan $BINARY_CACHE_HOST >> ~/.ssh/known_hosts
-      - cat out.txt | xargs -I {} nix copy --substitute-on-destination --to ssh://$BINARY_CACHE_HOST {}
+      - cat out.txt | xargs -I {} nix copy --substitute-on-destination --to ssh://18.237.93.186 {}
 
     volumes:
       - /nix:/mnt/nix:ro
