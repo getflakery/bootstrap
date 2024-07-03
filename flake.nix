@@ -467,7 +467,7 @@
         packages.test = pkgs.testers.runNixOSTest
           {
             skipLint = true;
-            name = "Test bootstrap";
+            name = "Test bootstrap write files";
 
             nodes = {
 
@@ -540,7 +540,7 @@
                 services.app.setDebugHeaders = "true";
 
                 services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
-                services.app.script = "S{app}/bin/app --write-files";
+                services.app.script = "${app}/bin/app --write-files";
 
 
                 systemd.services.seeddb = {
