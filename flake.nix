@@ -515,6 +515,64 @@
             interactive.nodes.machine1 = import ./debug-host-module.nix;
             testScript = builtins.readFile ./testScript.py;
           };
+        packages.testWriteFiles = pkgs.testers.runNixOSTest
+          {
+            skipLint = true;
+            name = "Test bootstrap";
+
+            nodes = {
+
+              machine1 = { pkgs, ... }: {
+
+                environment.systemPackages = [ pkgs.sqlite pkgs.gnugrep ];
+
+                # Empty config sets some defaults
+                imports = [
+                  self.nixosModules."${system}".bootstrap
+                ];
+
+                services.app.enable = true;
+                services.app.urlPrefix = "http://localhost:8080/";
+                services.app.ipv4Prefix = "http://localhost:8080/";
+                services.app.sqlUrl = "file:///tmp/db.sqlite3";
+                services.app.useLocal = "true";
+                services.app.applyFlake = "false";
+                services.app.setDebugHeaders = "true";
+
+                services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
+                services.app.script = "S{app}/bin/app --write-files";
+
+
+                systemd.services.seeddb = {
+                  wantedBy = [ "multi-user.target" ];
+                  path = [ pkgs.sqlite ];
+                  script = "${./seeddb.sh}";
+                  serviceConfig = {
+                    Type = "oneshot";
+                  };
+                };
+
+                systemd.services.serve = {
+                  wantedBy = [ "multi-user.target" ];
+                  path = [ pkgs.python3 ];
+                  script = "${./serve.py}";
+                  serviceConfig = {
+                    Restart = "always";
+                    RestartSec = 0;
+                  };
+                };
+              };
+            };
+
+            interactive.nodes.machine1 = import ./debug-host-module.nix;
+            testScript = ''
+              machine.start()
+              # assert /foo/bar.txt contains secret 
+              machine1.wait_for_file("/foo/bar.txt")
+              response = machine1.succeed("cat /foo/bar.txt")
+              assert "secret" in response
+            '';
+          };
 
 
       })
