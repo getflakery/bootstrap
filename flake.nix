@@ -296,7 +296,7 @@
 
                 services.prometheus = {
                   enable = true;
-                  port = 9001;
+                  port = 9090;
                 };
                 nix = {
                   gc = {
