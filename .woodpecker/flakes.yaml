@@ -1,7 +1,7 @@
 variables:
   user_safe_env: &user_safe_env
     BINARY_CACHE_HOST: "binary-cache-6b1b4a.flakery.xyz"
-    FLAKE: "github:getflakery/bootstrap#nixosConfigurations.grafana"
+    FLAKE: "github:getflakery/bootstrap#nixosConfigurations.grafana.config.system.build.toplevel"
 
 steps:
   - name: PREPARE
