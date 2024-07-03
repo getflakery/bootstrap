@@ -384,7 +384,25 @@
             flakery.nixosConfigurations.base
             {
 
-              networking.firewall.allowedTCPPorts = [ 3007 ];
+              networking.firewall.allowedTCPPorts = [ 3007 9002 ];
+              services.prometheus = {
+                enable = true;
+                port = 9090;
+                exporters = {
+                  node = {
+                    enable = true;
+                    enabledCollectors = [ "systemd" ];
+                    port = 9002;
+                  };
+
+                };
+              };
+
+              services.tailscale = {
+                enable = true;
+                authKeyFile = "/tsauthkey";
+                extraUpFlags = [ "--ssh" "--hostname" "woodpecker"];
+              };
 
               services.woodpecker-server = {
                 enable = true;
