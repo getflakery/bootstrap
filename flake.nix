@@ -303,7 +303,9 @@
                       enabledCollectors = [ "systemd" ];
                       port = 9002;
                     };
-                    scrapeConfigs = [
+  
+                  };
+                  scrapeConfigs = [
                       {
                         job_name = "node-exporter";
                         static_configs = [{
@@ -311,10 +313,8 @@
                         }];
                       }
                     ];
-                  };
-
-
                 };
+                
                 nix = {
                   gc = {
                     automatic = true;
