@@ -15,7 +15,8 @@ steps:
     secrets:
       - TURSO_TOKEN
     commands:
-      # - echo hello
+      # enable nix command and nix flakes 
+      - echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
       - echo "extra-substituters = https://$BINARY_CACHE_HOST" >> /etc/nix/nix.conf
       - echo "extra-trusted-public-keys = $BINARY_CACHE_HOST/:Du7IeCqQQiJpvdhizPnX2ZN2GTlMeUR7C+r9x8Xkjz0=" >> /etc/nix/nix.conf
       - mkdir -p ~/.ssh
