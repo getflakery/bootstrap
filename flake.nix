@@ -20,7 +20,7 @@
 
   inputs.flakery.url = "github:getflakery/flakes";
 
-  inputs.comin.url = "github:r33drichards/comin/b3dde0e9fd195b38a3d67fe626a11a9efe03c67c";
+  inputs.comin.url = "github:r33drichards/comin/3c8ded9326029e4e0425f8d7d8b996aafa3c5d53";
 
 
   outputs =
@@ -314,7 +314,7 @@
                       }
                     ];
                 };
-                
+
                 nix = {
                   gc = {
                     automatic = true;
