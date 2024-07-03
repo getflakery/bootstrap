@@ -16,6 +16,9 @@ use wrap_with_deployment_id::wrap_with_deployment_id;
 mod exit_code;
 use exit_code::exit_code;
 
+mod write_files;
+use write_files::write_files;
+
 use reqwest::get;
 
 #[derive(Clone, Debug)]
@@ -89,24 +92,6 @@ impl EC2TagData {
     }
 }
 
-pub struct File {
-    path: String,
-    content: String,
-}
-
-impl File {
-    fn write(&self) -> Result<()> {
-        if !self.path.starts_with('/') {
-            let msg = format!("path does not start with slash: {}", self.path);
-            return Err(anyhow::anyhow!(msg));
-        }
-        let dirpath = Path::new(&self.path).parent().unwrap_or(Path::new("/"));
-        fs::create_dir_all(dirpath)?;
-        fs::write(&self.path, &self.content)?;
-        Ok(())
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct Config {
     url_prefix: String,
@@ -163,6 +148,16 @@ async fn main() -> ExitCode {
     }
 }
 
+// get args value after arg
+fn arg_value(args: Vec<String>, arg: String) -> Result<String> {
+    let index = args.iter().position(|a| *a == arg).unwrap() + 1;
+    let value = args[index].parse::<String>();
+    match value {
+        Ok(value) => Ok(value),
+        Err(_) => Err(anyhow::anyhow!("could not parse value")),
+    }
+}
+
 async fn bootstrap() -> Result<()> {
     let mut args: Vec<String> = env::args().collect();
 
@@ -197,6 +192,19 @@ async fn bootstrap() -> Result<()> {
         return Ok(());
     }
 
+    // if args contains --write-files, write files and return
+    if args.contains(&"--write-files".to_string()) {
+        let sql_url = config.clone().sql_url;
+        let turso_token = arg_value(args.clone(), "--turso-token".to_string())?;
+
+        let db: libsql::Database = Builder::new_remote(sql_url.to_string(), turso_token).build().await?;
+        let conn: libsql::Connection = db.connect()?;
+        let template_id = arg_value(args.clone(), "--template-id".to_string())?;
+        let encryption_key = arg_value(args.clone(), "--encryption-key".to_string())?;
+        write_files(conn, template_id, encryption_key).await?;
+        return Ok(());
+    }
+
     println!("fetching ec2 tag data");
     let mut ec2_tag_data = EC2TagData::new(&config).await?;
     println!("fetched ec2 tag data");
@@ -205,9 +213,6 @@ async fn bootstrap() -> Result<()> {
 
     let sql_url = config.clone().sql_url;
     let token = ec2_tag_data.clone().turso_token;
-    let mut buffer = [0; 32];
-    hex::decode_to_slice(&ec2_tag_data.file_encryption_key, &mut buffer)?;
-    let cipher = Cipher::new_256(&buffer);
     let db: libsql::Database = match token {
         Some(token) => {
             Builder::new_remote(sql_url.to_string(), token)
@@ -231,42 +236,14 @@ async fn bootstrap() -> Result<()> {
     }
 
     println!("connecting to db");
-    let conn = db.connect()?;
+    let conn: libsql::Connection = db.connect()?;
     println!("connected to db");
 
     println!("fetching files");
     println!("querying files");
-    let query = "SELECT f.* FROM files f JOIN template_files tf ON f.id = tf.file_id WHERE tf.template_id = ?1";
-    let mut rows = conn
-        .query(query, params!(ec2_tag_data.clone().template_id))
-        .await?;
-    let mut files = Vec::new();
-    while let Ok(Some(row)) = rows.next().await {
-        let path = row.get::<String>(1)?;
-        let content = row.get::<String>(2)?;
-        let initialization_vector = row.get::<String>(4)?;
-        let mut iv_buffer = [0; 16];
-        let content_length = content.len();
-        let mut content_buffer = vec![0; content_length / 2];
-        let mut cbuff = content_buffer.as_mut_slice();
-
-        hex::decode_to_slice(&initialization_vector, &mut iv_buffer)?;
-        hex::decode_to_slice(&content, &mut cbuff)?;
-        let decrypted = cipher.cbc_decrypt(&iv_buffer, &content_buffer);
-
-        files.push(File {
-            path,
-            content: String::from_utf8(decrypted)
-                .context("Failed to convert decrypted bytes to string")?,
-        });
-    }
-    // httplog("finished fetching files").await;
-    println!("finished fetching files");
-
-    println!("writing files");
-    for file in files {
-        file.write()?;
-    }
+    let template_id = ec2_tag_data.clone().template_id;
+    let encryption_key = ec2_tag_data.clone().file_encryption_key;
+    write_files(conn, template_id, encryption_key).await?;
     println!("finished writing files");
     println!("finished bootstrapping");
 
