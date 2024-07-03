@@ -37,6 +37,7 @@ steps:
         from_secret: SSH_PRIVATE_KEY_B64
     commands:
       # add ${SSH_PRIVATE_KEY_B64} to /root/.ssh/id_rsa
+      - echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
       - mkdir -p ~/.ssh
       - echo $SSH_PRIVATE_KEY_B64 | base64 -d > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
