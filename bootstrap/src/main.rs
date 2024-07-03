@@ -194,6 +194,7 @@ async fn bootstrap() -> Result<()> {
 
     // if args contains --write-files, write files and return
     if args.contains(&"--write-files".to_string()) {
+        
         let sql_url = config.clone().sql_url;
         let db: libsql::Database;
         if args.contains(&"--turso-token".to_string()) {
