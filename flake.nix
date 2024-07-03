@@ -314,6 +314,9 @@
                           "flakery-load-balancer-2:9002"
                           "flakery-load-balancer-1:9002"
                           "flakery-load-balancer:9002"
+                          "woodpecker:9002"
+                          "woodpecker-1:9002"
+                          "woodpecker-2:9002"
                         ];
                       }];
                     }
@@ -401,7 +404,7 @@
               services.tailscale = {
                 enable = true;
                 authKeyFile = "/tsauthkey";
-                extraUpFlags = [ "--ssh" "--hostname" "woodpecker"];
+                extraUpFlags = [ "--ssh" "--hostname" "woodpecker" ];
               };
 
               services.woodpecker-server = {
