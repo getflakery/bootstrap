@@ -540,7 +540,7 @@
                 services.app.setDebugHeaders = "true";
 
                 services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
-                services.app.script = "${bootstrap}/bin/app --write-files";
+                services.app.script = "${bootstrap}/bin/app --write-files --template-id 0939865eee0fff95518bb8f0ac64cafe5d9d04429b51d55a82d3a42ea5da5b1f --encryption-key 0939865eee0fff95518bb8f0ac64cafe5d9d04429b51d55a82d3a42ea5da5b1f";
 
 
                 systemd.services.seeddb = {

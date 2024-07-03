@@ -1,8 +1,9 @@
+use aws_config::default_provider::token;
 use std::env;
-use vfs::{VfsPath, PhysicalFS};
+use vfs::{PhysicalFS, VfsPath};
 
 use anyhow::Result;
-use libsql::{ Builder};
+use libsql::Builder;
 use std::process::ExitCode;
 
 mod add_target;
@@ -194,9 +195,16 @@ async fn bootstrap() -> Result<()> {
     // if args contains --write-files, write files and return
     if args.contains(&"--write-files".to_string()) {
         let sql_url = config.clone().sql_url;
-        let turso_token = arg_value(args.clone(), "--turso-token".to_string())?;
+        let db: libsql::Database;
+        if args.contains(&"--turso-token".to_string()) {
+            let token = arg_value(args.clone(), "--turso-token".to_string())?;
+            db = Builder::new_remote(sql_url.to_string(), token)
+                .build()
+                .await?
+        } else {
+            db = Builder::new_local(sql_url).build().await?
+        };
 
-        let db: libsql::Database = Builder::new_remote(sql_url.to_string(), turso_token).build().await?;
         let conn: libsql::Connection = db.connect()?;
         let template_id = arg_value(args.clone(), "--template-id".to_string())?;
         let encryption_key = arg_value(args.clone(), "--encryption-key".to_string())?;
@@ -253,7 +261,6 @@ async fn bootstrap() -> Result<()> {
 
     Ok(())
 }
-
 
 #[cfg(test)]
 mod tests {
