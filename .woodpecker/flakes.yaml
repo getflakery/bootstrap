@@ -13,6 +13,7 @@ steps:
       - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
       - echo "extra-substituters = https://$BINARY_CACHE_HOST" >> /etc/nix/nix.conf
       - echo "extra-trusted-public-keys = $BINARY_CACHE_HOST/:Du7IeCqQQiJpvdhizPnX2ZN2GTlMeUR7C+r9x8Xkjz0=" >> /etc/nix/nix.conf
+      - mkdir -p ~/.ssh
       - ssh-keyscan $BINARY_CACHE_HOST >> ~/.ssh/known_hosts
       - nix build .#${FLAKE} -L --print-out-paths  > out.txt
   - name: COPY TO BINARY CACHE
