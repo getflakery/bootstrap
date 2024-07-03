@@ -467,7 +467,7 @@
         packages.test = pkgs.testers.runNixOSTest
           {
             skipLint = true;
-            name = "Test bootstrap write files";
+            name = "Test bootstrap";
 
             nodes = {
 
@@ -517,8 +517,10 @@
           };
         packages.testWriteFiles = pkgs.testers.runNixOSTest
           {
-            skipLint = true;
-            name = "Test bootstrap";
+            skipLint = true;      
+            name = "Test bootstrap write files";
+
+
 
             nodes = {
 
