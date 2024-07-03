@@ -295,7 +295,10 @@
                 networking.firewall.allowedTCPPorts = [ 3000 ];
                 nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-
+                services.prometheus = {
+                  enable = true;
+                  port = 9001;
+                };
 
                 services.comin = {
                   enable = true;
@@ -355,8 +358,8 @@
                   WOODPECKER_GITHUB_SECRET = builtins.readFile /github-client-secret;
                   WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
                   WOODPECKER_ADMIN = "r33drichards";
-                  WOODPECKER_DATABASE_DRIVER="postgres";
-                  WOODPECKER_DATABASE_DATASOURCE= builtins.readFile /pgurl;
+                  WOODPECKER_DATABASE_DRIVER = "postgres";
+                  WOODPECKER_DATABASE_DATASOURCE = builtins.readFile /pgurl;
                 };
                 # You can pass a file with env vars to the system it could look like:
                 # environmentFile = "/path/to/my/secrets/file";
@@ -373,7 +376,7 @@
                   DOCKER_HOST = "unix:///run/podman/podman.sock";
                   WOODPECKER_BACKEND = "docker";
                   WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
-                  
+
 
                 };
                 # Same as with woodpecker-server
@@ -517,7 +520,7 @@
           };
         packages.testWriteFiles = pkgs.testers.runNixOSTest
           {
-            skipLint = true;      
+            skipLint = true;
             name = "Test bootstrap write files";
 
 
