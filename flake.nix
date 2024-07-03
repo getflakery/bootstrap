@@ -540,7 +540,7 @@
                 services.app.setDebugHeaders = "true";
 
                 services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
-                services.app.script = "${app}/bin/app --write-files";
+                services.app.script = "${self."${system}".bootstrap}/bin/app --write-files";
 
 
                 systemd.services.seeddb = {
