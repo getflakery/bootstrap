@@ -28,7 +28,7 @@ pub async fn exit_code(
             }
         }
         Err(e) => {
-            println!("error inserting target into database: {:?}", e);
+            println!("error     abase: {:?}", e);
             return Err(anyhow::anyhow!("error inserting target into database"));
         }
     }

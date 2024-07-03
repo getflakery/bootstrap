@@ -1,10 +1,8 @@
 use std::env;
-use std::fs;
-use std::path::Path;
+use vfs::{VfsPath, PhysicalFS};
 
-use anyhow::{Context, Result};
-use libaes::Cipher;
-use libsql::{params, Builder};
+use anyhow::Result;
+use libsql::{ Builder};
 use std::process::ExitCode;
 
 mod add_target;
@@ -191,6 +189,7 @@ async fn bootstrap() -> Result<()> {
         println!("{}", ec2_tag_data.github_token);
         return Ok(());
     }
+    let root: VfsPath = PhysicalFS::new("/").into();
 
     // if args contains --write-files, write files and return
     if args.contains(&"--write-files".to_string()) {
@@ -201,7 +200,7 @@ async fn bootstrap() -> Result<()> {
         let conn: libsql::Connection = db.connect()?;
         let template_id = arg_value(args.clone(), "--template-id".to_string())?;
         let encryption_key = arg_value(args.clone(), "--encryption-key".to_string())?;
-        write_files(conn, template_id, encryption_key).await?;
+        write_files(conn, template_id, encryption_key, root).await?;
         return Ok(());
     }
 
@@ -243,7 +242,7 @@ async fn bootstrap() -> Result<()> {
     println!("querying files");
     let template_id = ec2_tag_data.clone().template_id;
     let encryption_key = ec2_tag_data.clone().file_encryption_key;
-    write_files(conn, template_id, encryption_key).await?;
+    write_files(conn, template_id, encryption_key, root).await?;
     println!("finished writing files");
     println!("finished bootstrapping");
 
@@ -253,4 +252,22 @@ async fn bootstrap() -> Result<()> {
     println!("added target");
 
     Ok(())
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_arg_value() {
+        let args = vec![
+            "bootstrap".to_string(),
+            "--turso-token".to_string(),
+            "token".to_string(),
+        ];
+        let arg = "--turso-token".to_string();
+        let value = arg_value(args, arg).unwrap();
+        assert_eq!(value, "token".to_string());
+    }
 }
