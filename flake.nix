@@ -1,7 +1,7 @@
 {
   description = "A basic rust cli";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/23.11";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/24.05";
   inputs.unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
 
