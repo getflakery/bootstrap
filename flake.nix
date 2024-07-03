@@ -303,16 +303,21 @@
                       enabledCollectors = [ "systemd" ];
                       port = 9002;
                     };
-  
+
                   };
                   scrapeConfigs = [
-                      {
-                        job_name = "node";
-                        static_configs = [{
-                          targets = [ "127.0.0.1:9002" ];
-                        }];
-                      }
-                    ];
+                    {
+                      job_name = "node";
+                      static_configs = [{
+                        targets = [
+                          "127.0.0.1:9002"
+                          "flakery-load-balancer-2:9002"
+                          "flakery-load-balancer-1:9002"
+                          "flakery-load-balancer:9002"
+                        ];
+                      }];
+                    }
+                  ];
                 };
 
                 nix = {
