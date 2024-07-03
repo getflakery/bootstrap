@@ -2,6 +2,8 @@ variables:
   user_safe_env: &user_safe_env
     BINARY_CACHE_HOST: "binary-cache-6b1b4a.flakery.xyz"
     FLAKE: "github:getflakery/bootstrap#nixosConfigurations.grafana.config.system.build.toplevel"
+    TEMPLATE_ID: "4c6e0786-97c9-4d1b-8687-ca8761af9cdd"
+    ENCRYPTION_KEY: "0939865eee0fff95518bb8f0ac64cafe5d9d04429b51d55a82d3a42ea5da5b1f"
 
 steps:
   - name: PREPARE
@@ -10,11 +12,14 @@ steps:
       <<: *user_safe_env
     commands:
       # - echo hello
-      - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
       - echo "extra-substituters = https://$BINARY_CACHE_HOST" >> /etc/nix/nix.conf
       - echo "extra-trusted-public-keys = $BINARY_CACHE_HOST/:Du7IeCqQQiJpvdhizPnX2ZN2GTlMeUR7C+r9x8Xkjz0=" >> /etc/nix/nix.conf
       - mkdir -p ~/.ssh
       - ssh-keyscan $BINARY_CACHE_HOST >> ~/.ssh/known_hosts
+      - nix run github:getflakery/bootstrap#bootstrap -- \
+         --write-files --turso-token $TURSO_TOKEN \
+         --template-id $TEMPLATE_ID \
+         --encryption-key $ENCRYPTION_KEY
       - nix build $FLAKE -L --print-out-paths  > out.txt
   - name: COPY TO BINARY CACHE
     image: nixos/nix
