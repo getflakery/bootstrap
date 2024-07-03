@@ -13,6 +13,8 @@ steps:
       <<: *user_safe_env
       TURSO_TOKEN:
         from_secret: TURSO_TOKEN
+      SSH_PRIVATE_KEY_B64:
+        from_secret: SSH_PRIVATE_KEY_B64
     secrets:
       - TURSO_TOKEN
     commands:
@@ -25,23 +27,12 @@ steps:
       - echo "extra-substituters = https://$BINARY_CACHE_HOST" >> /etc/nix/nix.conf
       - echo "extra-trusted-public-keys = $BINARY_CACHE_HOST/:Du7IeCqQQiJpvdhizPnX2ZN2GTlMeUR7C+r9x8Xkjz0=" >> /etc/nix/nix.conf
       - nix build $FLAKE -L --print-out-paths --impure  > out.txt
- 
-    volumes:
-      - /nix:/mnt/nix:ro
-  - name: COPY TO BINARY CACHE
-    image: nixos/nix
-    secrets: [SSH_PRIVATE_KEY_B64]
-    environment:
-      <<: *user_safe_env
-      SSH_PRIVATE_KEY_B64:
-        from_secret: SSH_PRIVATE_KEY_B64
-    commands:
-      # add ${SSH_PRIVATE_KEY_B64} to /root/.ssh/id_rsa
-      - echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
       - mkdir -p ~/.ssh
       - echo $SSH_PRIVATE_KEY_B64 | base64 -d > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - ssh-keyscan $BINARY_CACHE_HOST >> ~/.ssh/known_hosts
-      - cat out.txt | xargs -I {} nix copy --to ssh://$BINARY_CACHE_HOST {}
+      - cat out.txt | xargs -I {} nix copy --substitute-on-destination --to ssh://$BINARY_CACHE_HOST {}
 
+    volumes:
+      - /nix:/mnt/nix:ro
 skip_clone: true
