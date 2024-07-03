@@ -10,6 +10,10 @@ steps:
     image: nixos/nix
     environment:
       <<: *user_safe_env
+      TURSO_TOKEN:
+        from_secret: TURSO_TOKEN
+    secrets:
+      - TURSO_TOKEN
     commands:
       # - echo hello
       - echo "extra-substituters = https://$BINARY_CACHE_HOST" >> /etc/nix/nix.conf
@@ -20,6 +24,11 @@ steps:
          --write-files --turso-token $TURSO_TOKEN \
          --template-id $TEMPLATE_ID \
          --encryption-key $ENCRYPTION_KEY
+  - name: BUILD
+    image: nixos/nix
+    environment:
+      <<: *user_safe_env
+    commands:
       - nix build $FLAKE -L --print-out-paths  > out.txt
   - name: COPY TO BINARY CACHE
     image: nixos/nix
