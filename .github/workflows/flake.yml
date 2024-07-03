@@ -17,6 +17,7 @@ jobs:
           - ami
           - bootstrap
           - test
+          - testWriteFiles
     steps:
       - uses: actions/checkout@v3
       - uses: DeterminateSystems/nix-installer-action@main
