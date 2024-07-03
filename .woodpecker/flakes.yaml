@@ -7,14 +7,14 @@ variables:
 
 steps:
   - name: install nix
-    image: ubuntu:latest
+    image: ubuntu:24.04
     commands:
       - apt-get update -y && apt-get install curl -y
       - curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux --extra-conf "sandbox = false" --init none --no-confirm
       - export PATH="${PATH}:/nix/var/nix/profiles/default/bin"
 
   - name: prepare
-    image: ubuntu:latest
+    image: ubuntu:24.04
     environment:
       <<: *user_safe_env
       TURSO_TOKEN:
