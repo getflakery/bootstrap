@@ -373,6 +373,7 @@
                   DOCKER_HOST = "unix:///run/podman/podman.sock";
                   WOODPECKER_BACKEND = "docker";
                   WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
+                  
 
                 };
                 # Same as with woodpecker-server
@@ -413,6 +414,9 @@
               systemd.services.setPerms = {
                 wantedBy = [ "multi-user.target" ];
                 script = ''
+                  cd /var
+                  # todo curl is tech debt \o/
+                  nix-store --generate-binary-cache-key `curl http://169.254.169.254/latest/meta-data/local-ipv4` cache-priv-key.pem cache-pub-key.pem
                   chmod 600 /var/cache-priv-key.pem
                 '';
                 serviceConfig = {

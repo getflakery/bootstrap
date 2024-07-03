@@ -1,21 +1,32 @@
-matrix:
-  flake:
-    - test
-    - bootstrap
+variables:
+  user_safe_env: &user_safe_env
+    BINARY_CACHE_HOST: "binary-cache-6b1b4a.flakery.xyz"
+    FLAKE: "github:getflakery/bootstrap#grafana"
 
 steps:
-  - name: build
+  - name: PREPARE
     image: nixos/nix
+    environment:
+      <<: *user_safe_env
     commands:
-      - echo hello
-      # - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
-      # - echo "extra-substituters = https://binary-cache-6b1b4a.flakery.xyz" >> /etc/nix/nix.conf
-      # - echo "extra-trusted-public-keys = binary-cache-6b1b4a.flakery.xyz/:Du7IeCqQQiJpvdhizPnX2ZN2GTlMeUR7C+r9x8Xkjz0=" >> /etc/nix/nix.conf
-      # # add ${SSH_PRIVATE_KEY_B64} to /root/.ssh/id_rsa
-      # - mkdir -p ~/.ssh
-      # - echo ${SSH_PRIVATE_KEY_B64} | base64 -d > ~/.ssh/id_rsa
-      # - chmod 600 ~/.ssh/id_rsa
-      # - ssh-keyscan binary-cache-6b1b4a.flakery.xyz >> ~/.ssh/known_hosts
-      # - nix build .#${flake} -L --print-out-paths  | xargs -I{} nix copy --to flakery@35.164.151.132 {}
+      # - echo hello
+      - echo 'experimental-features = flakes nix-command' >> /etc/nix/nix.conf
+      - echo "extra-substituters = https://$BINARY_CACHE_HOST" >> /etc/nix/nix.conf
+      - echo "extra-trusted-public-keys = $BINARY_CACHE_HOST/:Du7IeCqQQiJpvdhizPnX2ZN2GTlMeUR7C+r9x8Xkjz0=" >> /etc/nix/nix.conf
+      - ssh-keyscan $BINARY_CACHE_HOST >> ~/.ssh/known_hosts
+      - nix build .#${FLAKE} -L --print-out-paths  > out.txt
+  - name: COPY TO BINARY CACHE
+    image: nixos/nix
+    secrets: [SSH_PRIVATE_KEY_B64]
+    environment:
+      <<: *user_safe_env
+      SSH_PRIVATE_KEY_B64:
+        from_secret: SSH_PRIVATE_KEY_B64
+    commands:
+      # add ${SSH_PRIVATE_KEY_B64} to /root/.ssh/id_rsa
+      - mkdir -p ~/.ssh
+      - echo $SSH_PRIVATE_KEY_B64 | base64 -d > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - cat out.txt | xargs -I {} nix copy --to ssh://$BINARY_CACHE_HOST {}
 
 skip_clone: true
