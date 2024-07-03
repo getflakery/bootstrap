@@ -19,7 +19,7 @@ steps:
       - apt install curl -y
       - curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux --extra-conf "sandbox = false" --init none --no-confirm
       - export PATH="${PATH}:/nix/var/nix/profiles/default/bin"
-      - nix profile install --impure nixpkgs#uutils-coreutils-noprefix nixpkgs#openssh
+      - nix profile install --store "unix:///mnt/nix/var/nix/daemon-socket/socket?root=/mnt" --impure nixpkgs#uutils-coreutils-noprefix nixpkgs#openssh
       # enable nix command and nix flakes 
       - echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
       - echo "extra-substituters = https://$BINARY_CACHE_HOST" >> /etc/nix/nix.conf
