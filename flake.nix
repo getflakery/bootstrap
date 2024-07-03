@@ -20,7 +20,7 @@
 
   inputs.flakery.url = "github:getflakery/flakes";
 
-  inputs.comin.url = "github:r33drichards/comin/8f8352537ca4ecdcad06b1b4ede4465d37dbd00c";
+  inputs.comin.url = "github:r33drichards/comin/b3dde0e9fd195b38a3d67fe626a11a9efe03c67c";
 
 
   outputs =
@@ -293,11 +293,29 @@
               sshconfMod
               {
                 networking.firewall.allowedTCPPorts = [ 3000 ];
-                nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
                 services.prometheus = {
                   enable = true;
                   port = 9001;
+                };
+                nix = {
+                  gc = {
+                    automatic = true;
+                    dates = "weekly";
+                    options = "--delete-older-than 7d";
+                  };
+                  settings = {
+                    experimental-features = [ "nix-command" "flakes" ];
+                    substituters = [
+                      # "https://cache.garnix.io"
+                      "https://nix-community.cachix.org"
+                      "https://cache.nixos.org/"
+                    ];
+                    trusted-public-keys = [
+                      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+                      # "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+                    ];
+                  };
                 };
 
                 services.comin = {
