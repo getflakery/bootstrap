@@ -14,9 +14,9 @@ jobs:
     strategy:
       matrix:
         flakename:
-          # - ami
+          - ami
           - bootstrap
-          # - test
+          - test
           - testWriteFiles
     steps:
       - uses: actions/checkout@v3
