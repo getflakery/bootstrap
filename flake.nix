@@ -365,23 +365,6 @@
                   enable = true;
                   analytics.reporting.enable = false;
 
-                  provision = {
-                    enable = true;
-                    datasources = [
-                      {
-                        name = "Prometheus";
-                        type = "prometheus";
-                        access = "proxy";
-                        url = "http://127.0.0.1:9090";
-                      }
-                      {
-                        name = "Loki";
-                        type = "loki";
-                        access = "proxy";
-                        url = "http://127.0.0.1:3030";
-                      }
-                    ];
-                  };
                   settings = {
                     server = {
                       domain = builtins.readFile /grafana-domain;
