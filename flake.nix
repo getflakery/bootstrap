@@ -20,7 +20,7 @@
 
   inputs.flakery.url = "github:getflakery/flakes";
 
-  inputs.comin.url = "github:r33drichards/comin/cca7a52e63b2d4fc81ec75df902e4f1c25a3048e";
+  inputs.comin.url = "github:r33drichards/comin/747eee51f22cdee389215c3d9bb35dec92ba7955";
 
 
   outputs =
