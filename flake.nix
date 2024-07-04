@@ -397,283 +397,298 @@
                             targets = [ "localhost" ];
                             labels = {
                               job = "varlogs";
+                              host = "grafana";
+
                               __path__ = "/var/log/*log";
                             };
                           }
+
                         ];
+                      }
+                      {
+                        job_name = "journal";
+                        journal = {
+                          max_age = "12h";
+                          labels = {
+                            job = "systemd-journal";
+                            host = "grafana";
+                          };
+                        };
+                        relabel_configs = [{
+                          source_labels = [ "__journal__systemd_unit" ];
+                          target_label = "unit";
+                        }];
+                      };
+                      };
                       }
                     ];
                   };
-                };
+
+                  packages.nixosConfigurations.woodpecker = nixpkgs.lib.nixosSystem {
+                    inherit system;
+                    specialArgs = {
+                      inherit inputs;
+                    };
+                    modules = [
+                      inputs.comin.nixosModules.comin
+                      flakery.nixosModules.flakery
+                      flakery.nixosConfigurations.base
+                      {
+
+                        networking.firewall.allowedTCPPorts = [ 3007 9002 ];
+                        services.prometheus = {
+                          enable = true;
+                          port = 9090;
+                          exporters = {
+                            node = {
+                              enable = true;
+                              enabledCollectors = [ "systemd" ];
+                              port = 9002;
+                            };
+
+                          };
+                        };
+
+                        services.tailscale = {
+                          enable = true;
+                          authKeyFile = "/tsauthkey";
+                          extraUpFlags = [ "--ssh" "--hostname" "woodpecker" ];
+                        };
+
+                        services.woodpecker-server = {
+                          enable = true;
+                          environment = {
+                            WOODPECKER_SERVER_ADDR = ":3007";
+                            WOODPECKER_HOST = "https://woodpecker-ci-19fcc5.flakery.xyz";
+                            WOODPECKER_OPEN = "true";
+                            WOODPECKER_ORGS = "getflakery";
+                            WOODPECKER_GITHUB = "true";
+                            WOODPECKER_GITHUB_CLIENT = "Ov23li77VshZc9W7M4Gp";
+                            WOODPECKER_GITHUB_SECRET = builtins.readFile /github-client-secret;
+                            WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
+                            WOODPECKER_ADMIN = "r33drichards";
+                            WOODPECKER_DATABASE_DRIVER = "postgres";
+                            WOODPECKER_DATABASE_DATASOURCE = builtins.readFile /pgurl;
+                          };
+                          # You can pass a file with env vars to the system it could look like:
+                          # environmentFile = "/path/to/my/secrets/file";
+                        };
+
+                        # This sets up a woodpecker agent
+                        services.woodpecker-agents.agents."docker" = {
+                          enable = true;
+                          # We need this to talk to the podman socket
+                          extraGroups = [ "podman" ];
+                          environment = {
+                            WOODPECKER_SERVER = "localhost:9000";
+                            WOODPECKER_MAX_WORKFLOWS = "4";
+                            DOCKER_HOST = "unix:///run/podman/podman.sock";
+                            WOODPECKER_BACKEND = "docker";
+                            WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
+
+
+                          };
+                          # Same as with woodpecker-server
+                          # environmentFile = [ "/var/lib/secrets/woodpecker.env" ];
+                        };
+
+                        # Here we setup podman and enable dns
+                        virtualisation.podman = {
+                          enable = true;
+                          defaultNetwork.settings = {
+                            dns_enabled = true;
+                          };
+                          dockerSocket.enable = true;
+                        };
+                        # This is needed for podman to be able to talk over dns
+                        networking.firewall.interfaces."podman0" = {
+                          allowedUDPPorts = [ 53 ];
+                          allowedTCPPorts = [ 53 ];
+                        };
+                      }
+
+                    ];
+                  };
+
+                  packages.nixosConfigurations.binary-cache = nixpkgs.lib.nixosSystem {
+                    inherit system;
+                    specialArgs = {
+                      inherit inputs;
+                    };
+                    modules = [
+                      flakery.nixosModules.flakery
+                      flakery.nixosConfigurations.base
+                      sshconfMod
+                      {
+                        networking.firewall.allowedTCPPorts = [ 5000 ];
+                        # set perms fpr "/var/cache-priv-key.pem" to 600 
+                        # before running nix-serve
+                        systemd.services.setPerms = {
+                          wantedBy = [ "multi-user.target" ];
+                          script = ''
+                            cd /var
+                            # todo curl is tech debt \o/
+                            # nix-store --generate-binary-cache-key `curl http://169.254.169.254/latest/meta-data/local-ipv4` cache-priv-key.pem cache-pub-key.pem
+                            chmod 600 /var/cache-priv-key.pem
+                          '';
+                          serviceConfig = {
+                            Type = "oneshot";
+                          };
+                        };
+
+                        services.nix-serve = {
+                          enable = true;
+                          secretKeyFile = "/var/cache-priv-key.pem";
+                        };
+                        # follow setPerms 
+                        systemd.services.nix-serve.after = [ "setPerms.service" ];
+
+                        # add flakery as trusted user
+                        nix.settings.trusted-users = [ "flakery" ];
+                      }
+                    ];
+                  };
+
+
+
+                  packages.ami = nixos-generators.nixosGenerate {
+                    system = "x86_64-linux";
+                    format = "amazon";
+                    # modules = bootstrapModules ++ [ sshconfMod ];
+                    modules = bootstrapModules;
+                  };
+
+                  packages.amiDebug = nixos-generators.nixosGenerate {
+                    system = "x86_64-linux";
+                    format = "amazon";
+                    modules = [
+                      sshconfMod
+                    ];
+                  };
+
+
+                  packages.raw = nixos-generators.nixosGenerate {
+                    system = "x86_64-linux";
+                    format = "raw";
+
+                    modules = [
+                      sshconfMod
+
+                    ];
+                  };
+                  packages.test = pkgs.testers.runNixOSTest
+                    {
+                      skipLint = true;
+                      name = "Test bootstrap";
+
+                      nodes = {
+
+                        machine1 = { pkgs, ... }: {
+
+                          environment.systemPackages = [ pkgs.sqlite pkgs.gnugrep ];
+
+                          # Empty config sets some defaults
+                          imports = [
+                            self.nixosModules."${system}".bootstrap
+                          ];
+
+                          services.app.enable = true;
+                          services.app.urlPrefix = "http://localhost:8080/";
+                          services.app.ipv4Prefix = "http://localhost:8080/";
+                          services.app.sqlUrl = "file:///tmp/db.sqlite3";
+                          services.app.useLocal = "true";
+                          services.app.applyFlake = "false";
+                          services.app.setDebugHeaders = "true";
+
+                          services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
+
+
+                          systemd.services.seeddb = {
+                            wantedBy = [ "multi-user.target" ];
+                            path = [ pkgs.sqlite ];
+                            script = "${./seeddb.sh}";
+                            serviceConfig = {
+                              Type = "oneshot";
+                            };
+                          };
+
+                          systemd.services.serve = {
+                            wantedBy = [ "multi-user.target" ];
+                            path = [ pkgs.python3 ];
+                            script = "${./serve.py}";
+                            serviceConfig = {
+                              Restart = "always";
+                              RestartSec = 0;
+                            };
+                          };
+                        };
+                      };
+
+                      interactive.nodes.machine1 = import ./debug-host-module.nix;
+                      testScript = builtins.readFile ./testScript.py;
+                    };
+                  packages.testWriteFiles = pkgs.testers.runNixOSTest
+                    {
+                      skipLint = true;
+                      name = "Test bootstrap write files";
+
+
+
+                      nodes = {
+
+                        machine1 = { pkgs, ... }: {
+
+                          environment.systemPackages = [ pkgs.sqlite pkgs.gnugrep ];
+
+                          # Empty config sets some defaults
+                          imports = [
+                            self.nixosModules."${system}".bootstrap
+                          ];
+
+                          services.app.enable = true;
+                          services.app.urlPrefix = "http://localhost:8080/";
+                          services.app.ipv4Prefix = "http://localhost:8080/";
+                          services.app.sqlUrl = "file:///tmp/db.sqlite3";
+                          services.app.useLocal = "true";
+                          services.app.applyFlake = "false";
+                          services.app.setDebugHeaders = "true";
+
+                          services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
+                          services.app.script = "${bootstrap}/bin/app --write-files --template-id 0939865eee0fff95518bb8f0ac64cafe5d9d04429b51d55a82d3a42ea5da5b1f --encryption-key 0939865eee0fff95518bb8f0ac64cafe5d9d04429b51d55a82d3a42ea5da5b1f";
+
+
+                          systemd.services.seeddb = {
+                            wantedBy = [ "multi-user.target" ];
+                            path = [ pkgs.sqlite ];
+                            script = "${./seeddb.sh}";
+                            serviceConfig = {
+                              Type = "oneshot";
+                            };
+                          };
+
+                          systemd.services.serve = {
+                            wantedBy = [ "multi-user.target" ];
+                            path = [ pkgs.python3 ];
+                            script = "${./serve.py}";
+                            serviceConfig = {
+                              Restart = "always";
+                              RestartSec = 0;
+                            };
+                          };
+                        };
+                      };
+
+                      interactive.nodes.machine1 = import ./debug-host-module.nix;
+                      testScript = ''
+                        machine.start()
+                        # assert /foo/bar.txt contains secret 
+                        machine1.wait_for_file("/foo/bar.txt")
+                        response = machine1.succeed("cat /foo/bar.txt")
+                        assert "secret" in response
+                      '';
+                    };
+
+
+                })
+                );
               }
-            ];
-          };
-
-        packages.nixosConfigurations.woodpecker = nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = {
-            inherit inputs;
-          };
-          modules = [
-            inputs.comin.nixosModules.comin
-            flakery.nixosModules.flakery
-            flakery.nixosConfigurations.base
-            {
-
-              networking.firewall.allowedTCPPorts = [ 3007 9002 ];
-              services.prometheus = {
-                enable = true;
-                port = 9090;
-                exporters = {
-                  node = {
-                    enable = true;
-                    enabledCollectors = [ "systemd" ];
-                    port = 9002;
-                  };
-
-                };
-              };
-
-              services.tailscale = {
-                enable = true;
-                authKeyFile = "/tsauthkey";
-                extraUpFlags = [ "--ssh" "--hostname" "woodpecker" ];
-              };
-
-              services.woodpecker-server = {
-                enable = true;
-                environment = {
-                  WOODPECKER_SERVER_ADDR = ":3007";
-                  WOODPECKER_HOST = "https://woodpecker-ci-19fcc5.flakery.xyz";
-                  WOODPECKER_OPEN = "true";
-                  WOODPECKER_ORGS = "getflakery";
-                  WOODPECKER_GITHUB = "true";
-                  WOODPECKER_GITHUB_CLIENT = "Ov23li77VshZc9W7M4Gp";
-                  WOODPECKER_GITHUB_SECRET = builtins.readFile /github-client-secret;
-                  WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
-                  WOODPECKER_ADMIN = "r33drichards";
-                  WOODPECKER_DATABASE_DRIVER = "postgres";
-                  WOODPECKER_DATABASE_DATASOURCE = builtins.readFile /pgurl;
-                };
-                # You can pass a file with env vars to the system it could look like:
-                # environmentFile = "/path/to/my/secrets/file";
-              };
-
-              # This sets up a woodpecker agent
-              services.woodpecker-agents.agents."docker" = {
-                enable = true;
-                # We need this to talk to the podman socket
-                extraGroups = [ "podman" ];
-                environment = {
-                  WOODPECKER_SERVER = "localhost:9000";
-                  WOODPECKER_MAX_WORKFLOWS = "4";
-                  DOCKER_HOST = "unix:///run/podman/podman.sock";
-                  WOODPECKER_BACKEND = "docker";
-                  WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
-
-
-                };
-                # Same as with woodpecker-server
-                # environmentFile = [ "/var/lib/secrets/woodpecker.env" ];
-              };
-
-              # Here we setup podman and enable dns
-              virtualisation.podman = {
-                enable = true;
-                defaultNetwork.settings = {
-                  dns_enabled = true;
-                };
-                dockerSocket.enable = true;
-              };
-              # This is needed for podman to be able to talk over dns
-              networking.firewall.interfaces."podman0" = {
-                allowedUDPPorts = [ 53 ];
-                allowedTCPPorts = [ 53 ];
-              };
-            }
-
-          ];
-        };
-
-        packages.nixosConfigurations.binary-cache = nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = {
-            inherit inputs;
-          };
-          modules = [
-            flakery.nixosModules.flakery
-            flakery.nixosConfigurations.base
-            sshconfMod
-            {
-              networking.firewall.allowedTCPPorts = [ 5000 ];
-              # set perms fpr "/var/cache-priv-key.pem" to 600 
-              # before running nix-serve
-              systemd.services.setPerms = {
-                wantedBy = [ "multi-user.target" ];
-                script = ''
-                  cd /var
-                  # todo curl is tech debt \o/
-                  # nix-store --generate-binary-cache-key `curl http://169.254.169.254/latest/meta-data/local-ipv4` cache-priv-key.pem cache-pub-key.pem
-                  chmod 600 /var/cache-priv-key.pem
-                '';
-                serviceConfig = {
-                  Type = "oneshot";
-                };
-              };
-
-              services.nix-serve = {
-                enable = true;
-                secretKeyFile = "/var/cache-priv-key.pem";
-              };
-              # follow setPerms 
-              systemd.services.nix-serve.after = [ "setPerms.service" ];
-
-              # add flakery as trusted user
-              nix.settings.trusted-users = [ "flakery" ];
-            }
-          ];
-        };
-
-
-
-        packages.ami = nixos-generators.nixosGenerate {
-          system = "x86_64-linux";
-          format = "amazon";
-          # modules = bootstrapModules ++ [ sshconfMod ];
-          modules = bootstrapModules;
-        };
-
-        packages.amiDebug = nixos-generators.nixosGenerate {
-          system = "x86_64-linux";
-          format = "amazon";
-          modules = [
-            sshconfMod
-          ];
-        };
-
-
-        packages.raw = nixos-generators.nixosGenerate {
-          system = "x86_64-linux";
-          format = "raw";
-
-          modules = [
-            sshconfMod
-
-          ];
-        };
-        packages.test = pkgs.testers.runNixOSTest
-          {
-            skipLint = true;
-            name = "Test bootstrap";
-
-            nodes = {
-
-              machine1 = { pkgs, ... }: {
-
-                environment.systemPackages = [ pkgs.sqlite pkgs.gnugrep ];
-
-                # Empty config sets some defaults
-                imports = [
-                  self.nixosModules."${system}".bootstrap
-                ];
-
-                services.app.enable = true;
-                services.app.urlPrefix = "http://localhost:8080/";
-                services.app.ipv4Prefix = "http://localhost:8080/";
-                services.app.sqlUrl = "file:///tmp/db.sqlite3";
-                services.app.useLocal = "true";
-                services.app.applyFlake = "false";
-                services.app.setDebugHeaders = "true";
-
-                services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
-
-
-                systemd.services.seeddb = {
-                  wantedBy = [ "multi-user.target" ];
-                  path = [ pkgs.sqlite ];
-                  script = "${./seeddb.sh}";
-                  serviceConfig = {
-                    Type = "oneshot";
-                  };
-                };
-
-                systemd.services.serve = {
-                  wantedBy = [ "multi-user.target" ];
-                  path = [ pkgs.python3 ];
-                  script = "${./serve.py}";
-                  serviceConfig = {
-                    Restart = "always";
-                    RestartSec = 0;
-                  };
-                };
-              };
-            };
-
-            interactive.nodes.machine1 = import ./debug-host-module.nix;
-            testScript = builtins.readFile ./testScript.py;
-          };
-        packages.testWriteFiles = pkgs.testers.runNixOSTest
-          {
-            skipLint = true;
-            name = "Test bootstrap write files";
-
-
-
-            nodes = {
-
-              machine1 = { pkgs, ... }: {
-
-                environment.systemPackages = [ pkgs.sqlite pkgs.gnugrep ];
-
-                # Empty config sets some defaults
-                imports = [
-                  self.nixosModules."${system}".bootstrap
-                ];
-
-                services.app.enable = true;
-                services.app.urlPrefix = "http://localhost:8080/";
-                services.app.ipv4Prefix = "http://localhost:8080/";
-                services.app.sqlUrl = "file:///tmp/db.sqlite3";
-                services.app.useLocal = "true";
-                services.app.applyFlake = "false";
-                services.app.setDebugHeaders = "true";
-
-                services.app.after = [ "network.target" "serve.service" "seeddb.service" ];
-                services.app.script = "${bootstrap}/bin/app --write-files --template-id 0939865eee0fff95518bb8f0ac64cafe5d9d04429b51d55a82d3a42ea5da5b1f --encryption-key 0939865eee0fff95518bb8f0ac64cafe5d9d04429b51d55a82d3a42ea5da5b1f";
-
-
-                systemd.services.seeddb = {
-                  wantedBy = [ "multi-user.target" ];
-                  path = [ pkgs.sqlite ];
-                  script = "${./seeddb.sh}";
-                  serviceConfig = {
-                    Type = "oneshot";
-                  };
-                };
-
-                systemd.services.serve = {
-                  wantedBy = [ "multi-user.target" ];
-                  path = [ pkgs.python3 ];
-                  script = "${./serve.py}";
-                  serviceConfig = {
-                    Restart = "always";
-                    RestartSec = 0;
-                  };
-                };
-              };
-            };
-
-            interactive.nodes.machine1 = import ./debug-host-module.nix;
-            testScript = ''
-              machine.start()
-              # assert /foo/bar.txt contains secret 
-              machine1.wait_for_file("/foo/bar.txt")
-              response = machine1.succeed("cat /foo/bar.txt")
-              assert "secret" in response
-            '';
-          };
-
-
-      })
-    );
-}
