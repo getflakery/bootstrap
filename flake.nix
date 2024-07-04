@@ -409,7 +409,7 @@
                           max_age = "12h";
                           labels = {
                             job = "systemd-journal";
-                            host = "pihole";
+                            host = "grafana";
                           };
                         };
                         relabel_configs = [{
