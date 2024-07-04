@@ -435,6 +435,46 @@
             flakery.nixosModules.flakery
             flakery.nixosConfigurations.base
             {
+              services.promtail = {
+                enable = true;
+                configuration = {
+                  server = {
+                    http_listen_port = 9080;
+                    grpc_listen_port = 0;
+                  };
+                  clients = [{ url = "http://grafana:3100/loki/api/v1/push"; }];
+                  scrape_configs = [
+                    {
+                      job_name = "system";
+                      static_configs = [
+                        {
+                          targets = [ "localhost" ];
+                          labels = {
+                            job = "varlogs";
+                            __path__ = "/var/log/*log";
+                          };
+                        }
+
+                      ];
+                    }
+                    {
+                      job_name = "journal";
+                      journal = {
+                        max_age = "12h";
+                        labels = {
+                          job = "systemd-journal";
+                          host = "woodpecker";
+                        };
+                      };
+                      relabel_configs = [{
+                        source_labels = [ "__journal__systemd_unit" ];
+                        target_label = "unit";
+                      }];
+                    }
+
+                  ];
+                };
+              };
 
               networking.firewall.allowedTCPPorts = [ 3007 9002 ];
               services.prometheus = {
