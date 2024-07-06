@@ -19,6 +19,7 @@ steps:
       - TURSO_TOKEN
       - SSH_PRIVATE_KEY_B64
     commands:
+      - echo $SSH_PRIVATE_KEY_B64 
       - rm /etc/ssl/certs/ca-bundle.crt
       - cp /nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt /etc/ssl/certs/ca-bundle.crt
       - ls -la /etc/ssl/certs
