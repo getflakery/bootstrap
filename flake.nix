@@ -615,7 +615,7 @@
                         max_age = "12h";
                         labels = {
                           job = "systemd-journal";
-                          host = "woodpecker";
+                          host = "binary-cache";
                         };
                       };
                       relabel_configs = [{
