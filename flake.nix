@@ -47,6 +47,7 @@
         };
 
         woodpecker = (pkgs.callPackage ./woodpecker.nix { });
+        woodpecker-agent = (pkgs.callPackage ./agent.nix { });
 
         bootstrap = (pkgs.makeRustPlatform {
           cargo = toolchain;
@@ -526,7 +527,7 @@
               # This sets up a woodpecker agent
               services.woodpecker-agents.agents."docker" = {
                 enable = true;
-                package = woodpecker;
+                package = woodpecker-agent;
 
                 # We need this to talk to the podman socket
                 extraGroups = [ "podman" ];
