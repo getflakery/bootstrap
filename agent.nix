@@ -1,6 +1,6 @@
 { buildGoModule, callPackage }:
 let
-  common = callPackage ./common.nix { };
+  common = callPackage ./wp-common.nix { };
 in
 buildGoModule {
   pname = "woodpecker-agent";
