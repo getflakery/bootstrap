@@ -46,6 +46,8 @@
           inherit system;
         };
 
+        woodpecker = (pkgs.callPackage ./woodpecker.nix { });
+
         bootstrap = (pkgs.makeRustPlatform {
           cargo = toolchain;
           rustc = toolchain;
@@ -502,6 +504,8 @@
 
               services.woodpecker-server = {
                 enable = true;
+                package = woodpecker;
+
                 environment = {
                   WOODPECKER_SERVER_ADDR = ":3007";
                   WOODPECKER_HOST = "https://woodpecker-ci-19fcc5.flakery.xyz";
@@ -566,7 +570,7 @@
             sshconfMod
             {
               networking.firewall.allowedTCPPorts = [ 5000 9002 ];
-              # set perms fpr "/var/cache-priv-key.pem" to 600 
+              # set perms fcpr "/var/cache-priv-key.pem" to 600 
               # before running nix-serve
               systemd.services.setPerms = {
                 wantedBy = [ "multi-user.target" ];
