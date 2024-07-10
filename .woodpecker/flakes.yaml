@@ -15,6 +15,7 @@ steps:
         from_secret: TURSO_TOKEN
       SSH_PRIVATE_KEY_B64:
         from_secret: SSH_PRIVATE_KEY_B64
+      NIX_SSH_OPTS: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' 
     secrets:
       - TURSO_TOKEN
       - SSH_PRIVATE_KEY_B64
@@ -30,7 +31,7 @@ steps:
       - mkdir -p ~/.ssh
       - echo $SSH_PRIVATE_KEY_B64 | base64 -d > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
-      - cat out.txt | xargs -I {} NIX_SSH_OPTS='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' nix copy --substitute-on-destination --to ssh://flakery@35.93.144.57 {}
+      - cat out.txt | xargs -I {} nix copy --substitute-on-destination --to ssh://flakery@35.93.144.57 {}
 
     volumes:
       - /nix:/mnt/nix:ro
