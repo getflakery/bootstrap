@@ -710,10 +710,6 @@
           ];
         };
 
-        packages.woodpecker = woodpecker;
-
-        packages.woodpecker-agent = woodpecker-agent;
-
         packages.raw = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
           format = "raw";

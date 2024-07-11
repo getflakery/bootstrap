@@ -1,24 +1,10 @@
-variables:
-  user_safe_env: &user_safe_env
-    BINARY_CACHE_HOST: "binary-cache-6b1b4a.flakery.xyz"
-    FLAKE: "github:getflakery/bootstrap#nixosConfigurations.grafana.config.system.build.toplevel"
-    TEMPLATE_ID: "4c6e0786-97c9-4d1b-8687-ca8761af9cdd"
-    ENCRYPTION_KEY: "0939865eee0fff95518bb8f0ac64cafe5d9d04429b51d55a82d3a42ea5da5b1f"
 
 steps:
 
   - name: prepare
     image: nixos/nix
     environment:
-      <<: *user_safe_env
-      TURSO_TOKEN:
-        from_secret: TURSO_TOKEN
-      SSH_PRIVATE_KEY_B64:
-        from_secret: SSH_PRIVATE_KEY_B64
       NIX_SSHOPTS: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' 
-    secrets:
-      - TURSO_TOKEN
-      - SSH_PRIVATE_KEY_B64
     commands:
       - rm /etc/ssl/certs/ca-bundle.crt
       - cp /nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt /etc/ssl/certs/ca-bundle.crt
