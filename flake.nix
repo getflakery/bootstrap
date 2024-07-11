@@ -46,8 +46,46 @@
           inherit system;
         };
 
-        woodpecker = (pkgs.callPackage ./woodpecker.nix { });
-        woodpecker-agent = (pkgs.callPackage ./agent.nix { });
+
+        woodpecker = pkgs.woodpecker-server.overrideAttrs (final: prev:
+          {
+            src = pkgs.fetchFromGitHub {
+              owner = "woodpecker-ci";
+              repo = "woodpecker";
+              rev = "v2.6.0";
+              sha256 = "sha256-SuTizOHsj1t4WovbOX5MuMZixbPo7TyCnD6nnf62/H4=";
+            };
+            vendorHash = null;
+            version = "2.6.0";
+            pname = "woodpecker-server";
+
+            subPackages = "cmd/server";
+
+            CGO_ENABLED = 1;
+
+            passthru = {
+              updateScript = ./update.sh;
+            };
+
+          });
+
+
+        # )
+        # woodpecker-agent = (pkgs.callPackage ./agent.nix { });
+        woodpecker-agent = pkgs.woodpecker-agent.overrideAttrs (final: prev:
+          {
+            src = pkgs.fetchFromGitHub {
+              owner = "woodpecker-ci";
+              repo = "woodpecker";
+              rev = "v2.6.0";
+              sha256 = "sha256-SuTizOHsj1t4WovbOX5MuMZixbPo7TyCnD6nnf62/H4=";
+            };
+            vendorHash = null;
+            version = "2.6.0";
+            subPackages = "cmd/agent";
+            CGO_ENABLED = 0;
+          });
+
 
         bootstrap = (pkgs.makeRustPlatform {
           cargo = toolchain;
@@ -672,6 +710,9 @@
           ];
         };
 
+        packages.woodpecker = woodpecker;
+
+        packages.woodpecker-agent = woodpecker-agent;
 
         packages.raw = nixos-generators.nixosGenerate {
           system = "x86_64-linux";
