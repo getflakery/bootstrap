@@ -19,7 +19,9 @@ steps:
       - cat cache-pub-key.pem
       - echo "extra-trusted-public-keys = $BINARY_CACHE_IP:`cat cache-pub-key.pem`" >> /etc/nix/nix.conf
       - cat /etc/nix/nix.conf
-      - nix build $FLAKE -L --print-out-paths --impure  > out.txt
+      - echo $FLAKE
+      - nix build $FLAKE -L --print-out-paths --impure | tee out.txt
+      - cat out.txt
       - cat out.txt | xargs -I {} nix copy --substitute-on-destination --to ssh://flakery@$BINARY_CACHE_IP {}
 
     volumes:
