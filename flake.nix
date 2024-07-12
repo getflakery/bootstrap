@@ -606,6 +606,7 @@
             inherit inputs;
           };
           modules = [
+            inputs.comin.nixosModules.comin
             flakery.nixosModules.flakery
             flakery.nixosConfigurations.base
             sshconfMod
@@ -687,6 +688,19 @@
                   };
 
                 };
+              };
+
+              services.comin = {
+                enable = true;
+                hostname = "binary-cache";
+                remotes = [
+                  {
+                    name = "origin";
+                    url = "https://github.com/getflakery/bootstrap";
+                    poller.period = 2;
+                    branches.main.name = "master";
+                  }
+                ];
               };
 
             }
