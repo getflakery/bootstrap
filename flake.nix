@@ -610,16 +610,7 @@
             flakery.nixosConfigurations.base
             sshconfMod
             {
-              networking.firewall.allowedTCPPorts = [ 80 5000 9002 ];
-              # caddy reverse proxy 5000 to 80
-              services.caddy = {
-                enable = true;
-                extraConfig = ''
-                  0.0.0.0 {
-                    bind localhost:5000
-                  }
-                '';
-              };
+              networking.firewall.allowedTCPPorts = [ 5000 9002 ];
               # set perms fcpr "/var/cache-priv-key.pem" to 600 
               # before running nix-serve
               systemd.services.setPerms = {
@@ -627,7 +618,7 @@
                 script = ''
                   cd /var
                   # todo curl is tech debt \o/
-                  ${pkgs.nix}/bin/nix-store --generate-binary-cache-key `${pkgs.curl}/bin/curl http://169.254.169.254/latest/meta-data/local-ipv4` cache-priv-key.pem cache-pub-key.pem
+                  ${pkgs.nix}/bin/nix-store --generate-binary-cache-key `${pkgs.curl}/bin/curl http://169.254.169.254/latest/meta-data/local-ipv4`:5000 cache-priv-key.pem cache-pub-key.pem
                   chmod 600 /var/cache-priv-key.pem
                 '';
                 serviceConfig = {
