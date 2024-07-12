@@ -614,8 +614,10 @@
               # caddy reverse proxy 5000 to 80
               services.caddy = {
                 enable = true;
-                virtualHosts."localhost".extraConfig = ''
-                  reverse_proxy 0.0.0.0:5000
+                config = ''
+                  http://localhost:5000 {
+                    reverse_proxy localhost:80
+                  }
                 '';
               };
               # set perms fcpr "/var/cache-priv-key.pem" to 600 
