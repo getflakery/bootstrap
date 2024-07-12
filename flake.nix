@@ -610,7 +610,14 @@
             flakery.nixosConfigurations.base
             sshconfMod
             {
-              networking.firewall.allowedTCPPorts = [ 5000 9002 ];
+              networking.firewall.allowedTCPPorts = [ 80 5000 9002 ];
+              # caddy reverse proxy 5000 to 80
+              services.caddy = {
+                enable = true;
+                virtualHosts."localhost".extraConfig = ''
+                  reverse_proxy 0.0.0.0:5000
+                '';
+              };
               # set perms fcpr "/var/cache-priv-key.pem" to 600 
               # before running nix-serve
               systemd.services.setPerms = {
