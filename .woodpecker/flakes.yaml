@@ -16,7 +16,9 @@ steps:
       - echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
       - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null flakery@$BINARY_CACHE_IP:/var/cache-pub-key.pem .
       - echo "extra-substituters = http://$BINARY_CACHE_IP" >> /etc/nix/nix.conf
-      - echo "extra-trusted-public-keys = $BINARY_CACHE_IP/:`cat cache-pub-key.pem`" >> /etc/nix/nix.conf
+      - cat cache-pub-key.pem
+      - echo "extra-trusted-public-keys = $BINARY_CACHE_IP:`cat cache-pub-key.pem`" >> /etc/nix/nix.conf
+      - cat /etc/nix/nix.conf
       - nix build $FLAKE -L --print-out-paths --impure  > out.txt
       - cat out.txt | xargs -I {} nix copy --substitute-on-destination --to ssh://flakery@$BINARY_CACHE_IP {}
 
