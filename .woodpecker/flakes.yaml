@@ -4,7 +4,7 @@ steps:
   - name: prepare
     image: nixos/nix
     environment:
-      NIX_SSHOPTS: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' 
+      NIX_SSHOPTS: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oControlMaster=no' 
     commands:
       - echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
       - mkdir -p ~/.ssh
