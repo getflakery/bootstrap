@@ -614,7 +614,7 @@
               # caddy reverse proxy 5000 to 80
               services.caddy = {
                 enable = true;
-                config = ''
+                extraConfig = ''
                   http://localhost:5000 {
                     reverse_proxy localhost:80
                   }
