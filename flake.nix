@@ -615,7 +615,7 @@
               services.caddy = {
                 enable = true;
                 extraConfig = ''
-                  http://localhost {
+                  http://0.0.0.0 {
                     reverse_proxy localhost:5000
                   }
                 '';
