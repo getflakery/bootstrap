@@ -21,7 +21,8 @@ steps:
       - echo $FLAKE
       - nix build $FLAKE -L --print-out-paths --impure > out.txt 
       - cat out.txt
-      - cat out.txt | xargs -I {} nix copy --substitute-on-destination --to ssh://flakery@$BINARY_CACHE_IP {}
+      # - cat out.txt | xargs -I {} nix copy --substitute-on-destination --to ssh://flakery@$BINARY_CACHE_IP {}
+      - cat out.txt | xargs -I {}  nix-copy-closure -v --gzip -s --to ssh://flakery@$BINARY_CACHE_IP $(type -tP {})
 
     volumes:
       - /nix:/mnt/nix:ro
