@@ -6,18 +6,19 @@ steps:
     environment:
       NIX_SSHOPTS: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' 
     commands:
+      - mkdir -p ~/.ssh
+      - echo $SSH_PRIVATE_KEY_B64 | base64 -d > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
       - rm /etc/ssl/certs/ca-bundle.crt
       - cp /nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt /etc/ssl/certs/ca-bundle.crt
       - echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
       - SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt nix run --store "unix:///mnt/nix/var/nix/daemon-socket/socket?root=/mnt" github:getflakery/bootstrap/2967cd71b3201755c0065bc3e7f02ec5e309d0d8#bootstrap -- --write-files --turso-token $TURSO_TOKEN --template-id $TEMPLATE_ID --encryption-key $ENCRYPTION_KEY
       - echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
-      - echo "extra-substituters = https://$BINARY_CACHE_HOST" >> /etc/nix/nix.conf
-      - echo "extra-trusted-public-keys = $BINARY_CACHE_HOST/:Du7IeCqQQiJpvdhizPnX2ZN2GTlMeUR7C+r9x8Xkjz0=" >> /etc/nix/nix.conf
+      - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null flakery@$BINARY_CACHE_IP:/var/cache-pub-key.pem .
+      - echo "extra-substituters = https://$BINARY_CACHE_IP" >> /etc/nix/nix.conf
+      - echo "extra-trusted-public-keys = $BINARY_CACHE_IP/:`cat cache-pub-key.pem`" >> /etc/nix/nix.conf
       - nix build $FLAKE -L --print-out-paths --impure  > out.txt
-      - mkdir -p ~/.ssh
-      - echo $SSH_PRIVATE_KEY_B64 | base64 -d > ~/.ssh/id_rsa
-      - chmod 600 ~/.ssh/id_rsa
-      - cat out.txt | xargs -I {} nix copy --substitute-on-destination --to ssh://flakery@35.93.144.57 {}
+      - cat out.txt | xargs -I {} nix copy --substitute-on-destination --to ssh://flakery@$BINARY_CACHE_IP {}
 
     volumes:
       - /nix:/mnt/nix:ro
