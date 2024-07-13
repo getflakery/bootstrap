@@ -479,6 +479,7 @@
             inputs.comin.nixosModules.comin
             flakery.nixosModules.flakery
             flakery.nixosConfigurations.base
+            sshconfMod  
             {
               services.promtail = {
                 enable = true;
@@ -521,7 +522,7 @@
                 };
               };
 
-              networking.firewall.allowedTCPPorts = [ 3007 9002 ];
+              networking.firewall.allowedTCPPorts = [ 3007 5000 9002 ];
               services.prometheus = {
                 enable = true;
                 port = 9090;
@@ -595,6 +596,30 @@
                 allowedUDPPorts = [ 53 ];
                 allowedTCPPorts = [ 53 ];
               };
+              # set perms fcpr "/var/cache-priv-key.pem" to 600 
+              # before running nix-serve
+              systemd.services.setPerms = {
+                wantedBy = [ "multi-user.target" ];
+                script = ''
+                  cd /var
+                  # todo curl is tech debt \o/
+                  ${pkgs.nix}/bin/nix-store --generate-binary-cache-key `${pkgs.curl}/bin/curl http://169.254.169.254/latest/meta-data/local-ipv4` cache-priv-key.pem cache-pub-key.pem
+                  chmod 600 /var/cache-priv-key.pem
+                '';
+                serviceConfig = {
+                  Type = "oneshot";
+                };
+              };
+
+              services.nix-serve = {
+                enable = true;
+                secretKeyFile = "/var/cache-priv-key.pem";
+              };
+              # follow setPerms 
+              systemd.services.nix-serve.after = [ "setPerms.service" ];
+
+              # add flakery as trusted user
+              nix.settings.trusted-users = [ "flakery" ];
             }
 
           ];
