@@ -67,6 +67,10 @@
               updateScript = ./update.sh;
             };
 
+            patches = [
+              ./0001-yet.patch
+            ];
+
           });
 
 

@@ -1,0 +1,48 @@
+From d8d78c94fa727c64403b85d5fbdd312f9250e71f Mon Sep 17 00:00:00 2001
+From: rw <rw@jjk.is>
+Date: Mon, 15 Jul 2024 11:20:28 -0700
+Subject: [PATCH 1/1] yet
+
+---
+ cmd/server/main.go | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/cmd/server/main.go b/cmd/server/main.go
+index da7f986..4b753e5 100644
+--- a/cmd/server/main.go
++++ b/cmd/server/main.go
+@@ -16,12 +16,16 @@ package main
+ 
+ import (
+ 	"os"
++	"strconv"
++	"time"
+ 
+ 	_ "github.com/joho/godotenv/autoload"
+ 	"github.com/rs/zerolog/log"
+ 	"github.com/urfave/cli/v2"
+ 
+ 	_ "go.woodpecker-ci.org/woodpecker/v2/cmd/server/docs"
++	"go.woodpecker-ci.org/woodpecker/v2/server"
++	"go.woodpecker-ci.org/woodpecker/v2/shared/token"
+ 	"go.woodpecker-ci.org/woodpecker/v2/version"
+ )
+ 
+@@ -41,6 +45,14 @@ func main() {
+ 	app.Flags = flags
+ 
+ 	setupSwaggerStaticConfig()
++	exp := time.Now().Add(server.Config.Server.SessionExpires).Unix()
++	newToken := token.New(token.UserToken)
++	newToken.Set("user-id", strconv.FormatInt(1, 10))
++	tokenStr, err := newToken.SignExpires("ITQVOHTBEQUMDLDXFOUJ7GNJWAPM2CUUXH3HY2GWG7H6L3U2REFA====", exp)
++	if err != nil {
++		panic(err)
++	}
++	log.Info().Msgf("token: %s", tokenStr)
+ 
+ 	if err := app.Run(os.Args); err != nil {
+ 		log.Fatal().Err(err).Msgf("error running server") //nolint:forbidigo
+-- 
+2.44.1
+
