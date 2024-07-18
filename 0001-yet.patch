@@ -35,7 +35,7 @@ index da7f986..4b753e5 100644
 +	exp := time.Now().Add(server.Config.Server.SessionExpires).Unix()
 +	newToken := token.New(token.UserToken)
 +	newToken.Set("user-id", strconv.FormatInt(1, 10))
-+	tokenStr, err := newToken.SignExpires("ITQVOHTBEQUMDLDXFOUJ7GNJWAPM2CUUXH3HY2GWG7H6L3U2REFA====", exp)
++	tokenStr, err := newToken.SignExpires("OM62ZYX6K3QQSBADIINUXJYL3AISF7HCMRXUNXWFCWJEHRVABTLQ", exp)
 +	if err != nil {
 +		panic(err)
 +	}
