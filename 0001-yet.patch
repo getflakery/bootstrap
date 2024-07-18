@@ -1,35 +1,13 @@
-From cc2f0bf4c7f436d02809226b972b8603af800703 Mon Sep 17 00:00:00 2001
+From 75daa87340d699052bd2737145cd838093f8e05f Mon Sep 17 00:00:00 2001
 From: rw <rw@jjk.is>
 Date: Mon, 15 Jul 2024 11:20:28 -0700
 Subject: [PATCH] yet
 
 try this
 ---
- cmd/server/main.go   |  4 ++++
  cmd/server/server.go | 12 ++++++++++++
- 2 files changed, 16 insertions(+)
+ 1 file changed, 12 insertions(+)
 
-diff --git a/cmd/server/main.go b/cmd/server/main.go
-index da7f986..7bcfb0c 100644
---- a/cmd/server/main.go
-+++ b/cmd/server/main.go
-@@ -16,12 +16,16 @@ package main
- 
- import (
- 	"os"
-+	"strconv"
-+	"time"
- 
- 	_ "github.com/joho/godotenv/autoload"
- 	"github.com/rs/zerolog/log"
- 	"github.com/urfave/cli/v2"
- 
- 	_ "go.woodpecker-ci.org/woodpecker/v2/cmd/server/docs"
-+	"go.woodpecker-ci.org/woodpecker/v2/server"
-+	"go.woodpecker-ci.org/woodpecker/v2/shared/token"
- 	"go.woodpecker-ci.org/woodpecker/v2/version"
- )
- 
 diff --git a/cmd/server/server.go b/cmd/server/server.go
 index 524b9f0..e586b52 100644
 --- a/cmd/server/server.go
