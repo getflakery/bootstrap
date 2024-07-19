@@ -63,10 +63,6 @@
 
             CGO_ENABLED = 1;
 
-            passthru = {
-              updateScript = ./update.sh;
-            };
-
             patches = [
               ./0001-yet.patch
               ./0002-not-push-events.patch
