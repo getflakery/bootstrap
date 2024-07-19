@@ -209,7 +209,9 @@ async fn bootstrap() -> Result<()> {
         let conn: libsql::Connection = db.connect()?;
         let template_id = arg_value(args.clone(), "--template-id".to_string())?;
         let encryption_key = arg_value(args.clone(), "--encryption-key".to_string())?;
-        write_files(conn, template_id, encryption_key, root).await?;
+
+
+        write_files(conn, template_id, encryption_key, root, "ci-environment".to_string()).await?;
         return Ok(());
     }
 
@@ -251,7 +253,7 @@ async fn bootstrap() -> Result<()> {
     println!("querying files");
     let template_id = ec2_tag_data.clone().template_id;
     let encryption_key = ec2_tag_data.clone().file_encryption_key;
-    write_files(conn, template_id, encryption_key, root).await?;
+    write_files(conn, template_id, encryption_key, root, ec2_tag_data.clone().deployment_id).await?;
     println!("finished writing files");
     println!("finished bootstrapping");
 
