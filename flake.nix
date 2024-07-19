@@ -47,7 +47,7 @@
         };
 
 
-        woodpecker = pkgs.woodpecker-server.overrideAttrs 
+        woodpecker = pkgs.woodpecker-server.overrideAttrs
           {
             src = pkgs.fetchFromGitHub {
               owner = "woodpecker-ci";
@@ -63,10 +63,10 @@
 
             CGO_ENABLED = 1;
 
-            # patches = [
-            #   ./0001-yet.patch
-            #   ./0002-not-push-events.patch
-            # ];
+            patches = [
+              ./0001-yet.patch
+              ./0002-not-push-events.patch
+            ];
 
           };
 
@@ -281,7 +281,9 @@
 
         # devShells.default = app;
         devShells.default = import ./shell.nix { inherit pkgs; };
+        devShells.woodpecker = woodpecker;
         packages.bootstrap = bootstrap;
+        packages.woodpecker = woodpecker;
 
         nixosModules.bootstrap = (((import ./service.app.nix) self.packages."${system}".bootstrap) rebuildSH);
 
