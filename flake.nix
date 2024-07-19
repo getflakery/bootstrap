@@ -552,7 +552,7 @@
 
                 environment = {
                   WOODPECKER_SERVER_ADDR = ":3007";
-                  WOODPECKER_HOST = builtins.readFile  /metadata/template-host;
+                  WOODPECKER_HOST = builtins.readFile /metadata/template-host;
                   WOODPECKER_OPEN = "true";
                   WOODPECKER_ORGS = "getflakery";
                   WOODPECKER_GITHUB = "true";
