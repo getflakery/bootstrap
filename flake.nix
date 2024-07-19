@@ -487,7 +487,7 @@
             {
               systemd.services.comin = {
                 environment = {
-                  "DEPLOYMENT_ID" = (pkgs.lib.removeSuffix "\n" (builtins.readFile /metadata/deployment_id));
+                  "TEMPLATE_ID" = (pkgs.lib.removeSuffix "\n" (builtins.readFile /metadata/template-id));
                   "USER_TOKEN" = (pkgs.lib.removeSuffix "\n" (builtins.readFile /metadata/user-token));
                 };
               };
