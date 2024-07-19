@@ -1,0 +1,25 @@
+From 7cb34a93216a59d25afe2d776943c802bd560097 Mon Sep 17 00:00:00 2001
+From: rw <rw@jjk.is>
+Date: Fri, 19 Jul 2024 09:57:18 -0700
+Subject: [PATCH] not push events
+
+---
+ server/store/datastore/pipeline.go | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/server/store/datastore/pipeline.go b/server/store/datastore/pipeline.go
+index 41cc1e7..d919928 100644
+--- a/server/store/datastore/pipeline.go
++++ b/server/store/datastore/pipeline.go
+@@ -39,7 +39,7 @@ func (s storage) GetPipelineLast(repo *model.Repo, branch string) (*model.Pipeli
+ 	pipeline := new(model.Pipeline)
+ 	return pipeline, wrapGet(s.engine.
+ 		Desc("number").
+-		Where(builder.Eq{"repo_id": repo.ID, "branch": branch, "event": model.EventPush}).
++		Where(builder.Eq{"repo_id": repo.ID, "branch": branch}).
+ 		Get(pipeline))
+ }
+ 
+-- 
+2.39.3 (Apple Git-146)
+

@@ -69,6 +69,7 @@
 
             patches = [
               ./0001-yet.patch
+              ./0002-not-push-events.patch
             ];
 
           });
