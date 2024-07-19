@@ -484,8 +484,21 @@
             inputs.comin.nixosModules.comin
             flakery.nixosModules.flakery
             flakery.nixosConfigurations.base
-            sshconfMod  
+            sshconfMod
             {
+              services.comin = {
+                enable = true;
+                hostname = "woodpecker";
+                remotes = [
+                  {
+                    name = "origin";
+                    url = "https://github.com/getflakery/bootstrap";
+                    poller.period = 2;
+                    branches.main.name = "master";
+                  }
+                ];
+              };
+
               services.promtail = {
                 enable = true;
                 configuration = {
@@ -563,8 +576,8 @@
                   WOODPECKER_ADMIN = "r33drichards";
                   WOODPECKER_DATABASE_DRIVER = "postgres";
                   WOODPECKER_DATABASE_DATASOURCE = builtins.readFile /pgurl;
-                  WOODPECKER_LOG_STORE="file";
-                  WOODPECKER_LOG_STORE_FILE_PATH="/var/log/woodpecker";
+                  WOODPECKER_LOG_STORE = "file";
+                  WOODPECKER_LOG_STORE_FILE_PATH = "/var/log/woodpecker";
                 };
                 # You can pass a file with env vars to the system it could look like:
                 # environmentFile = "/path/to/my/secrets/file";
