@@ -20,7 +20,7 @@
 
   inputs.flakery.url = "github:getflakery/flakes";
 
-  inputs.comin.url = "github:r33drichards/comin/c10b125b364bf13e3a11293a34a6e4d2fd0fcd4b";
+  inputs.comin.url = "github:r33drichards/comin/ac3b4d89a571c33ed201fc656287076d0eadb47f";
 
 
   outputs =
@@ -485,6 +485,12 @@
             flakery.nixosConfigurations.base
             sshconfMod
             {
+              systemd.services.comin = {
+                environment = {
+                  "DEPLOYMENT_ID" = (pkgs.lib.removeSuffix "\n" (builtins.readFile /metadata/deployment-id));
+                  "USER_TOKEN" = (pkgs.lib.removeSuffix "\n" (builtins.readFile /metadata/user-token));
+                };
+              };
               services.comin = {
                 enable = true;
                 hostname = "woodpecker";
