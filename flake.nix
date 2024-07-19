@@ -759,7 +759,9 @@
           system = "x86_64-linux";
           format = "amazon";
           # modules = bootstrapModules ++ [ sshconfMod ];
-          modules = bootstrapModules;
+          modules = bootstrapModules ++ [
+            ({ ... }: { amazonImage.sizeMB = 16 * 1024; }) # <--------------------------- here
+          ];
         };
 
         packages.amiDebug = nixos-generators.nixosGenerate {
