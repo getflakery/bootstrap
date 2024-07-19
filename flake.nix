@@ -47,7 +47,7 @@
         };
 
 
-        woodpecker = pkgs.woodpecker-server.overrideAttrs (final: prev:
+        woodpecker = pkgs.woodpecker-server.overrideAttrs 
           {
             src = pkgs.fetchFromGitHub {
               owner = "woodpecker-ci";
@@ -72,7 +72,7 @@
               ./0002-not-push-events.patch
             ];
 
-          });
+          };
 
 
         # )
