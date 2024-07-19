@@ -623,7 +623,9 @@
                 script = ''
                   cd /var
                   # todo curl is tech debt \o/
-                  ${pkgs.nix}/bin/nix-store --generate-binary-cache-key `${pkgs.curl}/bin/curl http://169.254.169.254/latest/meta-data/local-ipv4` cache-priv-key.pem cache-pub-key.pem
+                  if [ ! -f /var/cache-priv-key.pem ]; then
+                    ${pkgs.nix}/bin/nix-store --generate-binary-cache-key `${pkgs.curl}/bin/curl http://169.254.169.254/latest/meta-data/local-ipv4` cache-priv-key.pem cache-pub-key.pem
+                  fi
                   chmod 600 /var/cache-priv-key.pem
                 '';
                 serviceConfig = {
