@@ -46,12 +46,6 @@ curl -i -X POST -H "Content-Type: application/json" -d '{"deployment_id":"foo", 
 
 ```
 
-
-# build debug ami 
-```
-./debug-ami.sh --build --cp
-```
-
 # delete lt
 
 ```
