@@ -639,7 +639,7 @@
                   fi
                   chmod 600 /var/cache-priv-key.pem
                   # upload the key to the flakery api
-                  curl -X POST -H "Authorization: Bearer ${FLAKERY_API_KEY}" -H "Content-Type: application/json" -d '{"privatekey": "'$(cat /var/cache-priv-key.pem)'", "publickey": "'$(cat /var/cache-pub-key.pem)'"}' https://flakery.dev/api/v0/user/private-binary-cache/upload-key/${USER_ID}
+                  curl -X POST -H "Authorization: Bearer $FLAKERY_API_KEY" -H "Content-Type: application/json" -d '{"privatekey": "'$(cat /var/cache-priv-key.pem)'", "publickey": "'$(cat /var/cache-pub-key.pem)'"}' https://flakery.dev/api/v0/user/private-binary-cache/upload-key/$USER_ID
                 '';
                 serviceConfig = {
                   Type = "oneshot";
