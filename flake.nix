@@ -624,6 +624,12 @@
               # set perms fcpr "/var/cache-priv-key.pem" to 600 
               # before running nix-serve
               systemd.services.setPerms = {
+                environment = {
+                  "USER_ID" = (pkgs.lib.removeSuffix "\n" (builtins.readFile /metadata/user-id));
+                  "FLAKERY_API_KEY" = (pkgs.lib.removeSuffix "\n" (builtins.readFile /metadata/user-token));
+
+                };
+                path = [ pkgs.curl pkgs.nix ];
                 wantedBy = [ "multi-user.target" ];
                 script = ''
                   cd /var
@@ -632,6 +638,8 @@
                     ${pkgs.nix}/bin/nix-store --generate-binary-cache-key `${pkgs.curl}/bin/curl http://169.254.169.254/latest/meta-data/local-ipv4` cache-priv-key.pem cache-pub-key.pem
                   fi
                   chmod 600 /var/cache-priv-key.pem
+                  # upload the key to the flakery api
+                  curl -X POST -H "Authorization: Bearer ${FLAKERY_API_KEY}" -H "Content-Type: application/json" -d '{"privatekey": "'$(cat /var/cache-priv-key.pem)'", "publickey": "'$(cat /var/cache-pub-key.pem)'"}' https://flakery.dev/api/v0/user/private-binary-cache/upload-key/${USER_ID}
                 '';
                 serviceConfig = {
                   Type = "oneshot";
