@@ -1,4 +1,3 @@
-use aws_config::default_provider::token;
 use std::env;
 use vfs::{PhysicalFS, VfsPath};
 
@@ -15,6 +14,8 @@ use wrap_with_deployment_id::wrap_with_deployment_id;
 mod exit_code;
 use exit_code::exit_code;
 
+mod get_extra_options;
+use get_extra_options::print_extra_options;
 mod write_files;
 use write_files::write_files;
 
@@ -159,6 +160,10 @@ fn arg_value(args: Vec<String>, arg: String) -> Result<String> {
 
 async fn bootstrap() -> Result<()> {
     let mut args: Vec<String> = env::args().collect();
+
+    if args.contains(&"--print-extra-options".to_string()){
+        print_extra_options().await
+    }
 
     if args.contains(&"--debug-error".to_string()) {
         return Err(anyhow::anyhow!("debug error"));
