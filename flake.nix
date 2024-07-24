@@ -226,7 +226,7 @@
           export RUST_BACKTRACE=1
           export DEPLOYMENT=$(${app}/bin/app --print-deployment-id)
           export NIX_CONFIG="access-tokens = github.com=$(${app}/bin/app --print-github-token)"
-          ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake $(${app}/bin/app --print-flake) --refresh --no-write-lock-file --impure --option trusted-public-keys 10.0.4.16:L3zGORWRhOSSPXiMG//jrswW7yAaBfwIuMcM/0pNfF0= --option substituters http://10.0.4.16:5000  2>&1 | \
+          ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake $(${app}/bin/app --print-flake) --refresh --no-write-lock-file --impure --option trusted-public-keys 10.0.4.240:mA/rUmQcmpLp6kn3UzUOlGsUct+2t4mPyVG8nfuB1q8= --option substituters http://10.0.4.240:5000  2>&1 | \
           ${app}/bin/app --wrap_with_deployment_id | \
           ${helloVector}
           ${app}/bin/app --exit-code $?
