@@ -368,6 +368,7 @@
                           "windmill:9002"
                           "windmill-1:9002"
                           "windmill-2:9002"
+                          "ip-10-0-4-17:9002"
                         ];
                       }];
                     }
@@ -686,7 +687,6 @@
 
           modules = [
             sshconfMod
-
           ];
         };
         packages.test = pkgs.testers.runNixOSTest
