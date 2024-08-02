@@ -561,6 +561,23 @@
               };
 
               # This sets up a woodpecker agent
+              services.woodpecker-agents.agents."local" = {
+                enable = true;
+                package = woodpecker-agent;
+
+                # We need this to talk to the podman socket
+                extraGroups = [ "podman" ];
+                environment = {
+                  WOODPECKER_SERVER = "localhost:9000";
+                  WOODPECKER_MAX_WORKFLOWS = "4";
+                  WOODPECKER_BACKEND = "local";
+                  WOODPECKER_AGENT_SECRET = builtins.readFile /agent-secret;
+
+
+                };
+              };
+
+              # This sets up a woodpecker agent
               services.woodpecker-agents.agents."docker" = {
                 enable = true;
                 package = woodpecker-agent;
@@ -631,31 +648,34 @@
 
 
 
-        packages.ami = nixos-generators.nixosGenerate {
-          system = "x86_64-linux";
-          format = "amazon";
-          # modules = bootstrapModules ++ [ sshconfMod ];
-          modules = bootstrapModules ++ [
-            ({ ... }: { amazonImage.sizeMB = 16 * 1024; }) # <--------------------------- here
-          ];
-        };
+        packages.ami = nixos-generators.nixosGenerate
+          {
+            system = "x86_64-linux";
+            format = "amazon";
+            # modules = bootstrapModules ++ [ sshconfMod ];
+            modules = bootstrapModules ++ [
+              ({ ... }: { amazonImage.sizeMB = 16 * 1024; }) # <--------------------------- here
+            ];
+          };
 
-        packages.amiDebug = nixos-generators.nixosGenerate {
-          system = "x86_64-linux";
-          format = "amazon";
-          modules = [
-            sshconfMod
-          ];
-        };
+        packages.amiDebug = nixos-generators.nixosGenerate
+          {
+            system = "x86_64-linux";
+            format = "amazon";
+            modules = [
+              sshconfMod
+            ];
+          };
 
-        packages.raw = nixos-generators.nixosGenerate {
-          system = "x86_64-linux";
-          format = "raw";
+        packages.raw = nixos-generators.nixosGenerate
+          {
+            system = "x86_64-linux";
+            format = "raw";
 
-          modules = [
-            sshconfMod
-          ];
-        };
+            modules = [
+              sshconfMod
+            ];
+          };
         packages.test = pkgs.testers.runNixOSTest
           {
             skipLint = true;
