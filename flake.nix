@@ -293,39 +293,6 @@
         };
 
 
-        packages.nixosConfigurations.debugSystem = nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = {
-            inherit inputs;
-          };
-
-          modules = [
-            flakery.nixosModules.flakery
-            sshconfMod
-            {
-              networking.firewall.allowedTCPPorts = [ 22 80 443 ];
-
-              services.tailscale = {
-                enable = true;
-                authKeyFile = "/tsauthkey";
-                extraUpFlags = [ "--ssh" "--hostname" "debug-flakery" ];
-              };
-
-              virtualisation.docker.enable = true;
-
-
-              # simple caddy server on port 8080
-              services.caddy = {
-                enable = true;
-                config = ''
-                  http://localhost:8080 {
-                    respond "Hello, world!"
-                  }
-                '';
-              };
-            }
-          ];
-        };
 
         packages.nixosConfigurations.grafana = nixpkgs.lib.nixosSystem
           {
@@ -578,7 +545,7 @@
                   WOODPECKER_SERVER_ADDR = ":3007";
                   WOODPECKER_HOST = (pkgs.lib.removeSuffix "\n" (builtins.readFile /metadata/template-host));
                   WOODPECKER_OPEN = "true";
-                  WOODPECKER_ORGS = "getflakery";
+                  WOODPECKER_ORGS = "getflakery,getniagra";
                   WOODPECKER_GITHUB = "true";
                   WOODPECKER_GITHUB_CLIENT = "Ov23li77VshZc9W7M4Gp";
                   WOODPECKER_GITHUB_SECRET = builtins.readFile /github-client-secret;
