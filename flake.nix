@@ -575,7 +575,7 @@
 
                 };
               };
-              systemd.services.woodpecker-agent-local = {
+              systemd.services."woodpecker-agent-local" = {
                 path = [ pkgs.git pkgs.nix ];
               };
 
