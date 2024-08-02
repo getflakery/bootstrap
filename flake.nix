@@ -566,7 +566,6 @@
                 package = woodpecker-agent;
 
                 # We need this to talk to the podman socket
-                extraGroups = [ "podman" ];
                 environment = {
                   WOODPECKER_SERVER = "localhost:9000";
                   WOODPECKER_MAX_WORKFLOWS = "4";
