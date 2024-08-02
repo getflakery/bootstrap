@@ -575,6 +575,9 @@
 
                 };
               };
+              systemd.services.woodpecker-agent-local = {
+                path = [ pkgs.git pkgs.nix ];
+              }
 
               # This sets up a woodpecker agent
               services.woodpecker-agents.agents."docker" = {
