@@ -411,7 +411,7 @@
                   settings = {
                     server = {
                       domain = "grafana.hake-micro.ts.net";
-                      root_url = "https://grafana.hake-micro.ts.net/login";
+                      root_url = "https://grafana.hake-micro.ts.net";
                       http_addr = "0.0.0.0";
                       http_port = 3000;
                     };
