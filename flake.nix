@@ -356,12 +356,12 @@
                       # "https://cache.garnix.io"
                       "https://nix-community.cachix.org"
                       "https://cache.nixos.org/"
-                      "https://binary-cache-6b1b4a.flakery.xyz"
+                      # "https://binary-cache-6b1b4a.flakery.xyz"
                     ];
                     trusted-public-keys = [
                       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
                       # "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-                      "binary-cache-6b1b4a.flakery.xyz:Du7IeCqQQiJpvdhizPnX2ZN2GTlMeUR7C+r9x8Xkjz0="
+                      # "binary-cache-6b1b4a.flakery.xyz:Du7IeCqQQiJpvdhizPnX2ZN2GTlMeUR7C+r9x8Xkjz0="
                     ];
                   };
                 };
