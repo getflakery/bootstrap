@@ -664,7 +664,7 @@
           {
             system = "x86_64-linux";
             format = "amazon";
-            modules = [
+            modules = bootstrapModules ++ [
               sshconfMod
             ];
           };
