@@ -666,6 +666,8 @@
             format = "amazon";
             modules = bootstrapModules ++ [
               sshconfMod
+              ({ ... }: { amazonImage.sizeMB = 16 * 1024; }) # <--------------------------- here
+
             ];
           };
 
