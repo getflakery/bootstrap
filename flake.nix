@@ -384,6 +384,25 @@
                   authKeyFile = "/tsauthkey";
                   extraUpFlags = [ "--ssh" "--hostname" "grafana" ];
                 };
+
+
+  # tailscale serve port 3210 after vscode server comes up
+
+                systemd.services.tailscale-serve = {
+                  description = "Tailscale Serve";
+                  after = [ "network-pre.target" "tailscale.service" ];
+                  wants = [ "network-pre.target" "tailscale.service" ];
+                  wantedBy = [ "multi-user.target" ];
+                  serviceConfig.Type = "simple";
+                  # https://www.redhat.com/sysadmin/systemd-automate-recovery
+                  serviceConfig.Restart = "on-failure";
+                  # have the job run this shell script
+                  script = with pkgs; ''
+                    sleep 2
+                    ${tailscale}/bin/tailscale serve 3000;
+                  '';
+                };
+
                 services.grafana = {
                   enable = true;
                   analytics.reporting.enable = false;
