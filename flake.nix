@@ -410,8 +410,8 @@
 
                   settings = {
                     server = {
-                      domain = builtins.readFile /grafana-domain;
-                      root_url = builtins.readFile /grafana-root-url;
+                      domain = "grafana.hake-micro.ts.net";
+                      root_url = "https://grafana.hake-micro.ts.net/login";
                       http_addr = "0.0.0.0";
                       http_port = 3000;
                     };
