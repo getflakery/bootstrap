@@ -480,24 +480,7 @@
             flakery.nixosConfigurations.base
             sshconfMod
             {
-              systemd.services.comin = {
-                environment = {
-                  "TEMPLATE_ID" = (pkgs.lib.removeSuffix "\n" (builtins.readFile /metadata/template-id));
-                  "USER_TOKEN" = (pkgs.lib.removeSuffix "\n" (builtins.readFile /metadata/user-token));
-                };
-              };
-              services.comin = {
-                enable = true;
-                hostname = "woodpecker";
-                remotes = [
-                  {
-                    name = "origin";
-                    url = "https://github.com/getflakery/bootstrap";
-                    poller.period = 2;
-                    branches.main.name = "master";
-                  }
-                ];
-              };
+
 
               services.promtail = {
                 enable = true;
